@@ -47,6 +47,19 @@ export const profileLinkRouter = createTRPCRouter({
         throw new Error("Invalid link");
       }
 
+      const profileLinks = await ctx.prisma.profileLink.count({
+        where: {
+          user: {
+            providerId: ctx.auth.userId,
+          },
+        },
+      });
+      if (profileLinks >= 1) {
+        throw new Error(
+          "You can't create more profile links, upgrade your plan"
+        );
+      }
+
       const bento: {
         type: BentoType;
         href: string;
