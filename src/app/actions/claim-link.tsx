@@ -1,5 +1,14 @@
 "use server";
 
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs";
+
 export const claimLink = (link: string) => {
-  console.log("claiming link", link);
+  const { userId } = auth();
+
+  if (!userId) {
+    return redirect(`/sign-up?redirectUrl=/create-link?link=${link}`);
+  }
+
+  redirect(`/create-link?link=${link}`);
 };

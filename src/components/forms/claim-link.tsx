@@ -46,7 +46,7 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
       <div className="flex h-9 w-full items-center gap-x-1 rounded-md border border-input px-3 py-1 text-sm shadow-sm">
         <span className="text-sm text-muted-foreground">openbio.app/</span>
         <input
-          className="outline-none placeholder:text-muted-foreground bg-transparent"
+          className="bg-transparent outline-none placeholder:text-muted-foreground"
           autoFocus
           placeholder="vanxh"
           value={link}

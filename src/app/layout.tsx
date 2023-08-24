@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/toaster";
+import Background from "@/components/background";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export default function RootLayout({
       <ThemeProvider>
         <ClerkProvider>
           <body className={`${inter.variable} ${calSans.variable} font-inter`}>
+            <Background />
             {children}
             <Toaster />
             <TailwindIndicator />

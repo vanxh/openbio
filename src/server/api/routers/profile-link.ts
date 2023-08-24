@@ -1,6 +1,23 @@
 import * as z from "zod";
 
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import { type BentoType } from "@prisma/client";
+
+const createProfileLinkInput = z.object({
+  link: z.string(),
+  twitter: z.string().optional(),
+  github: z.string().optional(),
+  linkedin: z.string().optional(),
+  instagram: z.string().optional(),
+  telegram: z.string().optional(),
+  discord: z.string().optional(),
+  youtube: z.string().optional(),
+  twitch: z.string().optional(),
+});
 
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
@@ -21,5 +38,86 @@ export const profileLinkRouter = createTRPCRouter({
       }
 
       return false;
+    }),
+
+  createProfileLink: protectedProcedure
+    .input(createProfileLinkInput)
+    .mutation(async ({ input, ctx }) => {
+      if (!/^[a-zA-Z0-9_]+$/.test(input.link) || input.link.length < 3) {
+        throw new Error("Invalid link");
+      }
+
+      const bento: {
+        type: BentoType;
+        href: string;
+
+        style: {
+          mobile: string;
+          desktop: string;
+        };
+
+        position: {
+          mobile: number;
+          desktop: number;
+        };
+      }[] = [];
+
+      let position = 1;
+      for (const [key, value] of Object.entries(input)) {
+        if (key !== "link" && value) {
+          let url = `https://${key}.com/${value}`;
+
+          if (key === "linkedin") {
+            url = `https://www.${key}.com/in/${value}`;
+          }
+
+          if (key === "youtube") {
+            url = `https://www.${key}.com/channel/${value}`;
+          }
+
+          if (key === "twitch") {
+            url = `https://www.${key}.tv/${value}`;
+          }
+
+          bento.push({
+            type: "LINK",
+
+            href: url,
+
+            style: {
+              mobile: "2x2",
+              desktop: "2x2",
+            },
+
+            position: {
+              mobile: position,
+              desktop: position,
+            },
+          });
+
+          position += 1;
+        }
+      }
+
+      const profileLink = await ctx.prisma.profileLink.create({
+        data: {
+          link: input.link,
+          name: input.link,
+
+          Bento: {
+            createMany: {
+              data: bento,
+            },
+          },
+
+          user: {
+            connect: {
+              providerId: ctx.auth.userId,
+            },
+          },
+        },
+      });
+
+      return profileLink;
     }),
 });

@@ -33,6 +33,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.4",
+    "react-icons": "^4.10.1",
     "resend": "^1.0.0",
     "superjson": "^1.13.1",
     "svix": "^1.8.1",
