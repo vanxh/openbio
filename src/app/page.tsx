@@ -1,8 +1,9 @@
-import { api } from "@/trpc/server";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-export default async function Page() {
-  const h = await api.example.hello.query({
-    text: "world",
-  });
-  return <div>{h.greeting}</div>;
+export default function Page() {
+  return (
+    <div>
+      <ThemeToggle />
+    </div>
+  );
 }
