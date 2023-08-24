@@ -2,6 +2,7 @@ import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
+  darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     container: {
@@ -13,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        inter: ["var(--font-inter)", ...fontFamily.sans],
         cal: ["var(--font-calsans)"],
       },
       colors: {

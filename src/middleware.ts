@@ -44,7 +44,7 @@ export const getValidSubdomain = (host?: string | null) => {
 };
 
 export default authMiddleware({
-  publicRoutes: ["/", "/api/(.*)", "/api/og", "/api/webhook/clerk"],
+  publicRoutes: ["/", "/api", "/api/(.*)"],
   beforeAuth: before,
   afterAuth(auth, req) {
     // handle users who aren't authenticated
@@ -55,10 +55,5 @@ export default authMiddleware({
 });
 
 export const config = {
-  matcher: [
-    "/((?!api|assets|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-    "/",
-    "/(api/webhook|api/trpc)(.*)",
-    "/(!api/og|!api/ping)",
-  ],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

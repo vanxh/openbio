@@ -5,7 +5,7 @@ export const clerkEvent = z.discriminatedUnion("type", [
     type: z.literal("user.created"),
     data: z.object({
       id: z.string(),
-      username: z.string(),
+      // username: z.string(),
       created_at: z.number(),
       email_addresses: z.array(
         z.object({

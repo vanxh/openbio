@@ -7,6 +7,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "test", "production"]),
     CLERK_SECRET_KEY: z.string().min(1),
     CLERK_WEBHOOK_SECRET: z.string().min(1),
+    RESEND_API_KEY: z.string().min(1),
   },
 
   client: {
@@ -32,6 +33,7 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL:
       process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
