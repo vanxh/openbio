@@ -27,8 +27,41 @@ model ProfileLink {
 
     link String @unique
 
+    name String
+    bio  String?
+
     user   User   @relation(fields: [userId], references: [id])
     userId String
 
+    Bento Bento[]
+
     @@index([userId])
+}
+
+model Bento {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    type BentoType
+
+    href    String? // for link type
+    url     String? // for image/video type
+    caption String? // for image/video type
+
+    // style = {mobile: string, desktop: string}
+    style    Json
+    // position = {mobile: number, desktop: number}
+    position Json
+
+    profileLink   ProfileLink @relation(fields: [profileLinkId], references: [id])
+    profileLinkId String
+
+    @@index([profileLinkId])
+}
+
+enum BentoType {
+    LINK
+    IMAGE
+    VIDEO
 }
