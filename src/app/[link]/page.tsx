@@ -1,5 +1,5 @@
 import { api } from "@/trpc/server";
-import LinkCard from "@/components/bento/link";
+import BentoCard from "@/components/bento/card";
 
 export default async function Page({
   params,
@@ -9,13 +9,12 @@ export default async function Page({
   };
 }) {
   const profileLink = await api.profileLink.getProfileLink.query(params.link);
-  // console.log(profileLink.Bento);
 
   return (
     <div className="h-full w-full">
-      <div className="mx-auto grid max-w-3xl grid-cols-6 gap-6 px-6 pb-16 pt-16">
+      <div className="mx-auto grid max-w-3xl grid-cols-6 gap-6 px-6 pb-16 pt-16 xl:max-w-4xl xl:grid-cols-8">
         {profileLink.Bento.map((b) => (
-          <LinkCard key={b.id} bento={b} />
+          <BentoCard key={b.id} bento={b} />
         ))}
       </div>
     </div>

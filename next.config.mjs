@@ -4,6 +4,17 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: true,
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
+
   experimental: {
     serverActions: true,
   },

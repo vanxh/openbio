@@ -1027,6 +1027,20 @@
     "@typescript-eslint/types" "6.4.1"
     eslint-visitor-keys "^3.4.1"
 
+"@upstash/redis@1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@upstash/redis/-/redis-1.21.0.tgz#a1096f096800032d65b5d819aa2c60af3011b9e8"
+  integrity sha512-c6M+cl0LOgGK/7Gp6ooMkIZ1IDAJs8zFR+REPkoSkAq38o7CWFX5FYwYEqGZ6wJpUGBuEOr/7hTmippXGgL25A==
+  dependencies:
+    isomorphic-fetch "^3.0.0"
+
+"@vercel/kv@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@vercel/kv/-/kv-0.2.2.tgz#4b01c2bfd0aad674598b4d89a38a9454fa945a15"
+  integrity sha512-mqnQOB6bkp4h5eObxfLNIlhlVqOGSH8cWOlC5pDVWTjX3zL8dETO1ZBl6M74HBmeBjbD5+J7wDJklRigY6UNKw==
+  dependencies:
+    "@upstash/redis" "1.21.0"
+
 abbrev@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -2518,6 +2532,14 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
+
+isomorphic-fetch@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/isomorphic-fetch/-/isomorphic-fetch-3.0.0.tgz#0267b005049046d2421207215d45d6a262b8b8b4"
+  integrity sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==
+  dependencies:
+    node-fetch "^2.6.1"
+    whatwg-fetch "^3.4.1"
 
 iterator.prototype@^1.1.0:
   version "1.1.0"

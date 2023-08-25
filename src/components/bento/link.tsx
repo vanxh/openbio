@@ -1,14 +1,296 @@
 "use server";
 
+import Image from "next/image";
+import Link from "next/link";
 import { type Bento } from "@prisma/client";
+import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
+import { BsDiscord } from "react-icons/bs";
+import { BiLogoTelegram } from "react-icons/bi";
 
 import { getMetadata } from "@/lib/metadata";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+const getBackgroundColor = (url: string) => {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+    return "bg-[#F6FAFE]";
+  }
+
+  if (hostname.includes("linkedin.com")) {
+    return "bg-[#F1F6F9]";
+  }
+
+  if (hostname.includes("instagram.com")) {
+    return "bg-[#FDEEEF]";
+  }
+
+  if (hostname.includes("discord.com")) {
+    return "bg-[#E9EBF5]";
+  }
+
+  if (hostname.includes("telegram.com") || hostname.includes("t.me")) {
+    return "bg-[#E8F1FF]";
+  }
+
+  return "bg-background";
+};
+
+const getIcon = (
+  url: string,
+  metadata: Awaited<ReturnType<typeof getMetadata>>
+) => {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+    return <Twitter size={24} className="text-blue-400" />;
+  }
+
+  if (hostname.includes("linkedin.com")) {
+    return <Linkedin size={24} className="text-blue-600" />;
+  }
+
+  if (hostname.includes("github.com")) {
+    return <Github size={24} className="text-gray-600" />;
+  }
+
+  if (hostname.includes("instagram.com")) {
+    return <Instagram size={24} className="text-[#F56040]" />;
+  }
+
+  if (hostname.includes("twitch.tv")) {
+    return <Twitch size={24} className="text-purple-600" />;
+  }
+
+  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+    return <BiLogoTelegram size={24} className="text-[#0088CC]" />;
+  }
+
+  if (hostname.includes("discord.com")) {
+    return <BsDiscord size={24} className="text-[#5A65EA]" />;
+  }
+
+  return (
+    <Image
+      src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`}
+      alt={metadata?.title ?? url}
+      width={24}
+      height={24}
+      className="rounded-md"
+    />
+  );
+};
+
+const getTitle = (
+  url: string,
+  metadata: Awaited<ReturnType<typeof getMetadata>>
+) => {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+    return `@${urlObj.pathname.split("/")[1]}`;
+  }
+
+  if (hostname.includes("linkedin.com")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("github.com")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("instagram.com")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("twitch.tv")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("discord.com")) {
+    return `@${urlObj.pathname.split("/").pop()}`;
+  }
+
+  return metadata?.title;
+};
+
+const getDescription = (
+  url: string,
+  _metadata: Awaited<ReturnType<typeof getMetadata>>
+) => {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+    return `x.com/${urlObj.pathname.split("/")[1]}`;
+  }
+
+  if (hostname.includes("linkedin.com")) {
+    return `linkedin.com/in/${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("github.com")) {
+    return `github.com/${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("instagram.com")) {
+    return `instagr.am/${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("twitch.tv")) {
+    return `twitch.tv/${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+    return `t.me/${urlObj.pathname.split("/").pop()}`;
+  }
+
+  if (hostname.includes("discord.com")) {
+    return null;
+  }
+
+  return null;
+};
+
+const getAction = (url: string) => {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+    return (
+      <Button
+        size="sm"
+        className="rounded-full bg-blue-400 text-white hover:bg-blue-500"
+      >
+        Follow
+      </Button>
+    );
+  }
+
+  if (hostname.includes("github.com")) {
+    return (
+      <Button
+        size="sm"
+        className="border border-border bg-gray-100 font-medium text-black hover:bg-gray-200"
+      >
+        Follow
+      </Button>
+    );
+  }
+
+  if (hostname.includes("linkedin.com")) {
+    return (
+      <Button
+        size="sm"
+        className="rounded-full bg-blue-500 text-white hover:bg-blue-600"
+      >
+        Follow
+      </Button>
+    );
+  }
+
+  if (hostname.includes("instagram.com")) {
+    return (
+      <Button size="sm" className="bg-blue-500 text-white hover:bg-blue-600">
+        Follow
+      </Button>
+    );
+  }
+
+  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+    return (
+      <Button
+        size="sm"
+        className="border border-border bg-gray-100 font-medium text-black hover:bg-gray-200"
+      >
+        Message @{urlObj.pathname.split("/").pop()}
+      </Button>
+    );
+  }
+
+  return null;
+};
 
 export default async function LinkCard({ bento }: { bento: Bento }) {
   if (!bento.href) return null;
 
   const metadata = await getMetadata(bento.href);
-  console.log(metadata);
 
-  return <div>link</div>;
+  const title = getTitle(bento.href, metadata);
+  const description = getDescription(bento.href, metadata);
+
+  return (
+    <Link
+      href={bento.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "row-span-2 flex select-none flex-col rounded-md border border-border p-5",
+        {
+          SIZE_1x4: "col-span-6 row-span-1",
+          SIZE_2x2: "col-span-3 h-44",
+          SIZE_2x4: "col-span-3 row-span-4",
+          SIZE_4x2: "col-span-6",
+          SIZE_4x4: "col-span-6",
+        }[bento.mobileSize],
+        {
+          SIZE_1x4: "md:col-span-1",
+          SIZE_2x2: "md:col-span-2 md:aspect-square md:h-full",
+          SIZE_2x4: "md:col-span-2 md:row-span-4",
+          SIZE_4x2: "md:col-span-4",
+          SIZE_4x4: "md:col-span-4 md:row-span-4",
+        }[bento.desktopSize],
+        getBackgroundColor(bento.href),
+        "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
+      )}
+    >
+      <div className={cn("flex items-center gap-x-4")}>
+        <div className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background">
+          {getIcon(bento.href, metadata)}
+        </div>
+
+        <p
+          className={cn(
+            "mt-2 font-cal text-sm",
+            bento.mobileSize === "SIZE_1x4" ? "" : "hidden",
+            bento.desktopSize === "SIZE_1x4" ? "" : "hidden"
+          )}
+        >
+          {title}
+        </p>
+      </div>
+
+      <p
+        className={cn(
+          "mt-2 font-cal text-sm",
+          bento.mobileSize === "SIZE_1x4" ? "hidden" : "",
+          bento.desktopSize === "SIZE_1x4" ? "hidden" : ""
+        )}
+      >
+        {title}
+      </p>
+
+      {description && (
+        <p
+          className={cn(
+            "truncate text-xs",
+            bento.mobileSize === "SIZE_1x4" ? "hidden" : "",
+            bento.desktopSize === "SIZE_1x4" ? "hidden" : ""
+          )}
+        >
+          {description}
+        </p>
+      )}
+
+      <div className="mt-auto">{getAction(bento.href)}</div>
+    </Link>
+  );
 }

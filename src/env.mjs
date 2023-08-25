@@ -8,6 +8,10 @@ export const env = createEnv({
     CLERK_SECRET_KEY: z.string().min(1),
     CLERK_WEBHOOK_SECRET: z.string().min(1),
     RESEND_API_KEY: z.string().min(1),
+    KV_URL: z.string().min(1),
+    KV_REST_API_URL: z.string().min(1),
+    KV_REST_API_TOKEN: z.string().min(1),
+    KV_REST_API_READ_ONLY_TOKEN: z.string().min(1),
   },
 
   client: {
@@ -34,6 +38,10 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    KV_URL: process.env.KV_URL,
+    KV_REST_API_URL: process.env.KV_REST_API_URL,
+    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
+    KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
