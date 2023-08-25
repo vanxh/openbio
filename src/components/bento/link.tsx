@@ -7,7 +7,6 @@ import {
   Github,
   Instagram,
   Linkedin,
-  Move,
   Trash2,
   Twitch,
   Twitter,
@@ -250,20 +249,6 @@ export default async function LinkCard({
       rel="noopener noreferrer"
       className={cn(
         "group relative row-span-2 flex h-44 w-full select-none flex-col rounded-md border border-border p-5",
-        // {
-        //   SIZE_1x4: "col-span-6 row-span-1",
-        //   SIZE_2x2: "col-span-3 h-44",
-        //   SIZE_2x4: "col-span-3 row-span-4",
-        //   SIZE_4x2: "col-span-6",
-        //   SIZE_4x4: "col-span-6",
-        // }[bento.mobileSize],
-        // {
-        //   SIZE_1x4: "md:col-span-1",
-        //   SIZE_2x2: "md:col-span-2 md:aspect-square md:h-full",
-        //   SIZE_2x4: "md:col-span-2 md:row-span-4",
-        //   SIZE_4x2: "md:col-span-4",
-        //   SIZE_4x4: "md:col-span-4 md:row-span-4",
-        // }[bento.desktopSize],
         getBackgroundColor(bento.href),
         editable
           ? "cursor-move"
@@ -272,13 +257,6 @@ export default async function LinkCard({
     >
       {editable && (
         <>
-          {/* <Button
-            size="icon"
-            className="absolute -left-3 -top-3 z-20 hidden cursor-move transition-opacity duration-200 ease-in-out md:group-hover:inline-flex"
-          >
-            <Move className="h-[1.2rem] w-[1.2rem]" />
-          </Button> */}
-
           <Button
             size="icon"
             className="absolute -right-3 -top-3 z-20 hidden transition-opacity duration-200 ease-in-out active:scale-95 md:group-hover:inline-flex"

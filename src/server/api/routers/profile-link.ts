@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { type BentoSize, type BentoType } from "@prisma/client";
+import { BentoSize, type BentoType } from "@prisma/client";
 
 const createProfileLinkInput = z.object({
   link: z.string(),
@@ -178,6 +178,7 @@ export const profileLinkRouter = createTRPCRouter({
 
       return {
         ...profileLink,
+
         Bento: profileLink.Bento.map((b) => ({
           ...b,
           mobilePosition: b.mobilePosition as {
@@ -191,5 +192,70 @@ export const profileLinkRouter = createTRPCRouter({
         })),
         isOwner: ctx.auth?.userId === profileLink.user.providerId,
       };
+    }),
+
+  updateProfileLink: protectedProcedure
+    .input(
+      z.object({
+        link: z.string(),
+        name: z.string().optional(),
+        bio: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.prisma.profileLink.update({
+        where: {
+          link: input.link,
+        },
+        data: {
+          ...input,
+        },
+      });
+    }),
+
+  deleteProfileLink: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.profileLink.delete({
+        where: {
+          link: input,
+        },
+      });
+
+      return true;
+    }),
+
+  updateProfileLinkBento: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        mobilePosition: z
+          .object({
+            x: z.number(),
+            y: z.number(),
+          })
+          .optional(),
+        desktopPosition: z
+          .object({
+            x: z.number(),
+            y: z.number(),
+          })
+          .optional(),
+        mobileSize: z.nativeEnum(BentoSize).optional(),
+        desktopSize: z.nativeEnum(BentoSize).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.prisma.bento.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          mobilePosition: input.mobilePosition,
+          desktopPosition: input.desktopPosition,
+          mobileSize: input.mobileSize,
+          desktopSize: input.desktopSize,
+        },
+      });
     }),
 });
