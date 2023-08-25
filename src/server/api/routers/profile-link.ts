@@ -164,6 +164,11 @@ export const profileLinkRouter = createTRPCRouter({
         },
         include: {
           Bento: true,
+          user: {
+            select: {
+              providerId: true,
+            },
+          },
         },
       });
 
@@ -171,6 +176,20 @@ export const profileLinkRouter = createTRPCRouter({
         throw new Error("Profile link not found");
       }
 
-      return profileLink;
+      return {
+        ...profileLink,
+        Bento: profileLink.Bento.map((b) => ({
+          ...b,
+          mobilePosition: b.mobilePosition as {
+            x: number;
+            y: number;
+          },
+          desktopPosition: b.desktopPosition as {
+            x: number;
+            y: number;
+          },
+        })),
+        isOwner: ctx.auth?.userId === profileLink.user.providerId,
+      };
     }),
 });

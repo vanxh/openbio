@@ -51,11 +51,11 @@ model Bento {
     url     String? // for image/video type
     caption String? // for image/video type
 
-    mobileSize  BentoSize @default(SIZE_2x2) // Enum field to specify the mobile grid size
-    desktopSize BentoSize @default(SIZE_2x2) // Enum field to specify the desktop grid size
+    mobileSize  BentoSize @default(SIZE_2x2) // mobile size
+    desktopSize BentoSize @default(SIZE_2x2) // desktop size
 
-    mobilePosition  Int @default(1) // Position for mobile
-    desktopPosition Int @default(1) // Position for desktop
+    mobilePosition  Json @default("{\"x\":0,\"y\":0}") // Json field to specify the grid position
+    desktopPosition Json @default("{\"x\":0,\"y\":0}") // Json field to specify the grid position
 
     profileLink   ProfileLink @relation(fields: [profileLinkId], references: [id])
     profileLinkId String

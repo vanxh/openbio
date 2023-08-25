@@ -3,7 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type Bento } from "@prisma/client";
-import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
+import {
+  Github,
+  Instagram,
+  Linkedin,
+  Move,
+  Trash2,
+  Twitch,
+  Twitter,
+} from "lucide-react";
 import { BsDiscord } from "react-icons/bs";
 import { BiLogoTelegram } from "react-icons/bi";
 
@@ -211,7 +219,7 @@ const getAction = (url: string) => {
         size="sm"
         className="border border-border bg-gray-100 font-medium text-black hover:bg-gray-200"
       >
-        Message @{urlObj.pathname.split("/").pop()}
+        Message
       </Button>
     );
   }
@@ -219,7 +227,13 @@ const getAction = (url: string) => {
   return null;
 };
 
-export default async function LinkCard({ bento }: { bento: Bento }) {
+export default async function LinkCard({
+  bento,
+  editable,
+}: {
+  bento: Bento;
+  editable?: boolean;
+}) {
   if (!bento.href) return null;
 
   const metadata = await getMetadata(bento.href);
@@ -227,31 +241,53 @@ export default async function LinkCard({ bento }: { bento: Bento }) {
   const title = getTitle(bento.href, metadata);
   const description = getDescription(bento.href, metadata);
 
+  const Wrapper = editable ? "div" : Link;
+
   return (
-    <Link
+    <Wrapper
       href={bento.href}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "row-span-2 flex select-none flex-col rounded-md border border-border p-5",
-        {
-          SIZE_1x4: "col-span-6 row-span-1",
-          SIZE_2x2: "col-span-3 h-44",
-          SIZE_2x4: "col-span-3 row-span-4",
-          SIZE_4x2: "col-span-6",
-          SIZE_4x4: "col-span-6",
-        }[bento.mobileSize],
-        {
-          SIZE_1x4: "md:col-span-1",
-          SIZE_2x2: "md:col-span-2 md:aspect-square md:h-full",
-          SIZE_2x4: "md:col-span-2 md:row-span-4",
-          SIZE_4x2: "md:col-span-4",
-          SIZE_4x4: "md:col-span-4 md:row-span-4",
-        }[bento.desktopSize],
+        "group relative row-span-2 flex h-44 w-full select-none flex-col rounded-md border border-border p-5",
+        // {
+        //   SIZE_1x4: "col-span-6 row-span-1",
+        //   SIZE_2x2: "col-span-3 h-44",
+        //   SIZE_2x4: "col-span-3 row-span-4",
+        //   SIZE_4x2: "col-span-6",
+        //   SIZE_4x4: "col-span-6",
+        // }[bento.mobileSize],
+        // {
+        //   SIZE_1x4: "md:col-span-1",
+        //   SIZE_2x2: "md:col-span-2 md:aspect-square md:h-full",
+        //   SIZE_2x4: "md:col-span-2 md:row-span-4",
+        //   SIZE_4x2: "md:col-span-4",
+        //   SIZE_4x4: "md:col-span-4 md:row-span-4",
+        // }[bento.desktopSize],
         getBackgroundColor(bento.href),
-        "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
+        editable
+          ? "cursor-move"
+          : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
       )}
     >
+      {editable && (
+        <>
+          {/* <Button
+            size="icon"
+            className="absolute -left-3 -top-3 z-20 hidden cursor-move transition-opacity duration-200 ease-in-out md:group-hover:inline-flex"
+          >
+            <Move className="h-[1.2rem] w-[1.2rem]" />
+          </Button> */}
+
+          <Button
+            size="icon"
+            className="absolute -right-3 -top-3 z-20 hidden transition-opacity duration-200 ease-in-out active:scale-95 md:group-hover:inline-flex"
+          >
+            <Trash2 className="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+        </>
+      )}
+
       <div className={cn("flex items-center gap-x-4")}>
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background">
           {getIcon(bento.href, metadata)}
@@ -291,6 +327,6 @@ export default async function LinkCard({ bento }: { bento: Bento }) {
       )}
 
       <div className="mt-auto">{getAction(bento.href)}</div>
-    </Link>
+    </Wrapper>
   );
 }
