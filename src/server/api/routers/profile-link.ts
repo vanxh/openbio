@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { type BentoType } from "@prisma/client";
+import { type BentoSize, type BentoType } from "@prisma/client";
 
 const createProfileLinkInput = z.object({
   link: z.string(),
@@ -64,15 +64,11 @@ export const profileLinkRouter = createTRPCRouter({
         type: BentoType;
         href: string;
 
-        style: {
-          mobile: string;
-          desktop: string;
-        };
+        mobileSize: BentoSize;
+        desktopSize: BentoSize;
 
-        position: {
-          mobile: number;
-          desktop: number;
-        };
+        mobilePosition: number;
+        desktopPosition: number;
       }[] = [];
 
       let position = 1;
@@ -97,15 +93,11 @@ export const profileLinkRouter = createTRPCRouter({
 
             href: url,
 
-            style: {
-              mobile: "2x2",
-              desktop: "2x2",
-            },
+            mobileSize: "SIZE_2x2",
+            desktopSize: "SIZE_2x2",
 
-            position: {
-              mobile: position,
-              desktop: position,
-            },
+            mobilePosition: position,
+            desktopPosition: position,
           });
 
           position += 1;
