@@ -1,10 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Github } from "lucide-react";
-
-import OpenBio from "@/public/openbio.png";
 import { api } from "@/trpc/server";
-import { Button } from "@/components/ui/button";
+import LinkCard from "@/components/bento/link";
 
 export default async function Page({
   params,
@@ -14,12 +9,14 @@ export default async function Page({
   };
 }) {
   const profileLink = await api.profileLink.getProfileLink.query(params.link);
-  console.log(profileLink);
+  // console.log(profileLink.Bento);
 
   return (
     <div className="h-full w-full">
       <div className="mx-auto grid max-w-3xl grid-cols-6 gap-6 px-6 pb-16 pt-16">
-        TODO
+        {profileLink.Bento.map((b) => (
+          <LinkCard key={b.id} bento={b} />
+        ))}
       </div>
     </div>
   );
