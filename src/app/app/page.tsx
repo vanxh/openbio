@@ -1,22 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Github } from "lucide-react";
-import { currentUser } from "@clerk/nextjs";
 
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
 
-export default async function Page() {
-  const user = await currentUser();
-
+export default function Page() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
-      {!!user && (
-        <Link href="/app" className="absolute right-10 top-10">
-          <Button>Go to App</Button>
-        </Link>
-      )}
-
       <Image src={OpenBio} alt="OpenBio" width={75} height={75} />
       <h2 className="font-cal text-xl md:text-2xl">OpenBio</h2>
 
