@@ -5,8 +5,10 @@ import Link from "next/link";
 
 export default function HomeIcon() {
   return (
-    <Link href="/" className="absolute left-10 top-10">
-      <Image src={OpenBio} alt="OpenBio" width={50} height={50} />
-    </Link>
+    <div className="container absolute top-10 flex">
+      <Link className="mr-auto" href="/">
+        <Image src={OpenBio} alt="OpenBio" width={50} height={50} />
+      </Link>
+    </div>
   );
 }

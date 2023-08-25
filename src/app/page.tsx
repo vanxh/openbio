@@ -12,9 +12,11 @@ export default async function Page() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
       {!!user && (
-        <Link href="/app" className="absolute right-10 top-10">
-          <Button>Go to App</Button>
-        </Link>
+        <div className="container absolute top-10 flex">
+          <Link className="ml-auto" href="/app">
+            <Button>Go to App</Button>
+          </Link>
+        </div>
       )}
 
       <Image src={OpenBio} alt="OpenBio" width={75} height={75} />
