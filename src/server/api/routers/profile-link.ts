@@ -19,6 +19,26 @@ const createProfileLinkInput = z.object({
   twitch: z.string().optional(),
 });
 
+const isValidLink = (link: string) => {
+  if (
+    /^[a-zA-Z0-9_]+$/.test(link) &&
+    link.length >= 3 &&
+    ![
+      "sign-up",
+      "sign-in",
+      "claim",
+      "api",
+      "actions",
+      "app",
+      "create-link",
+    ].includes(link)
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
     .input(z.string())
@@ -30,20 +50,15 @@ export const profileLinkRouter = createTRPCRouter({
         select: { id: true },
       });
 
-      if (!profileLink) {
-        // make sure the username is not a reserved word and is above 3 characters and don't contain any special characters
-        if (/^[a-zA-Z0-9_]+$/.test(input) && input.length >= 3) {
-          return true;
-        }
-      }
+      if (profileLink) return false;
 
-      return false;
+      return isValidLink(input);
     }),
 
   createProfileLink: protectedProcedure
     .input(createProfileLinkInput)
     .mutation(async ({ input, ctx }) => {
-      if (!/^[a-zA-Z0-9_]+$/.test(input.link) || input.link.length < 3) {
+      if (!isValidLink(input.link)) {
         throw new Error("Invalid link");
       }
 
