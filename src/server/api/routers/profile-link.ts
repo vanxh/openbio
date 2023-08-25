@@ -154,4 +154,23 @@ export const profileLinkRouter = createTRPCRouter({
 
       return profileLinks;
     }),
+
+  getProfileLink: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const profileLink = await ctx.prisma.profileLink.findUnique({
+        where: {
+          link: input,
+        },
+        include: {
+          Bento: true,
+        },
+      });
+
+      if (!profileLink) {
+        throw new Error("Profile link not found");
+      }
+
+      return profileLink;
+    }),
 });

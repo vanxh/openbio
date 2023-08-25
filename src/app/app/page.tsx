@@ -4,7 +4,7 @@ import { api } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HomeIcon from "@/components/home-icon";
-import { Eye } from "lucide-react";
+import ProfileLinkCard from "@/components/profile-link-card";
 
 export default async function Page() {
   const links = await api.profileLink.getProfileLinks.query();
@@ -33,26 +33,7 @@ export default async function Page() {
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
               {links.map((link) => (
-                <Link
-                  key={link.id}
-                  href={`/${link.link}`}
-                  className="flex flex-col rounded-md border border-border bg-background px-4 py-2 transition-transform active:scale-95"
-                >
-                  <span className="font-cal text-lg">{link.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    openbio.app/{link.link}
-                  </span>
-
-                  <div className="mt-4 flex items-center gap-x-4 text-muted-foreground">
-                    <span className="inline-flex items-center gap-x-2">
-                      <Eye size={16} />
-                      <span className="text-xs">
-                        {link.views || "0"}{" "}
-                        {link.views === 1 ? "view" : "views"}
-                      </span>
-                    </span>
-                  </div>
-                </Link>
+                <ProfileLinkCard key={link.id} link={link} />
               ))}
             </div>
           </div>
