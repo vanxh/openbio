@@ -1,38 +1,38 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Github } from "lucide-react";
 
-import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HomeIcon from "@/components/home-icon";
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
-      <Image src={OpenBio} alt="OpenBio" width={75} height={75} />
-      <h2 className="font-cal text-xl md:text-2xl">OpenBio</h2>
+    <div className="container mx-auto flex min-h-screen w-full flex-col items-center pt-[100px]">
+      <HomeIcon />
 
-      <h1 className="mt-8 font-cal text-3xl md:text-5xl">
-        Create beautiful
-        <br />
-        link in bio pages for free.
-      </h1>
+      <Tabs defaultValue="links" className="flex w-full flex-col items-center">
+        <TabsList className="w-max">
+          <TabsTrigger value="links">OpenBio Links</TabsTrigger>
+          <TabsTrigger value="settings" disabled>
+            Settings
+          </TabsTrigger>
+        </TabsList>
 
-      <p className="mt-4 text-xl md:text-2xl">
-        OpenBio is open source link in bio page builder.
-      </p>
+        <TabsContent value="links" className="w-full">
+          <div className="flex w-full items-center justify-between">
+            <h1 className="font-cal text-3xl md:text-5xl">My Links</h1>
 
-      <div className="mt-12 flex items-center gap-x-4">
-        <Link href="/claim" passHref>
-          <Button className="">Create your page</Button>
-        </Link>
+            <Link href="/claim" passHref>
+              <Button>Create Link</Button>
+            </Link>
+          </div>
+        </TabsContent>
 
-        <Link href="https://github.com/vanxh/openbio" passHref>
-          <Button>
-            <Github size={24} className="mr-2" />
-            Star on Github
-          </Button>
-        </Link>
-      </div>
+        <TabsContent value="settings" className="w-full">
+          <div className="flex w-full flex-col">
+            <h1 className="font-cal text-3xl md:text-5xl">Settings</h1>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

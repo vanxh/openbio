@@ -125,4 +125,18 @@ export const profileLinkRouter = createTRPCRouter({
 
       return profileLink;
     }),
+
+  getProfileLinks: protectedProcedure
+    .input(z.undefined())
+    .query(async ({ ctx }) => {
+      const profileLinks = await ctx.prisma.profileLink.findMany({
+        where: {
+          user: {
+            providerId: ctx.auth.userId,
+          },
+        },
+      });
+
+      return profileLinks;
+    }),
 });
