@@ -3,20 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type Bento } from "@prisma/client";
-import {
-  Github,
-  Instagram,
-  Linkedin,
-  Trash2,
-  Twitch,
-  Twitter,
-} from "lucide-react";
+import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
 import { BsDiscord } from "react-icons/bs";
 import { BiLogoTelegram } from "react-icons/bi";
 
 import { getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import DeleteButton from "@/components/bento/delete-button";
 
 const getBackgroundColor = (url: string) => {
   const urlObj = new URL(url);
@@ -257,12 +251,7 @@ export default async function LinkCard({
     >
       {editable && (
         <>
-          <Button
-            size="icon"
-            className="absolute -right-3 -top-3 z-20 hidden transition-opacity duration-200 ease-in-out active:scale-95 md:group-hover:inline-flex"
-          >
-            <Trash2 className="h-[1.2rem] w-[1.2rem]" />
-          </Button>
+          <DeleteButton bento={bento} />
         </>
       )}
 

@@ -225,6 +225,18 @@ export const profileLinkRouter = createTRPCRouter({
       return true;
     }),
 
+  deleteProfileLinkBento: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.bento.delete({
+        where: {
+          id: input,
+        },
+      });
+
+      return true;
+    }),
+
   updateProfileLinkBento: protectedProcedure
     .input(
       z.object({
