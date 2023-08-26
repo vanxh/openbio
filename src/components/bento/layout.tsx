@@ -125,7 +125,7 @@ export default function BentoLayout({
       }}
       breakpoints={{ lg: 800, md: 600, sm: 300, xs: 0, xxs: 0 }}
       rowHeight={176}
-      margin={[20, 20]}
+      margin={[24, 24]}
       draggableHandle={window.outerWidth < 500 ? ".drag-handle" : undefined}
       isResizable={false}
       onLayoutChange={(newLayout, newLayouts) => {
