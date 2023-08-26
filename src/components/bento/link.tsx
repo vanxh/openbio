@@ -10,7 +10,7 @@ import { BiLogoTelegram } from "react-icons/bi";
 import { getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import DeleteButton from "@/components/bento/delete-button";
+import CardOverlay from "@/components/bento/overlay";
 
 const getBackgroundColor = (url: string) => {
   const urlObj = new URL(url);
@@ -242,18 +242,14 @@ export default async function LinkCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group relative row-span-2 flex h-44 w-full select-none flex-col rounded-md border border-border p-5",
+        "group relative z-10 row-span-2 flex h-44 w-full select-none flex-col rounded-md border border-border p-5",
         getBackgroundColor(bento.href),
         editable
-          ? "cursor-move"
+          ? "md:cursor-move"
           : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
       )}
     >
-      {editable && (
-        <>
-          <DeleteButton bento={bento} />
-        </>
-      )}
+      {editable && <CardOverlay bento={bento} />}
 
       <div className={cn("flex items-center gap-x-4")}>
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background">

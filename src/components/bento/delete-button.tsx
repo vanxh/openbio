@@ -10,7 +10,7 @@ export default function DeleteButton({ bento }: { bento: Bento }) {
   return (
     <Button
       size="icon"
-      className="absolute -right-3 -top-3 z-20 hidden transition-opacity duration-200 ease-in-out active:scale-95 md:group-hover:inline-flex"
+      className="absolute -right-3 top-0 z-20 -translate-y-1/2 transition-opacity duration-200 ease-in-out active:scale-95"
       onClick={() => {
         void api.profileLink.deleteProfileLinkBento.mutate(bento.id);
       }}

@@ -31,9 +31,11 @@ export default function ProfileLinkCard({ link }: { link: ProfileLink }) {
   return (
     <Link
       href={`/${link.link}`}
-      className="flex flex-col rounded-md border border-border bg-background px-4 py-2 transition-transform active:scale-95"
+      className="relative flex flex-col rounded-md border border-border bg-background px-4 py-2 transition-transform active:scale-95"
     >
-      <span className="font-cal text-lg">{link.name}</span>
+      <div className="flex items-center justify-between">
+        <span className="font-cal text-lg">{link.name}</span>
+      </div>
       <span className="text-sm text-muted-foreground">
         openbio.app/{link.link}
       </span>
