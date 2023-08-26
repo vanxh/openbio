@@ -1,11 +1,11 @@
 import * as z from "zod";
+import { BentoSize, type BentoType } from "@prisma/client";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { BentoSize, type BentoType } from "@prisma/client";
 
 const createProfileLinkInput = z.object({
   link: z.string(),
@@ -258,7 +258,7 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.bento.update({
+      await ctx.prisma.bento.update({
         where: {
           id: input.id,
         },

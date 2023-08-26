@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { type Bento } from "@prisma/client";
 
 import { api } from "@/trpc/client";
@@ -10,6 +11,8 @@ import Size2x4 from "@/components/icons/size_2x4";
 import Size4x4 from "@/components/icons/size_4x4";
 
 export default function ManageSize({ bento }: { bento: Bento }) {
+  const router = useRouter();
+
   const size = window.outerWidth < 500 ? bento.mobileSize : bento.desktopSize;
 
   const sizeOptions = [
@@ -43,10 +46,15 @@ export default function ManageSize({ bento }: { bento: Bento }) {
                 "rounded-sm bg-secondary text-secondary-foreground"
             )}
             onClick={() => {
-              void api.profileLink.updateProfileLinkBento.mutate({
-                id: bento.id,
-                [window.outerWidth < 500 ? "mobileSize" : "desktopSize"]: o.key,
-              });
+              void api.profileLink.updateProfileLinkBento
+                .mutate({
+                  id: bento.id,
+                  [window.outerWidth < 500 ? "mobileSize" : "desktopSize"]:
+                    o.key,
+                })
+                .then(() => {
+                  void router.refresh();
+                });
             }}
           >
             <o.icon />
