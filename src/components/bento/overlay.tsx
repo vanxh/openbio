@@ -6,6 +6,7 @@ import { type Bento } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import DeleteButton from "@/components/bento/delete-button";
 import DragHandle from "@/components/bento/drag-handle";
+import ManageSize from "@/components/bento/manage-size";
 
 export default function CardOverlay({ bento }: { bento: Bento }) {
   const [active, setActive] = useState(false);
@@ -32,6 +33,7 @@ export default function CardOverlay({ bento }: { bento: Bento }) {
         <div>
           <DeleteButton bento={bento} />
           <DragHandle />
+          <ManageSize bento={bento} />
         </div>
       )}
     </div>

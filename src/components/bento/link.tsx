@@ -242,7 +242,7 @@ export default async function LinkCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group relative z-10 row-span-2 flex h-44 w-full select-none flex-col rounded-md border border-border p-5",
+        "group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-md border border-border p-5",
         getBackgroundColor(bento.href),
         editable
           ? "md:cursor-move"
@@ -259,8 +259,8 @@ export default async function LinkCard({
         <p
           className={cn(
             "mt-2 font-cal text-sm",
-            bento.mobileSize === "SIZE_1x4" ? "" : "hidden",
-            bento.desktopSize === "SIZE_1x4" ? "" : "hidden"
+            bento.mobileSize === "SIZE_4x1" ? "" : "hidden",
+            bento.desktopSize === "SIZE_4x1" ? "" : "hidden"
           )}
         >
           {title}
@@ -270,8 +270,8 @@ export default async function LinkCard({
       <p
         className={cn(
           "mt-2 font-cal text-sm",
-          bento.mobileSize === "SIZE_1x4" ? "hidden" : "",
-          bento.desktopSize === "SIZE_1x4" ? "hidden" : ""
+          bento.mobileSize === "SIZE_4x1" ? "hidden" : "",
+          bento.desktopSize === "SIZE_4x1" ? "hidden" : ""
         )}
       >
         {title}
@@ -281,8 +281,8 @@ export default async function LinkCard({
         <p
           className={cn(
             "truncate text-xs",
-            bento.mobileSize === "SIZE_1x4" ? "hidden" : "",
-            bento.desktopSize === "SIZE_1x4" ? "hidden" : ""
+            bento.mobileSize === "SIZE_4x1" ? "hidden" : "",
+            bento.desktopSize === "SIZE_4x1" ? "hidden" : ""
           )}
         >
           {description}

@@ -26,17 +26,17 @@ export default function BentoLayout({
       x: b.mobilePosition?.x ?? 0,
       y: b.mobilePosition?.y ?? 0,
       w: {
-        SIZE_1x4: 2,
+        SIZE_4x1: 2,
         SIZE_2x2: 1,
         SIZE_2x4: 1,
         SIZE_4x2: 2,
         SIZE_4x4: 2,
       }[b.mobileSize],
       h: {
-        SIZE_1x4: 0.5,
+        SIZE_4x1: 0.5,
         SIZE_2x2: 1,
-        SIZE_2x4: 1,
-        SIZE_4x2: 2,
+        SIZE_2x4: 2,
+        SIZE_4x2: 1,
         SIZE_4x4: 2,
       }[b.mobileSize],
     })),
@@ -45,17 +45,17 @@ export default function BentoLayout({
       x: b.desktopPosition?.x ?? 0,
       y: b.desktopPosition?.y ?? 0,
       w: {
-        SIZE_1x4: 2,
+        SIZE_4x1: 2,
         SIZE_2x2: 1,
         SIZE_2x4: 1,
         SIZE_4x2: 2,
         SIZE_4x4: 2,
       }[b.desktopSize],
       h: {
-        SIZE_1x4: 0.5,
+        SIZE_4x1: 0.5,
         SIZE_2x2: 1,
-        SIZE_2x4: 1,
-        SIZE_4x2: 2,
+        SIZE_2x4: 2,
+        SIZE_4x2: 1,
         SIZE_4x4: 2,
       }[b.desktopSize],
     })),
@@ -92,11 +92,6 @@ export default function BentoLayout({
         (desktopPosition !== undefined &&
           desktopPosition.y !== bento.desktopPosition?.y)
       ) {
-        console.log("OLD X", bento.mobilePosition?.x, bento.desktopPosition?.x);
-        console.log("NEW X", mobilePosition?.x, desktopPosition?.x);
-
-        console.log("OLD Y", bento.mobilePosition?.y, bento.desktopPosition?.y);
-        console.log("NEW Y", mobilePosition?.y, desktopPosition?.y);
         update = true;
       }
 
