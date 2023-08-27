@@ -22,7 +22,7 @@ export default function Home() {
       </p>
 
       <div className="mt-12 flex items-center gap-x-4">
-        <Link href="/claim" passHref>
+        <Link href="/claim-link" passHref>
           <Button className="">Create your page</Button>
         </Link>
 

@@ -23,7 +23,7 @@ export default async function Page() {
             <div className="flex w-full items-center justify-between">
               <h1 className="font-cal text-3xl md:text-5xl">My Links</h1>
 
-              <Link href="/claim" passHref>
+              <Link href="/claim-link" passHref>
                 <Button>Create Link</Button>
               </Link>
             </div>
@@ -40,7 +40,7 @@ export default async function Page() {
                   You don&apos;t have any links yet.
                 </p>
 
-                <Link href="/claim" passHref>
+                <Link href="/claim-link" passHref>
                   <Button className="mt-4">Create Link</Button>
                 </Link>
               </div>

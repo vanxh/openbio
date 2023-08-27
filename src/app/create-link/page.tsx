@@ -15,7 +15,7 @@ export default async function Page({
   const { link } = searchParams;
 
   if (!link) {
-    return redirect("/claim");
+    return redirect("/claim-link");
   }
 
   const user = await currentUser();
