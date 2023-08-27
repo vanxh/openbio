@@ -27,8 +27,9 @@ model ProfileLink {
 
     link String @unique
 
-    name String
-    bio  String?
+    image String?
+    name  String
+    bio   String?
 
     views Int @default(0)
 

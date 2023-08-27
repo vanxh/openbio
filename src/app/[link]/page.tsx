@@ -20,14 +20,20 @@ export default async function Page({
   }
 
   return (
-    <div className="mx-auto h-full w-full max-w-3xl pb-16 pt-16">
-      <BentoLayout profileLink={profileLink}>
-        {profileLink.Bento.map((b) => (
-          <div key={b.id}>
-            <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
-          </div>
-        ))}
-      </BentoLayout>
+    <div className="container mx-auto h-full w-full max-w-3xl pb-16 pt-16">
+      <div className="flex flex-col gap-y-6">
+        <div className="h-full w-full rounded-md border border-border bg-background p-5">
+          TODO
+        </div>
+
+        <BentoLayout profileLink={profileLink}>
+          {profileLink.Bento.map((b) => (
+            <div key={b.id}>
+              <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
+            </div>
+          ))}
+        </BentoLayout>
+      </div>
     </div>
   );
 }
