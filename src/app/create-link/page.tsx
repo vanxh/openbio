@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs";
 
 import SetupLink from "@/components/forms/setup-link";
-import HomeButton from "@/components/home-button";
-import AppButton from "@/components/app-button";
+import HomeNavbar from "@/components/home-navbar";
 
 export default async function Page({
   searchParams,
@@ -26,8 +25,7 @@ export default async function Page({
 
   return (
     <div className="container mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-y-8 pt-[75px]">
-      <HomeButton />
-      <AppButton />
+      <HomeNavbar />
 
       <h1 className="font-cal text-3xl md:text-5xl">
         Let&apos;s setup your profile page for {link}

@@ -1,11 +1,11 @@
 import Image from "next/image";
-
-import OpenBio from "@/public/openbio.png";
 import Link from "next/link";
 
-export default function HomeButton() {
+import OpenBio from "@/public/openbio.png";
+
+export default function AuthNavbar() {
   return (
-    <div className="container absolute top-6 z-10 flex md:top-10">
+    <div className="container absolute top-6 flex md:top-10">
       <Link className="mr-auto" href="/">
         <Image
           src={OpenBio}
