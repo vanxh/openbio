@@ -3,16 +3,13 @@ import Link from "next/link";
 import { api } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import HomeIcon from "@/components/home-icon";
 import ProfileLinkCard from "@/components/profile-link-card";
 
 export default async function Page() {
   const links = await api.profileLink.getProfileLinks.query();
 
   return (
-    <div className="container mx-auto flex min-h-screen w-full flex-col items-center pt-[100px]">
-      <HomeIcon />
-
+    <div className="flex h-full w-full flex-col items-center">
       <Tabs defaultValue="links" className="flex w-full flex-col items-center">
         <TabsList className="w-max">
           <TabsTrigger value="links">OpenBio Links</TabsTrigger>
@@ -36,6 +33,18 @@ export default async function Page() {
                 <ProfileLinkCard key={link.id} link={link} />
               ))}
             </div>
+
+            {!links.length && (
+              <div className="flex w-full flex-col items-center justify-center">
+                <p className="text-sm text-muted-foreground">
+                  You don&apos;t have any links yet.
+                </p>
+
+                <Link href="/claim" passHref>
+                  <Button className="mt-4">Create Link</Button>
+                </Link>
+              </div>
+            )}
           </div>
         </TabsContent>
 

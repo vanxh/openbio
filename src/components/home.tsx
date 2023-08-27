@@ -5,17 +5,9 @@ import { Github } from "lucide-react";
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
 
-export default function Home({ loggedIn }: { loggedIn?: boolean }) {
+export default function Home() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center text-center">
-      {loggedIn && (
-        <div className="container absolute top-10 flex">
-          <Link className="ml-auto" href="/app">
-            <Button>Go to App</Button>
-          </Link>
-        </div>
-      )}
-
+    <div className="flex h-full w-full flex-col items-center justify-center text-center">
       <Image src={OpenBio} alt="OpenBio" width={75} height={75} priority />
       <h2 className="font-cal text-xl md:text-2xl">OpenBio</h2>
 

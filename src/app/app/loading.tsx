@@ -1,12 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import HomeIcon from "@/components/home-icon";
 import { ProfileLinkCardSkeleton } from "@/components/profile-link-card";
 
 export default function Page() {
   return (
-    <div className="container mx-auto flex min-h-screen w-full flex-col items-center pt-[100px]">
-      <HomeIcon />
-
+    <div className="flex h-full w-full flex-col items-center">
       <div className="flex w-full flex-col items-center">
         <div className="flex w-max items-center gap-x-2">
           <Skeleton className="h-9 w-24" />

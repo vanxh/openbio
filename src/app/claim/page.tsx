@@ -2,12 +2,14 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import ClaimLinkForm from "@/components/forms/claim-link";
-import HomeIcon from "@/components/home-icon";
+import HomeButton from "@/components/home-button";
+import AppButton from "@/components/app-button";
 
 export default function Page() {
   return (
     <div className="container mx-auto flex min-h-screen w-full flex-col items-center justify-center">
-      <HomeIcon />
+      <HomeButton />
+      <AppButton />
 
       <h1 className="font-cal text-3xl md:text-5xl">
         Claim your unique profile page
