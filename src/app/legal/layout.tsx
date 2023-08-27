@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <HomeIcon />
 
       <div className="w-full max-w-3xl rounded-lg border border-border bg-background px-3 py-4 md:px-6 md:py-8">
-        <article className="prose dark:prose-invert prose-headings:font-cal">
+        <article className="prose dark:prose-invert prose-headings:font-cal prose-p:text-sm">
           {children}
         </article>
       </div>
