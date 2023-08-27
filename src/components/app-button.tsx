@@ -1,15 +1,14 @@
-// "use client";
+"use client";
 
 import Link from "next/link";
-// import { useUser } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
+import { useUser } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 
-export default async function AppButton() {
-  const user = await currentUser();
+export default function AppButton() {
+  const { isSignedIn } = useUser();
 
-  if (!user) return null;
+  if (!isSignedIn) return null;
 
   return (
     <div className="container absolute top-6 flex md:top-10">
