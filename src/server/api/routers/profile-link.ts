@@ -173,7 +173,7 @@ export const profileLinkRouter = createTRPCRouter({
       });
 
       if (!profileLink) {
-        throw new Error("Profile link not found");
+        return null;
       }
 
       return {

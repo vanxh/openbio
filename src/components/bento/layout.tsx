@@ -21,7 +21,7 @@ export default function BentoLayout({
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
   const layouts = {
-    sm: profileLink.Bento.map((b) => ({
+    sm: profileLink!.Bento.map((b) => ({
       i: b.id,
       x: b.mobilePosition?.x ?? 0,
       y: b.mobilePosition?.y ?? 0,
@@ -40,7 +40,7 @@ export default function BentoLayout({
         SIZE_4x4: 2,
       }[b.mobileSize],
     })),
-    md: profileLink.Bento.map((b) => ({
+    md: profileLink!.Bento.map((b) => ({
       i: b.id,
       x: b.desktopPosition?.x ?? 0,
       y: b.desktopPosition?.y ?? 0,
@@ -62,7 +62,7 @@ export default function BentoLayout({
   };
 
   const onLayoutChange = async (newLayouts: Layouts) => {
-    for (const bento of profileLink.Bento) {
+    for (const bento of profileLink!.Bento) {
       const sm = newLayouts.sm?.find((l) => l.i === bento.id);
       const md = newLayouts.md?.find((l) => l.i === bento.id);
 
@@ -123,6 +123,7 @@ export default function BentoLayout({
       margin={[24, 24]}
       draggableHandle={window.outerWidth < 500 ? ".drag-handle" : undefined}
       isResizable={false}
+      isDraggable={profileLink?.isOwner}
       onLayoutChange={(newLayout, newLayouts) => {
         void onLayoutChange(newLayouts);
       }}
