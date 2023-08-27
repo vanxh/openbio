@@ -27,7 +27,7 @@ export default function ProfileLinkEditor({
   };
 }) {
   const nameClass =
-    "focus:outline-none text-foreground text-2xl font-bold md:text-4xl lg:text-6xl font-cal bg-transparent outline-none";
+    "focus:outline-none text-foreground text-3xl font-bold md:text-4xl lg:text-6xl font-cal bg-transparent outline-none";
   const editorClass =
     "focus:outline-none dark:prose-invert prose-p:text-foreground prose-headings:font-cal mx-auto lg:prose-lg";
 
