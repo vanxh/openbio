@@ -1,5 +1,11 @@
 import * as z from "zod";
-import { BentoSize, type BentoType } from "@prisma/client";
+import {
+  BentoSize,
+  type ProfileLink,
+  type BentoType,
+  type Bento,
+} from "@prisma/client";
+import { kv } from "@vercel/kv";
 
 import {
   createTRPCRouter,
@@ -37,6 +43,22 @@ const isValidLink = (link: string) => {
   }
 
   return false;
+};
+
+type ProfileLinkCache = ProfileLink & {
+  Bento: (Bento & {
+    mobilePosition: {
+      x: number;
+      y: number;
+    };
+    desktopPosition: {
+      x: number;
+      y: number;
+    };
+  })[];
+  user: {
+    providerId: string;
+  };
 };
 
 export const profileLinkRouter = createTRPCRouter({
@@ -136,6 +158,19 @@ export const profileLinkRouter = createTRPCRouter({
             },
           },
         },
+
+        include: {
+          Bento: true,
+          user: {
+            select: {
+              providerId: true,
+            },
+          },
+        },
+      });
+
+      await kv.set(`profile-link:${input.link}`, profileLink, {
+        ex: 30 * 60,
       });
 
       return profileLink;
@@ -158,6 +193,17 @@ export const profileLinkRouter = createTRPCRouter({
   getProfileLink: publicProcedure
     .input(z.string())
     .query(async ({ input, ctx }) => {
+      const cached = await kv.get<ProfileLinkCache | null>(
+        `profile-link:${input}`
+      );
+
+      if (cached) {
+        return {
+          ...cached,
+          isOwner: ctx.auth?.userId === cached.user.providerId,
+        };
+      }
+
       const profileLink = await ctx.prisma.profileLink.findUnique({
         where: {
           link: input,
@@ -176,7 +222,7 @@ export const profileLinkRouter = createTRPCRouter({
         return null;
       }
 
-      return {
+      const data = {
         ...profileLink,
 
         Bento: profileLink.Bento.map((b) => ({
@@ -190,6 +236,14 @@ export const profileLinkRouter = createTRPCRouter({
             y: number;
           },
         })),
+      };
+
+      await kv.set(`profile-link:${input}`, data, {
+        ex: 30 * 60,
+      });
+
+      return {
+        ...data,
         isOwner: ctx.auth?.userId === profileLink.user.providerId,
       };
     }),
