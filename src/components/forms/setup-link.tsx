@@ -110,7 +110,6 @@ export default function SetupLink() {
 
       void router.push(`/${link}`);
     } catch (e) {
-      console.log(e);
       toast({
         title: "Error",
         description: (e as TRPCError).message,
