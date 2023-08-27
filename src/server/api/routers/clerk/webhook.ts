@@ -2,8 +2,8 @@ import * as z from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { clerkEvent } from "@/server/api/routers/clerk/type";
-// import { sendEmail } from "@/server/emails";
-// import WelcomeEmail from "@/components/emails/welcome";
+import { sendEmail } from "@/server/emails";
+import WelcomeEmail from "@/components/emails/welcome";
 
 export const webhookProcedure = publicProcedure.input(
   z.object({
@@ -32,12 +32,11 @@ export const webhookRouter = createTRPCRouter({
         },
       });
 
-      // TODO: Send email. NEXT JS APP ROUTER IS ACTING WEIRD.
-      // await sendEmail({
-      //   subject: "Welcome to OpenBio.app 👋",
-      //   to: [email],
-      //   react: WelcomeEmail(),
-      // });
+      await sendEmail({
+        subject: "Welcome to OpenBio.app 👋",
+        to: [email],
+        react: WelcomeEmail(),
+      });
 
       return user;
     }

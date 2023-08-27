@@ -16,7 +16,7 @@ export interface Email {
 
 export const sendEmail = (email: Email) => {
   return resend.emails.send({
-    from: "Vanxh <vanxh@openbio.app>",
+    from: "Vanxh <hello@vanxh.dev>",
     ...email,
   });
 };
