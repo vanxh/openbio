@@ -145,6 +145,7 @@ export const profileLinkRouter = createTRPCRouter({
         data: {
           link: input.link,
           name: input.link,
+          bio: "I'm using OpenBio.app!",
 
           Bento: {
             createMany: {
@@ -257,14 +258,28 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.profileLink.update({
+      const update = await ctx.prisma.profileLink.update({
         where: {
           link: input.link,
         },
         data: {
           ...input,
         },
+        include: {
+          Bento: true,
+          user: {
+            select: {
+              providerId: true,
+            },
+          },
+        },
       });
+
+      await kv.set(`profile-link:${input.link}`, update, {
+        ex: 30 * 60,
+      });
+
+      return update;
     }),
 
   deleteProfileLink: protectedProcedure
@@ -275,6 +290,8 @@ export const profileLinkRouter = createTRPCRouter({
           link: input,
         },
       });
+
+      await kv.del(`profile-link:${input}`);
 
       return true;
     }),
@@ -287,6 +304,23 @@ export const profileLinkRouter = createTRPCRouter({
           id: input,
         },
       });
+
+      const cached = await kv.get<ProfileLinkCache | null>(
+        `profile-link:${input}`
+      );
+
+      if (cached) {
+        await kv.set(
+          `profile-link:${cached.link}`,
+          {
+            ...cached,
+            Bento: cached.Bento.filter((b) => b.id !== input),
+          },
+          {
+            ex: 30 * 60,
+          }
+        );
+      }
 
       return true;
     }),
@@ -323,5 +357,42 @@ export const profileLinkRouter = createTRPCRouter({
           desktopSize: input.desktopSize,
         },
       });
+
+      const cached = await kv.get<ProfileLinkCache | null>(
+        `profile-link:${input.id}`
+      );
+
+      if (cached) {
+        await kv.set(
+          `profile-link:${cached.link}`,
+          {
+            ...cached,
+            Bento: cached.Bento.map((b) => {
+              if (b.id === input.id) {
+                return {
+                  ...b,
+                  mobilePosition: input.mobilePosition as {
+                    x: number;
+                    y: number;
+                  },
+                  desktopPosition: input.desktopPosition as {
+                    x: number;
+                    y: number;
+                  },
+                  mobileSize: input.mobileSize,
+                  desktopSize: input.desktopSize,
+                };
+              }
+
+              return b;
+            }),
+          },
+          {
+            ex: 30 * 60,
+          }
+        );
+      }
+
+      return true;
     }),
 });
