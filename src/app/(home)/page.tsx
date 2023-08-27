@@ -26,7 +26,12 @@ export default function Page() {
           <Button className="">Create your page</Button>
         </Link>
 
-        <Link href="https://github.com/vanxh/openbio" passHref>
+        <Link
+          href="https://github.com/vanxh/openbio"
+          target="_blank"
+          rel="noopener noreferrer"
+          passHref
+        >
           <Button>
             <Github size={24} className="mr-2" />
             Star on Github
