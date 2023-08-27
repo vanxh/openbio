@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function HomeIcon() {
   return (
-    <div className="container absolute top-10 flex">
+    <div className="container absolute top-6 flex md:top-10">
       <Link className="mr-auto" href="/">
         <Image
           src={OpenBio}

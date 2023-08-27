@@ -24,7 +24,7 @@ export default async function Page({
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-y-8">
+    <div className="container mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-y-8 pt-[75px]">
       <HomeIcon />
 
       <h1 className="font-cal text-3xl md:text-5xl">
