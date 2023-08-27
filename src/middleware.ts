@@ -47,7 +47,10 @@ export default authMiddleware({
   publicRoutes: ["/", "/api", "/api/(.*)", "/:link"],
   beforeAuth: before,
   afterAuth: (auth, req) => {
-    if (!auth.user && ["/app", "/create-link"].includes(req.nextUrl.pathname)) {
+    if (
+      !auth.userId &&
+      ["/app", "/create-link"].includes(req.nextUrl.pathname)
+    ) {
       return NextResponse.redirect(new URL("/sign-up", req.nextUrl.origin));
     }
   },
