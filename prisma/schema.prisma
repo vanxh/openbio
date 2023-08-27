@@ -13,7 +13,7 @@ model User {
     updatedAt DateTime @updatedAt
 
     providerId String  @unique
-    email      String  @unique
+    email      String
     firstName  String
     lastName   String?
 
