@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function HomeButton() {
   return (
-    <div className="container absolute top-6 flex md:top-10">
+    <div className="container absolute top-6 z-10 flex md:top-10">
       <Link className="mr-auto" href="/">
         <Image
           src={OpenBio}

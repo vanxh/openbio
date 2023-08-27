@@ -7,6 +7,7 @@ import {
 } from "@/app/shared-metadata";
 import HomeButton from "@/components/home-button";
 import AppButton from "@/components/app-button";
+import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   ...defaultMetadata,
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <section className="container mx-auto flex h-full w-full flex-col items-center justify-center pb-16 pt-24">
+    <section className="container mx-auto flex h-full w-full flex-col items-center justify-center gap-y-6 pb-4 pt-24 md:pb-8">
       <HomeButton />
       <AppButton />
 
@@ -32,6 +33,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </article>
       </div>
+
+      <Footer />
     </section>
   );
 }
