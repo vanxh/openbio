@@ -44,16 +44,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <ThemeProvider>
-        <ClerkProvider>
-          <body className={`${inter.variable} ${calSans.variable} font-inter`}>
+      <body className={`${inter.variable} ${calSans.variable} font-inter`}>
+        <ThemeProvider>
+          <ClerkProvider>
             <Background />
             {children}
             <Toaster />
             <TailwindIndicator />
-          </body>
-        </ClerkProvider>
-      </ThemeProvider>
+          </ClerkProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
