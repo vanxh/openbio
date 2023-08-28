@@ -33,7 +33,7 @@ export default function CardOverlay({ bento }: { bento: Bento }) {
         <div>
           <DeleteButton bento={bento} />
           <DragHandle />
-          <ManageSize bento={bento} />
+          <ManageSize bento={bento} close={() => setActive(false)} />
         </div>
       )}
     </div>
