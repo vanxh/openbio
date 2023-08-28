@@ -18,7 +18,7 @@ export default function Page() {
       </h1>
 
       <p className="mt-4 text-xl md:text-2xl">
-        OpenBio is open source link in bio page builder.
+        OpenBio is an open source link in bio page builder.
       </p>
 
       <div className="mt-12 flex items-center gap-x-4">
