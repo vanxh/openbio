@@ -24,7 +24,6 @@ export const appFileRouter = {
       })
     )
     .middleware(async ({ input }) => {
-      console.log("middleware", input);
       const user = await currentUser();
 
       if (!user) throw new Error("Unauthorized");
