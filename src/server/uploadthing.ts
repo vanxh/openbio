@@ -3,6 +3,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { currentUser } from "@clerk/nextjs";
 
 import { prisma } from "@/server/db";
+import { utapi } from "uploadthing/server";
 
 const f = createUploadthing({
   errorFormatter: (err) => {
@@ -15,7 +16,7 @@ const f = createUploadthing({
 
 export const appFileRouter = {
   profileLinkImageUploader: f({
-    image: { maxFileSize: "1MB", maxFileCount: 1 },
+    image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .input(
       z.object({
@@ -34,7 +35,15 @@ export const appFileRouter = {
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("onUploadComplete", metadata, file);
+      const profileLink = await prisma.profileLink.findUnique({
+        where: { id: metadata.profileLinkId },
+        select: { image: true },
+      });
+
+      if (profileLink?.image) {
+        await utapi.deleteFiles(profileLink.image.split("/").pop()!);
+      }
+
       await prisma.profileLink.update({
         where: { id: metadata.profileLinkId },
         data: { image: file.url },

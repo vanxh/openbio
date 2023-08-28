@@ -19,12 +19,12 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
-"@clerk/backend@^0.27.0":
-  version "0.27.0"
-  resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-0.27.0.tgz#2e902f799f09297ef4c3e8f9282cd06013c592fb"
-  integrity sha512-Sj541JrpqAn1A/UwdyDBxFV3stq2A/Pe/8HdPTG3Cct6briPyavfi46O5s1+L3BSvUcKUY+UbM0+8VsoCNFi4w==
+"@clerk/backend@^0.28.0":
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-0.28.0.tgz#87e1791e444c94d89e969e4e7781820df6afda48"
+  integrity sha512-2HbpJljKhz6642cyIcL3NE/QUQM1Ty4Vm7h9Pc/PsmuINfb6DI2HaP29INb6bt8GiY9xbrJcGOkMfBS9iHCTMQ==
   dependencies:
-    "@clerk/types" "^3.49.0"
+    "@clerk/types" "^3.50.0"
     "@peculiar/webcrypto" "1.4.1"
     "@types/node" "16.18.6"
     cookie "0.5.0"
@@ -33,22 +33,22 @@
     snakecase-keys "5.4.4"
     tslib "2.4.1"
 
-"@clerk/clerk-react@^4.23.2":
-  version "4.23.2"
-  resolved "https://registry.yarnpkg.com/@clerk/clerk-react/-/clerk-react-4.23.2.tgz#d27412c7f0682eba559b3ce7f2e123ea923ff2a8"
-  integrity sha512-6MJa8ecr22qHhTfdkMMIJGctMBqj01fLJ4vmfZvr22tIkwkPXoeYJd5XcFKuSoO2dXc1eHD/F9i/HdCqGm68gw==
+"@clerk/clerk-react@^4.24.0":
+  version "4.24.0"
+  resolved "https://registry.yarnpkg.com/@clerk/clerk-react/-/clerk-react-4.24.0.tgz#5bcc6fa8e1d9b32ba205d43a4d1e9060c33922fc"
+  integrity sha512-D2NtrMrDuoLvgTn0jtZEpmCn13heMkmdy30HzoOxmNOmHiVuQ16L/eZyCO1HH1DH2pcJnpXIuC0OdQg26DDK6g==
   dependencies:
-    "@clerk/shared" "^0.21.0"
-    "@clerk/types" "^3.49.0"
+    "@clerk/shared" "^0.22.0"
+    "@clerk/types" "^3.50.0"
     tslib "2.4.1"
 
-"@clerk/clerk-sdk-node@^4.12.2":
-  version "4.12.2"
-  resolved "https://registry.yarnpkg.com/@clerk/clerk-sdk-node/-/clerk-sdk-node-4.12.2.tgz#849c9f74f06f44a3b8b04867ccb41c87f3c3a206"
-  integrity sha512-7xYPsLSeGO5XoP0No/9m2dsCMezwtmiYGKOwWzt41ZzJNFlU0rfqYF3VOZEsbtQlc3ZXeU+67ItjoJYrf3kT6A==
+"@clerk/clerk-sdk-node@^4.12.3":
+  version "4.12.3"
+  resolved "https://registry.yarnpkg.com/@clerk/clerk-sdk-node/-/clerk-sdk-node-4.12.3.tgz#0c1176d1cc79b7e3288dcbc5046f6c7f71a65785"
+  integrity sha512-IchaYk1tfT+bJz6LeC+WGJlFB0y1HNQbxnPKfsZMojZgWe68cK1TDF/n5w+4FKjUiRj2vNbewDoVUZhKZrRPnw==
   dependencies:
-    "@clerk/backend" "^0.27.0"
-    "@clerk/types" "^3.49.0"
+    "@clerk/backend" "^0.28.0"
+    "@clerk/types" "^3.50.0"
     "@types/cookies" "0.7.7"
     "@types/express" "4.17.14"
     "@types/node-fetch" "2.6.2"
@@ -56,36 +56,36 @@
     snakecase-keys "3.2.1"
     tslib "2.4.1"
 
-"@clerk/nextjs@^4.23.2":
-  version "4.23.2"
-  resolved "https://registry.yarnpkg.com/@clerk/nextjs/-/nextjs-4.23.2.tgz#10569cb4bb7d421e667fd7273d0215ab041ce73a"
-  integrity sha512-99bSVu9r1E9MxybO/6mmPAufSKq4KU7SFeMVkylX7UF8sy5t/LE9cLHyc+9jitcCGgZNai9Om4sj1WIgkNOP8w==
+"@clerk/nextjs@^4.23.3":
+  version "4.23.3"
+  resolved "https://registry.yarnpkg.com/@clerk/nextjs/-/nextjs-4.23.3.tgz#3c495214e75f0a8bd4e6a4fde7005a4c4dbf4cc5"
+  integrity sha512-q8CWhPnqzG6KHII0thghQGhR/kZhEISupr0AuJDSrp7X0dpeFo0BdaBDOwD6MLe5c1wzJSr3yXGnyaxf3yj8FA==
   dependencies:
-    "@clerk/backend" "^0.27.0"
-    "@clerk/clerk-react" "^4.23.2"
-    "@clerk/clerk-sdk-node" "^4.12.2"
-    "@clerk/types" "^3.49.0"
+    "@clerk/backend" "^0.28.0"
+    "@clerk/clerk-react" "^4.24.0"
+    "@clerk/clerk-sdk-node" "^4.12.3"
+    "@clerk/types" "^3.50.0"
     path-to-regexp "6.2.1"
     tslib "2.4.1"
 
-"@clerk/shared@^0.21.0":
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/@clerk/shared/-/shared-0.21.0.tgz#1bb1ce461d5b6db3ef230ab686803b46c5129864"
-  integrity sha512-tkV2OAddFMPBHDjcMbtNNrV3NQD+hGKf2hn3TKv1mRJNZ2oR5Bfk8r0bkaqwoqxX8ndkbHLCa9gwR8SWO7GGow==
+"@clerk/shared@^0.22.0":
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/@clerk/shared/-/shared-0.22.0.tgz#b49f3d79fe9f8a839f00ae0775992fb502927b25"
+  integrity sha512-AHPypu9gZ3v44PRqiMA56c+YNLc2IzLaPUyiYFYU+xeH/R+wqzGp7OxZoZr/kmzgA8taiVl/bjixWgpuZwzI3A==
   dependencies:
     glob-to-regexp "0.4.1"
     js-cookie "3.0.1"
-    swr "1.3.0"
+    swr "2.2.0"
 
 "@clerk/themes@^1.7.5":
   version "1.7.5"
   resolved "https://registry.yarnpkg.com/@clerk/themes/-/themes-1.7.5.tgz#10d80c7b10f33399d84f2a5bad5daeede2c1e4f5"
   integrity sha512-kIdCIBSCp6t1saGAzbelcfZi5P+L3+CuVFwSjpulwGTRxeOOs/S8hB4CAHVbTwfxPw5Ms+AnN4dXJKHjSnxPIg==
 
-"@clerk/types@^3.49.0":
-  version "3.49.0"
-  resolved "https://registry.yarnpkg.com/@clerk/types/-/types-3.49.0.tgz#8287181724e4e6267b1b51831c460bd00e374627"
-  integrity sha512-vAx5R/iYfsgIaIDMiDr6ZKQnAneAmRrUVYz6KCtPG6/hnEAnRYhwXpEUi89e5G0BFmuUfSxe/N/Anfc1PNteXQ==
+"@clerk/types@^3.50.0":
+  version "3.50.0"
+  resolved "https://registry.yarnpkg.com/@clerk/types/-/types-3.50.0.tgz#ebfed02546b368a4b0f11fb229d103f47f68a025"
+  integrity sha512-3TWalDWPTFToXC/W07QUIBN96TA+4dR3YLBvwr9U2Z4RVG9in9HW4CTC6aHTnJ2kVtTcgDkXjDKeVKS1GjPCcA==
   dependencies:
     csstype "3.1.1"
 
@@ -1034,9 +1034,9 @@
     form-data "^3.0.0"
 
 "@types/node@*":
-  version "20.5.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.5.4.tgz#4666fb40f9974d60c53c4ff554315860ba4feab8"
-  integrity sha512-Y9vbIAoM31djQZrPYjpTLo0XlaSwOIsrlfE3LpulZeRblttsLQRFRlBAppW0LOxyT3ALj2M5vU1ucQQayQH3jA==
+  version "20.5.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.5.7.tgz#4b8ecac87fbefbc92f431d09c30e176fc0a7c377"
+  integrity sha512-dP7f3LdZIysZnmvP3ANJYTSwg+wLLl8p7RqniVlV7j+oXSXAbt9h0WIBFmJy5inWZoX9wZN6eXx+YXd9Rh3RBA==
 
 "@types/node@16.18.6":
   version "16.18.6"
@@ -4145,10 +4145,12 @@ svix@^1.8.1:
     svix-fetch "^3.0.0"
     url-parse "^1.4.3"
 
-swr@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/swr/-/swr-1.3.0.tgz#c6531866a35b4db37b38b72c45a63171faf9f4e8"
-  integrity sha512-dkghQrOl2ORX9HYrMDtPa7LTVHJjCTeZoB1dqTbnnEDlSvN8JEKpYIYurDfvbQFUUS8Cg8PceFVZNkW0KNNYPw==
+swr@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/swr/-/swr-2.2.0.tgz#575c6ac1bec087847f4c86a39ccbc0043c834d6a"
+  integrity sha512-AjqHOv2lAhkuUdIiBu9xbuettzAzWXmCEcLONNKJRba87WAefz8Ca9d6ds/SzrPc235n1IxWYdhJ2zF3MNUaoQ==
+  dependencies:
+    use-sync-external-store "^1.2.0"
 
 tailwind-merge@^1.13.2, tailwind-merge@^1.14.0:
   version "1.14.0"

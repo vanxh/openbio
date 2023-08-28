@@ -1,17 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type ProfileLink } from "@prisma/client";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import { useDropzone } from "react-dropzone";
+import type { FileWithPath } from "react-dropzone";
 import { UploadCloud } from "lucide-react";
 
 import { api } from "@/trpc/client";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { useUploadThing } from "@/lib/uploadthing";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { generateClientDropzoneAccept } from "uploadthing/client";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+
+type Props = {
+  profileLink: ProfileLink & {
+    isOwner: boolean;
+  };
+};
 
 const extensions = [
   StarterKit,
@@ -21,13 +32,75 @@ const extensions = [
   }),
 ];
 
-export default function ProfileLinkEditor({
-  profileLink,
-}: {
-  profileLink: ProfileLink & {
-    isOwner: boolean;
-  };
-}) {
+function ProfileLinkAvatar({ profileLink }: Props) {
+  const [img, setImg] = useState(
+    profileLink.isOwner
+      ? profileLink.image
+      : profileLink.image ?? "/openbio.png"
+  );
+
+  const { startUpload } = useUploadThing("profileLinkImageUploader", {
+    onClientUploadComplete: () => {
+      // DO NOTHING
+    },
+    onUploadError: (err) => {
+      toast({
+        title: "Error",
+        description: err.message,
+      });
+      setImg(profileLink.image ?? "/openbio.png");
+    },
+  });
+
+  const onDrop = useCallback(
+    (acceptedFiles: FileWithPath[]) => {
+      void startUpload(acceptedFiles, {
+        profileLinkId: profileLink.id,
+      });
+      setImg(URL.createObjectURL(acceptedFiles[0]!));
+    },
+    [profileLink.id, startUpload]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: generateClientDropzoneAccept(["image/png", "image/jpeg"]),
+  });
+
+  return (
+    <div
+      {...(profileLink.isOwner ? getRootProps() : {})}
+      className={cn(
+        "flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 md:h-[150px] md:w-[150px]",
+        !profileLink.image && profileLink.isOwner && "border-dashed",
+        profileLink.isOwner && "cursor-pointer",
+        img && "border-0 border-transparent bg-transparent"
+      )}
+    >
+      {img && (
+        <Image
+          key={img}
+          src={img}
+          alt="Profile link image"
+          width={150}
+          height={150}
+          className="rounded-full object-cover"
+        />
+      )}
+
+      {profileLink.isOwner && !profileLink.image && (
+        <>
+          <UploadCloud className="h-8 w-8 text-muted-foreground" />
+          <p className="text-sm font-semibold text-muted-foreground">Upload</p>
+        </>
+      )}
+
+      {profileLink.isOwner && <input {...getInputProps()} />}
+    </div>
+  );
+}
+
+export default function ProfileLinkEditor({ profileLink }: Props) {
   const nameClass =
     "focus:outline-none text-foreground text-3xl font-bold md:text-4xl lg:text-6xl font-cal bg-transparent outline-none";
   const editorClass =
@@ -39,7 +112,6 @@ export default function ProfileLinkEditor({
   const [bio, setBio] = useState(profileLink.bio);
 
   const debouncedName = useDebounce(name, 500);
-
   useEffect(() => {
     if (!profileLink.isOwner) return;
 
@@ -57,7 +129,6 @@ export default function ProfileLinkEditor({
   }, [debouncedName, profileLink.isOwner, profileLink.link, profileLink.name]);
 
   const debouncedBio = useDebounce(bio, 500);
-
   useEffect(() => {
     if (!profileLink.isOwner) return;
 
@@ -91,38 +162,7 @@ export default function ProfileLinkEditor({
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex items-start justify-between">
-        <UploadDropzone
-          content={{
-            label: () => {
-              return "Upload";
-            },
-            uploadIcon: () => {
-              return <UploadCloud className="h-8 w-8 text-muted-foreground" />;
-            },
-            allowedContent: () => {
-              return "";
-            },
-          }}
-          className="mt-0 h-[100px] w-[100px] rounded-full border border-dashed border-border bg-background/50 p-3 ut-button:hidden ut-button:text-muted-foreground ut-label:mt-1 ut-label:text-muted-foreground ut-upload-icon:text-muted-foreground"
-          endpoint="profileLinkImageUploader"
-          input={{
-            profileLinkId: profileLink.id,
-          }}
-          onClientUploadComplete={() => {
-            console.log("client upload complete");
-            toast({
-              title: "Success",
-              description: "Profile link image updated!",
-            });
-          }}
-          onUploadError={(error: Error) => {
-            console.error(error);
-            toast({
-              title: "Error",
-              description: error.message,
-            });
-          }}
-        />
+        <ProfileLinkAvatar profileLink={profileLink} />
 
         {profileLink.isOwner && (
           <Button

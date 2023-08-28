@@ -11,7 +11,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@clerk/nextjs": "^4.23.2",
+    "@clerk/nextjs": "^4.23.3",
     "@clerk/themes": "^1.7.5",
     "@hookform/resolvers": "^3.3.0",
     "@prisma/client": "^5.1.1",
