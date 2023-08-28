@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Size1x1() {
+export default function Size2x2() {
   return (
     <svg
       width="18"
