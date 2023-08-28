@@ -52,6 +52,8 @@ model Bento {
     url     String? // for image/video type
     caption String? // for image/video type
 
+    clicks Int @default(0)
+
     mobileSize  BentoSize @default(SIZE_2x2) // mobile size
     desktopSize BentoSize @default(SIZE_2x2) // desktop size
 
