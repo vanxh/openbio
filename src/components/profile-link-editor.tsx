@@ -5,11 +5,13 @@ import { type ProfileLink } from "@prisma/client";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import { UploadCloud } from "lucide-react";
 
-import { useDebounce } from "@/hooks/use-debounce";
 import { api } from "@/trpc/client";
+import { UploadDropzone } from "@/lib/uploadthing";
+import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
-import { toast } from "./ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 const extensions = [
   StarterKit,
@@ -89,7 +91,38 @@ export default function ProfileLinkEditor({
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex items-start justify-between">
-        <div className="h-[100px] w-[100px] rounded-full border border-dashed border-border bg-background/50"></div>
+        <UploadDropzone
+          content={{
+            label: () => {
+              return "Upload";
+            },
+            uploadIcon: () => {
+              return <UploadCloud className="h-8 w-8 text-muted-foreground" />;
+            },
+            allowedContent: () => {
+              return "";
+            },
+          }}
+          className="mt-0 h-[100px] w-[100px] rounded-full border border-dashed border-border bg-background/50 p-3 ut-button:hidden ut-button:text-muted-foreground ut-label:mt-1 ut-label:text-muted-foreground ut-upload-icon:text-muted-foreground"
+          endpoint="profileLinkImageUploader"
+          input={{
+            profileLinkId: profileLink.id,
+          }}
+          onClientUploadComplete={() => {
+            console.log("client upload complete");
+            toast({
+              title: "Success",
+              description: "Profile link image updated!",
+            });
+          }}
+          onUploadError={(error: Error) => {
+            console.error(error);
+            toast({
+              title: "Error",
+              description: error.message,
+            });
+          }}
+        />
 
         {profileLink.isOwner && (
           <Button
