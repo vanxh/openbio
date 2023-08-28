@@ -53,12 +53,12 @@ export default function ManageSize({
   return (
     <ResponsivePortal>
       <div className="container fixed bottom-6 left-1/2 z-20 mx-auto -translate-x-1/2 md:absolute md:bottom-0 md:w-max md:translate-y-1/2">
-        <div className="flex items-center rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:px-2 md:py-2">
+        <div className="flex items-center gap-x-4 rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:gap-x-0 md:px-2 md:py-2">
           {sizeOptions.map((o) => (
             <button
               key={o.key}
               className={cn(
-                "md:- inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95",
+                "inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95",
                 size === o.key &&
                   "rounded-sm bg-secondary text-secondary-foreground"
               )}
