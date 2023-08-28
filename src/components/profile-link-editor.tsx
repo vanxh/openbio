@@ -33,15 +33,12 @@ const extensions = [
 ];
 
 function ProfileLinkAvatar({ profileLink }: Props) {
-  const [img, setImg] = useState(
-    profileLink.isOwner
-      ? profileLink.image
-      : profileLink.image ?? "/openbio.png"
-  );
+  const [img, setImg] = useState(profileLink.image);
 
   const { startUpload } = useUploadThing("profileLinkImageUploader", {
-    onClientUploadComplete: () => {
-      // DO NOTHING
+    onClientUploadComplete: (data) => {
+      if (!data?.[0]) return;
+      setImg(data[0]?.url);
     },
     onUploadError: (err) => {
       toast({
@@ -66,6 +63,8 @@ function ProfileLinkAvatar({ profileLink }: Props) {
     onDrop,
     accept: generateClientDropzoneAccept(["image/png", "image/jpeg"]),
   });
+
+  if (!profileLink.isOwner && !profileLink.image) return null;
 
   return (
     <div
