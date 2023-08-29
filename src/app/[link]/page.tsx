@@ -47,16 +47,18 @@ export default async function Page({ params }: Props) {
   const { link } = params;
   const profileLink = await api.profileLink.getByLink.query({ link });
 
+  await api.profileLink.recordVisit.mutate({ link });
+
   if (!profileLink) {
     return (
-      <div className="mx-auto h-full w-full pb-16 pt-16 text-center">
+      <div className="mx-auto h-full w-full text-center">
         <p>This link does not exist. Please check the link and try again.</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto h-full w-full max-w-3xl pb-16 pt-16">
+    <div className="h-full w-full max-w-3xl">
       <div className="flex flex-col gap-y-6">
         <ProfileLinkEditor profileLink={profileLink} />
 

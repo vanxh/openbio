@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import ClaimLinkForm from "@/components/forms/claim-link";
-import AppNavbar from "@/components/app-navbar";
+import AppNavbar from "@/components/navbar/app";
 
 export default function Page() {
   return (

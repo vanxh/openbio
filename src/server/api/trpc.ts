@@ -12,7 +12,7 @@ import { prisma } from "@/server/db";
 
 type CreateContextOptions = {
   auth: SignedInAuthObject | SignedOutAuthObject | null;
-  req?: NextRequest;
+  req: NextRequest;
 };
 
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {

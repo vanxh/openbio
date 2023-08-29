@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs";
 
 import SetupLink from "@/components/forms/setup-link";
-import HomeNavbar from "@/components/home-navbar";
+import HomeNavbar from "@/components/navbar/home";
 
 export default async function Page({
   searchParams,

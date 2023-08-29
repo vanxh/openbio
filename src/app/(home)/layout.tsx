@@ -1,5 +1,5 @@
-import Footer from "@/components/footer";
-import HomeNavbar from "@/components/home-navbar";
+import HomeFooter from "@/components/footer/home";
+import HomeNavbar from "@/components/navbar/home";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      <Footer />
+      <HomeFooter />
     </div>
   );
 }

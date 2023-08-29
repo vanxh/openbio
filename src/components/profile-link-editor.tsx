@@ -87,7 +87,7 @@ function ProfileLinkAvatar({ profileLink }: Props) {
         />
       )}
 
-      {profileLink.isOwner && !profileLink.image && (
+      {profileLink.isOwner && !img && (
         <>
           <UploadCloud className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-semibold text-muted-foreground">Upload</p>

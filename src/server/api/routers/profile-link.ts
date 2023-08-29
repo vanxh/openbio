@@ -255,6 +255,67 @@ export const profileLinkRouter = createTRPCRouter({
       };
     }),
 
+  recordVisit: publicProcedure
+    .input(
+      z.object({
+        link: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
+      const forwardedFor = ctx.req.headers.get("x-forwarded-for");
+      if (!ip && forwardedFor) {
+        ip = forwardedFor.split(",").at(0) ?? "Unknown";
+      }
+
+      const exists = await ctx.prisma.profileLinkView.findFirst({
+        where: {
+          ip: ip ?? "Unknown",
+          profileLink: {
+            link: input.link,
+          },
+          createdAt: {
+            gte: new Date(Date.now() - 60 * 60 * 1000),
+          },
+        },
+      });
+
+      if (!exists) {
+        console.log("Creating view", ip, input.link);
+        await ctx.prisma.profileLinkView.create({
+          data: {
+            ip: ip ?? "Unknown",
+            userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
+            profileLink: {
+              connect: {
+                link: input.link,
+              },
+            },
+          },
+        });
+      }
+
+      return true;
+    }),
+
+  getViews: publicProcedure
+    .input(
+      z.object({
+        link: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const views = await ctx.prisma.profileLinkView.count({
+        where: {
+          profileLink: {
+            link: input.link,
+          },
+        },
+      });
+
+      return views;
+    }),
+
   update: protectedProcedure
     .input(
       z.object({

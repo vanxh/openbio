@@ -31,14 +31,29 @@ model ProfileLink {
     name  String
     bio   String?
 
-    views Int @default(0)
-
     user   User   @relation(fields: [userId], references: [id])
     userId String
 
-    Bento Bento[]
+    Bento           Bento[]
+    ProfileLinkView ProfileLinkView[]
 
     @@index([userId])
+}
+
+model ProfileLinkView {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    profileLink   ProfileLink @relation(fields: [profileLinkId], references: [id])
+    profileLinkId String
+
+    ip        String
+    userAgent String
+
+    @@index([profileLinkId, ip])
+    @@index([ip])
+    @@index([userAgent])
 }
 
 model Bento {

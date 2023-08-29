@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import HomeNavbar from "@/components/home-navbar";
+import HomeNavbar from "@/components/navbar/home";
 
 export default function Page() {
   return (

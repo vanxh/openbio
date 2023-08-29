@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function Footer() {
+export default function HomeFooter() {
   const footerLinks = {
     Developer: [
       {

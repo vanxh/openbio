@@ -5,8 +5,8 @@ import {
   twitterMetadata,
   ogMetadata,
 } from "@/app/shared-metadata";
-import Footer from "@/components/footer";
-import HomeNavbar from "@/components/home-navbar";
+import HomeFooter from "@/components/footer/home";
+import HomeNavbar from "@/components/navbar/home";
 
 export const metadata: Metadata = {
   ...defaultMetadata,
@@ -32,7 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </article>
       </div>
 
-      <Footer />
+      <HomeFooter />
     </section>
   );
 }
