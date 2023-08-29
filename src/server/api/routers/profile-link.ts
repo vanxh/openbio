@@ -399,16 +399,18 @@ export const profileLinkRouter = createTRPCRouter({
               if (b.id === input.id) {
                 return {
                   ...b,
-                  mobilePosition: input.mobilePosition as {
-                    x: number;
-                    y: number;
-                  },
-                  desktopPosition: input.desktopPosition as {
-                    x: number;
-                    y: number;
-                  },
-                  mobileSize: input.mobileSize,
-                  desktopSize: input.desktopSize,
+                  mobilePosition:
+                    (input.mobilePosition as {
+                      x: number;
+                      y: number;
+                    }) ?? b.mobilePosition,
+                  desktopPosition:
+                    (input.desktopPosition as {
+                      x: number;
+                      y: number;
+                    }) ?? b.desktopPosition,
+                  mobileSize: input.mobileSize ?? b.mobileSize,
+                  desktopSize: input.desktopSize ?? b.desktopSize,
                 };
               }
 
