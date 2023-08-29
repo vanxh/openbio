@@ -1,19 +1,51 @@
+import type { Metadata } from "next";
+
+import {
+  defaultMetadata,
+  twitterMetadata,
+  ogMetadata,
+} from "@/app/shared-metadata";
 import { api } from "@/trpc/server";
 import BentoCard from "@/components/bento/card";
 import BentoLayout from "@/components/bento/layout";
 import ProfileLinkEditor from "@/components/profile-link-editor";
 import ActionBar from "@/components/bento/action-bar";
 
-export default async function Page({
-  params,
-}: {
+type Props = {
   params: {
     link: string;
   };
-}) {
-  const profileLink = await api.profileLink.getByLink.query({
-    link: params.link,
-  });
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { link } = params;
+
+  const profileLink = await api.profileLink.getByLink.query({ link });
+
+  const title = profileLink?.name ?? defaultMetadata.title;
+  const description =
+    profileLink?.bio ??
+    `This is ${profileLink?.name ?? profileLink?.link}'s profile.`;
+  return {
+    ...defaultMetadata,
+    title,
+    description,
+    twitter: {
+      ...twitterMetadata,
+      title,
+      description,
+    },
+    openGraph: {
+      ...ogMetadata,
+      title,
+      description,
+    },
+  };
+}
+
+export default async function Page({ params }: Props) {
+  const { link } = params;
+  const profileLink = await api.profileLink.getByLink.query({ link });
 
   if (!profileLink) {
     return (
