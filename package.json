@@ -12,6 +12,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^4.24.0",
     "@clerk/nextjs": "^4.23.3",
     "@clerk/themes": "^1.7.5",
     "@hookform/resolvers": "^3.3.1",
@@ -47,6 +48,7 @@
     "react-hook-form": "^7.45.4",
     "react-icons": "^4.10.1",
     "resend": "^1.0.0",
+    "sharp": "^0.32.5",
     "superjson": "^1.13.1",
     "svix": "^1.9.0",
     "tailwind-merge": "^1.14.0",
