@@ -2,6 +2,7 @@ import { api } from "@/trpc/server";
 import BentoCard from "@/components/bento/card";
 import BentoLayout from "@/components/bento/layout";
 import ProfileLinkEditor from "@/components/profile-link-editor";
+import ActionBar from "@/components/bento/action-bar";
 
 export default async function Page({
   params,
@@ -32,6 +33,8 @@ export default async function Page({
             </div>
           ))}
         </BentoLayout>
+
+        {profileLink.isOwner && <ActionBar profileLink={profileLink} />}
       </div>
     </div>
   );

@@ -4,9 +4,9 @@ import { useState } from "react";
 import { type Bento } from "@prisma/client";
 
 import { cn } from "@/lib/utils";
-import DeleteButton from "@/components/bento/delete-button";
-import DragHandle from "@/components/bento/drag-handle";
-import ManageSize from "@/components/bento/manage-size";
+import DeleteButton from "@/components/bento/overlay/delete-button";
+import DragHandle from "@/components/bento/overlay/drag-handle";
+import ManageSize from "@/components/bento/overlay/manage-size";
 
 export default function CardOverlay({ bento }: { bento: Bento }) {
   const [active, setActive] = useState(false);
