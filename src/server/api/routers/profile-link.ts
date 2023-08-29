@@ -2,7 +2,7 @@ import * as z from "zod";
 import {
   BentoSize,
   type ProfileLink,
-  type BentoType,
+  BentoType,
   type Bento,
 } from "@prisma/client";
 import { kv } from "@vercel/kv";
@@ -304,6 +304,91 @@ export const profileLinkRouter = createTRPCRouter({
       await kv.del(`profile-link:${input.link}`);
 
       return true;
+    }),
+
+  createBento: protectedProcedure
+    .input(
+      z
+        .object({
+          link: z.string(),
+          type: z.nativeEnum(BentoType).refine((v) => v === "LINK"),
+          href: z.string().url(),
+        })
+        .or(
+          z.object({
+            link: z.string(),
+            type: z
+              .nativeEnum(BentoType)
+              .refine((v) => ["IMAGE", "VIDEO"].includes(v)),
+            url: z.string().url(),
+            caption: z.string().optional(),
+          })
+        )
+    )
+    .mutation(async ({ input, ctx }) => {
+      const cached = await kv.get<ProfileLinkCache | null>(
+        `profile-link:${input.link}`
+      );
+
+      const mobileX =
+        cached?.Bento.reduce(
+          (acc, b) => Math.max(acc, b.mobilePosition.x),
+          0
+        ) ?? 0;
+      const mobileY =
+        cached?.Bento.reduce(
+          (acc, b) => Math.max(acc, b.mobilePosition.y),
+          0
+        ) ?? 0;
+      const desktopX =
+        cached?.Bento.reduce(
+          (acc, b) => Math.max(acc, b.desktopPosition.x),
+          0
+        ) ?? 0;
+      const desktopY =
+        cached?.Bento.reduce(
+          (acc, b) => Math.max(acc, b.desktopPosition.y),
+          0
+        ) ?? 0;
+
+      const data = {
+        ...input,
+        link: undefined,
+      };
+
+      const bento = await ctx.prisma.bento.create({
+        data: {
+          ...data,
+          mobilePosition: {
+            x: mobileX + 1,
+            y: mobileY + 1,
+          },
+          desktopPosition: {
+            x: desktopX + 1,
+            y: desktopY + 1,
+          },
+          profileLink: {
+            connect: {
+              link: input.link,
+            },
+          },
+        },
+      });
+
+      if (cached) {
+        await kv.set(
+          `profile-link:${cached.link}`,
+          {
+            ...cached,
+            Bento: [...cached.Bento, bento],
+          },
+          {
+            ex: 30 * 60,
+          }
+        );
+      }
+
+      return bento;
     }),
 
   deleteBento: protectedProcedure

@@ -2,15 +2,10 @@
 
 import { Link, Rocket } from "lucide-react";
 
-import { type api } from "@/trpc/client";
 import { cn } from "@/lib/utils";
 import CreateLinkBentoModal from "@/components/modals/create-link-bento";
 
-export default function ActionBar({
-  profileLink,
-}: {
-  profileLink: Awaited<ReturnType<typeof api.profileLink.getByLink.query>>;
-}) {
+export default function ActionBar() {
   const btnClass =
     "inline-flex items-center bg-background justify-center rounded-md border border-border p-2 transition-transform duration-200 ease-in-out active:scale-95";
 

@@ -36,7 +36,7 @@ export default async function Page({
           ))}
         </BentoLayout>
 
-        {profileLink.isOwner && <ActionBar profileLink={profileLink} />}
+        {profileLink.isOwner && <ActionBar />}
       </div>
     </div>
   );

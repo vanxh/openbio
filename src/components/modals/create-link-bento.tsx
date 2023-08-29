@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
+import { api } from "@/trpc/client";
 import {
   Dialog,
   DialogContent,
@@ -17,25 +19,48 @@ export default function CreateLinkBentoModal({
 }: {
   children: React.ReactNode;
 }) {
-  const [link, setLink] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const router = useRouter();
+  const { link } = useParams() as { link: string };
+
+  const [input, setInput] = useState("");
 
   return (
-    <Dialog>
-      <DialogTrigger>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Link Card</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-y-4">
+        <form
+          className="space-y-4"
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            await api.profileLink.createBento.mutate({
+              link,
+              type: "LINK",
+              href: input,
+            });
+
+            void router.refresh();
+            setOpen(false);
+          }}
+        >
           <Input
+            type="url"
             placeholder="Enter link"
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
 
-          <Button>Create</Button>
-        </div>
+          <Button type="submit" disabled={!input} className="w-full">
+            Create
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   );
