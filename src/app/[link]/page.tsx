@@ -8,8 +8,8 @@ import {
 import { api } from "@/trpc/server";
 import BentoCard from "@/components/bento/card";
 import BentoLayout from "@/components/bento/layout";
-import ProfileLinkEditor from "@/components/profile-link-editor";
 import ActionBar from "@/components/bento/action-bar";
+import ProfileLinkEditor from "@/components/profile-link-editor";
 
 type Props = {
   params: {
