@@ -1,8 +1,9 @@
 "use client";
 
+import { Link, Rocket } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { type api } from "@/trpc/client";
-import { Link, Rocket } from "lucide-react";
 
 export default function ActionBar({
   profileLink,
@@ -19,15 +20,24 @@ export default function ActionBar({
           <Link size={14} />
         </button>
 
-        <button className={cn(btnClass, "opacity-50")} disabled>
+        <button
+          className={cn(btnClass, "opacity-50 active:scale-100")}
+          disabled
+        >
           <Rocket size={14} />
         </button>
 
-        <button className={cn(btnClass, "opacity-50")} disabled>
+        <button
+          className={cn(btnClass, "opacity-50 active:scale-100")}
+          disabled
+        >
           <Rocket size={14} />
         </button>
 
-        <button className={cn(btnClass, "opacity-50")} disabled>
+        <button
+          className={cn(btnClass, "opacity-50 active:scale-100")}
+          disabled
+        >
           <Rocket size={14} />
         </button>
       </div>
