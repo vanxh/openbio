@@ -3,6 +3,7 @@ import { type ProfileLink } from "@prisma/client";
 import { Eye } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@/trpc/server";
 
 export function ProfileLinkCardSkeleton() {
   return (
@@ -27,7 +28,11 @@ export function ProfileLinkCardSkeleton() {
   );
 }
 
-export default function ProfileLinkCard({ link }: { link: ProfileLink }) {
+export default async function ProfileLinkCard({ link }: { link: ProfileLink }) {
+  const views = await api.profileLink.getViews.query({
+    link: link.link,
+  });
+
   return (
     <Link
       href={`/${link.link}`}
@@ -44,7 +49,7 @@ export default function ProfileLinkCard({ link }: { link: ProfileLink }) {
         <span className="inline-flex items-center gap-x-2">
           <Eye size={16} />
           <span className="text-xs">
-            {link.views || "0"} {link.views === 1 ? "view" : "views"}
+            {views || "0"} {views === 1 ? "view" : "views"}
           </span>
         </span>
       </div>
