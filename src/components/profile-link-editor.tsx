@@ -111,30 +111,16 @@ export default function ProfileLinkEditor({ profileLink }: Props) {
   const [bio, setBio] = useState(profileLink.bio);
 
   const debouncedName = useDebounce(name, 500);
+  const debouncedBio = useDebounce(bio, 500);
+
   useEffect(() => {
     if (!profileLink.isOwner) return;
 
     setSaving(true);
-    api.profileLink.updateProfileLink
+    api.profileLink.update
       .mutate({
         link: profileLink.link,
         name: debouncedName,
-      })
-      .then(() => null)
-      .catch((_) => null)
-      .finally(() => {
-        setSaving(false);
-      });
-  }, [debouncedName, profileLink.isOwner, profileLink.link, profileLink.name]);
-
-  const debouncedBio = useDebounce(bio, 500);
-  useEffect(() => {
-    if (!profileLink.isOwner) return;
-
-    setSaving(true);
-    api.profileLink.updateProfileLink
-      .mutate({
-        link: profileLink.link,
         bio: debouncedBio ?? undefined,
       })
       .then(() => null)
@@ -142,7 +128,13 @@ export default function ProfileLinkEditor({ profileLink }: Props) {
       .finally(() => {
         setSaving(false);
       });
-  }, [debouncedBio, profileLink.isOwner, profileLink.link, profileLink.bio]);
+  }, [
+    debouncedName,
+    debouncedBio,
+    profileLink.isOwner,
+    profileLink.link,
+    profileLink.name,
+  ]);
 
   const editor = useEditor({
     extensions,

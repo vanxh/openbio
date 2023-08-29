@@ -13,7 +13,7 @@ export default function BentoLayout({
   profileLink,
 }: {
   children: React.ReactNode;
-  profileLink: Awaited<ReturnType<typeof api.profileLink.getProfileLink.query>>;
+  profileLink: Awaited<ReturnType<typeof api.profileLink.getByLink.query>>;
 }) {
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
@@ -97,7 +97,7 @@ export default function BentoLayout({
       }
 
       if (update) {
-        await api.profileLink.updateProfileLinkBento.mutate({
+        await api.profileLink.updateBento.mutate({
           id: bento.id,
           mobilePosition,
           desktopPosition,

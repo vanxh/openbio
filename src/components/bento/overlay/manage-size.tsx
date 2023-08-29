@@ -63,7 +63,7 @@ export default function ManageSize({
                   "rounded-sm bg-secondary text-secondary-foreground"
               )}
               onClick={() => {
-                void api.profileLink.updateProfileLinkBento
+                void api.profileLink.updateBento
                   .mutate({
                     id: bento.id,
                     [window.outerWidth < 500 ? "mobileSize" : "desktopSize"]:

@@ -103,7 +103,7 @@ export default function SetupLink() {
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
-      await api.profileLink.createProfileLink.mutate({
+      await api.profileLink.create.mutate({
         link,
         ...data,
       });

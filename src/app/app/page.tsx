@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileLinkCard from "@/components/profile-link-card";
 
 export default async function Page() {
-  const links = await api.profileLink.getProfileLinks.query();
+  const links = await api.profileLink.getAll.query();
 
   return (
     <div className="flex h-full w-full flex-col items-center">

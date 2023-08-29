@@ -11,7 +11,9 @@ export default async function Page({
     link: string;
   };
 }) {
-  const profileLink = await api.profileLink.getProfileLink.query(params.link);
+  const profileLink = await api.profileLink.getByLink.query({
+    link: params.link,
+  });
 
   if (!profileLink) {
     return (

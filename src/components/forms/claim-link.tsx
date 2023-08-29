@@ -21,9 +21,9 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
 
     const checkLink = async () => {
       setLoading(true);
-      const available = await api.profileLink.linkAvailable.query(
-        debouncedLink
-      );
+      const available = await api.profileLink.linkAvailable.query({
+        link: debouncedLink,
+      });
       setLoading(false);
       setAvailable(available);
     };

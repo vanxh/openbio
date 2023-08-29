@@ -63,21 +63,25 @@ type ProfileLinkCache = ProfileLink & {
 
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
-    .input(z.string())
+    .input(
+      z.object({
+        link: z.string(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const profileLink = await ctx.prisma.profileLink.findUnique({
         where: {
-          link: input,
+          link: input.link,
         },
         select: { id: true },
       });
 
       if (profileLink) return false;
 
-      return isValidLink(input);
+      return isValidLink(input.link);
     }),
 
-  createProfileLink: protectedProcedure
+  create: protectedProcedure
     .input(createProfileLinkInput)
     .mutation(async ({ input, ctx }) => {
       if (!isValidLink(input.link)) {
@@ -177,25 +181,27 @@ export const profileLinkRouter = createTRPCRouter({
       return profileLink;
     }),
 
-  getProfileLinks: protectedProcedure
-    .input(z.undefined())
-    .query(async ({ ctx }) => {
-      const profileLinks = await ctx.prisma.profileLink.findMany({
-        where: {
-          user: {
-            providerId: ctx.auth.userId,
-          },
+  getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
+    const profileLinks = await ctx.prisma.profileLink.findMany({
+      where: {
+        user: {
+          providerId: ctx.auth.userId,
         },
-      });
+      },
+    });
 
-      return profileLinks;
-    }),
+    return profileLinks;
+  }),
 
-  getProfileLink: publicProcedure
-    .input(z.string())
+  getByLink: publicProcedure
+    .input(
+      z.object({
+        link: z.string(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const cached = await kv.get<ProfileLinkCache | null>(
-        `profile-link:${input}`
+        `profile-link:${input.link}`
       );
 
       if (cached) {
@@ -207,7 +213,7 @@ export const profileLinkRouter = createTRPCRouter({
 
       const profileLink = await ctx.prisma.profileLink.findUnique({
         where: {
-          link: input,
+          link: input.link,
         },
         include: {
           Bento: true,
@@ -239,7 +245,7 @@ export const profileLinkRouter = createTRPCRouter({
         })),
       };
 
-      await kv.set(`profile-link:${input}`, data, {
+      await kv.set(`profile-link:${input.link}`, data, {
         ex: 30 * 60,
       });
 
@@ -249,7 +255,7 @@ export const profileLinkRouter = createTRPCRouter({
       };
     }),
 
-  updateProfileLink: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         link: z.string(),
@@ -282,31 +288,46 @@ export const profileLinkRouter = createTRPCRouter({
       return update;
     }),
 
-  deleteProfileLink: protectedProcedure
-    .input(z.string())
+  delete: protectedProcedure
+    .input(
+      z.object({
+        link: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       await ctx.prisma.profileLink.delete({
         where: {
-          link: input,
+          link: input.link,
         },
       });
 
-      await kv.del(`profile-link:${input}`);
+      await kv.del(`profile-link:${input.link}`);
 
       return true;
     }),
 
-  deleteProfileLinkBento: protectedProcedure
-    .input(z.string())
+  deleteBento: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      await ctx.prisma.bento.delete({
+      const res = await ctx.prisma.bento.delete({
         where: {
-          id: input,
+          id: input.id,
+        },
+        select: {
+          profileLink: {
+            select: {
+              link: true,
+            },
+          },
         },
       });
 
       const cached = await kv.get<ProfileLinkCache | null>(
-        `profile-link:${input}`
+        `profile-link:${res.profileLink.link}`
       );
 
       if (cached) {
@@ -314,7 +335,7 @@ export const profileLinkRouter = createTRPCRouter({
           `profile-link:${cached.link}`,
           {
             ...cached,
-            Bento: cached.Bento.filter((b) => b.id !== input),
+            Bento: cached.Bento.filter((b) => b.id !== input.id),
           },
           {
             ex: 30 * 60,
@@ -325,7 +346,7 @@ export const profileLinkRouter = createTRPCRouter({
       return true;
     }),
 
-  updateProfileLinkBento: protectedProcedure
+  updateBento: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -346,7 +367,7 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.prisma.bento.update({
+      const update = await ctx.prisma.bento.update({
         where: {
           id: input.id,
         },
@@ -356,10 +377,17 @@ export const profileLinkRouter = createTRPCRouter({
           mobileSize: input.mobileSize,
           desktopSize: input.desktopSize,
         },
+        select: {
+          profileLink: {
+            select: {
+              link: true,
+            },
+          },
+        },
       });
 
       const cached = await kv.get<ProfileLinkCache | null>(
-        `profile-link:${input.id}`
+        `profile-link:${update.profileLink.link}`
       );
 
       if (cached) {
