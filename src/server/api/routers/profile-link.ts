@@ -14,7 +14,7 @@ import {
 } from "@/server/api/trpc";
 
 const createProfileLinkInput = z.object({
-  link: z.string(),
+  link: z.string().toLowerCase(),
   twitter: z.string().optional(),
   github: z.string().optional(),
   linkedin: z.string().optional(),
@@ -65,7 +65,7 @@ export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
     .input(
       z.object({
-        link: z.string(),
+        link: z.string().toLowerCase(),
       })
     )
     .query(async ({ input, ctx }) => {
