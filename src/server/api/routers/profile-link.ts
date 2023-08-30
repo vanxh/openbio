@@ -72,6 +72,7 @@ const isValidLink = (link: string) => {
       "signout",
       "auth",
       "oauth",
+      "openbio",
     ].includes(link)
   ) {
     return true;
