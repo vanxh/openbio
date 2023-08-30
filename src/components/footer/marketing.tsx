@@ -10,7 +10,8 @@ import { api } from "@/trpc/client";
 export default function MarketingFooter() {
   const { link } = useParams() as { link: string };
 
-  const [views, setViews] = useState(0);
+  const [views, setViews] = useState<number | null>(null);
+  console.log(views);
 
   useEffect(() => {
     api.profileLink.getViews
@@ -18,7 +19,7 @@ export default function MarketingFooter() {
         link,
       })
       .then((res) => setViews(res))
-      .catch(() => null);
+      .catch(() => setViews(null));
   }, [link]);
 
   return (
@@ -36,10 +37,12 @@ export default function MarketingFooter() {
           </Link>
         </span>
 
-        <div className="flex flex-row items-center gap-x-2 text-muted-foreground">
-          <Eye size={16} />
-          <span className="text-sm">{views}</span>
-        </div>
+        {views !== null && (
+          <div className="flex flex-row items-center gap-x-2 text-muted-foreground">
+            <Eye size={16} />
+            <span className="text-sm">{views}</span>
+          </div>
+        )}
       </div>
     </footer>
   );

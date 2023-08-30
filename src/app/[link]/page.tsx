@@ -47,8 +47,6 @@ export default async function Page({ params }: Props) {
   const { link } = params;
   const profileLink = await api.profileLink.getByLink.query({ link });
 
-  await api.profileLink.recordVisit.mutate({ link });
-
   if (!profileLink) {
     return (
       <div className="mx-auto h-full w-full text-center">
@@ -56,6 +54,8 @@ export default async function Page({ params }: Props) {
       </div>
     );
   }
+
+  await api.profileLink.recordVisit.mutate({ link });
 
   return (
     <div className="h-full w-full max-w-3xl">

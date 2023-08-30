@@ -305,6 +305,18 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
+      const exists = await ctx.prisma.profileLink.findUnique({
+        where: {
+          link: input.link,
+        },
+        select: {
+          id: true,
+        },
+      });
+      if (!exists) {
+        throw new Error("Profile link not found");
+      }
+
       const views = await ctx.prisma.profileLinkView.count({
         where: {
           profileLink: {
