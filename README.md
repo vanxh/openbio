@@ -22,8 +22,6 @@ Do you want to help build a better and open source link in bio page builder. Che
 ## Contact Us
 
 Have any questions?
-
-&nbsp;
 &nbsp;
 
 [![Book us with Cal.com](https://cal.com/book-with-cal-dark.svg)](https://cal.com/vanxh/15min)

@@ -23,7 +23,9 @@ export default function Page() {
 
       <div className="mt-12 flex items-center gap-x-4">
         <Link href="/claim-link" passHref>
-          <Button className="">Create your page</Button>
+          <Button className="min-w-full whitespace-nowrap">
+            Create your page
+          </Button>
         </Link>
 
         <Link
@@ -32,7 +34,7 @@ export default function Page() {
           rel="noopener noreferrer"
           passHref
         >
-          <Button>
+          <Button className="whitespace-nowrap">
             <Github size={24} className="mr-2" />
             Star on Github
           </Button>
