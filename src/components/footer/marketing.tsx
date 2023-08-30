@@ -11,7 +11,6 @@ export default function MarketingFooter() {
   const { link } = useParams() as { link: string };
 
   const [views, setViews] = useState<number | null>(null);
-  console.log(views);
 
   useEffect(() => {
     api.profileLink.getViews
