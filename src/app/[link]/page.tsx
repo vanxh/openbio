@@ -34,11 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...twitterMetadata,
       title,
       description,
+      images: [`/api/og?title=${title}&description=${description}`],
     },
     openGraph: {
       ...ogMetadata,
       title,
       description,
+      images: [`/api/og?title=${title}&description=${description}`],
     },
   };
 }
