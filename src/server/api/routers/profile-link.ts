@@ -165,6 +165,10 @@ export const profileLinkRouter = createTRPCRouter({
             url = `https://www.${key}.tv/${value}`;
           }
 
+          if (key === "telegram") {
+            url = `https://t.me/${value}`;
+          }
+
           bento.push({
             type: "LINK",
 
