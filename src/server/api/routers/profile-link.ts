@@ -158,7 +158,7 @@ export const profileLinkRouter = createTRPCRouter({
           }
 
           if (key === "youtube") {
-            url = `https://www.${key}.com/@${value}`;
+            url = `https://www.${key}.com/@${value.replace("@", "")}`;
           }
 
           if (key === "twitch") {
