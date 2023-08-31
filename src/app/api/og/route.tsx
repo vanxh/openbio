@@ -25,7 +25,8 @@ export async function GET(req: Request) {
             {title}
           </h1>
           <p tw="text-black/50 text-3xl">
-            {description.slice(0, 100)}
+            {description.slice(0, 100).replace(/(<([^>]+)>)/gi, "")}
+
             {description.length > 100 ? "..." : ""}
           </p>
         </div>
