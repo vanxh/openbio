@@ -9,7 +9,8 @@
     "preinstall": "npx only-allow pnpm",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/clerk-react": "^4.24.0",
