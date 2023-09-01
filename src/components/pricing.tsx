@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Confetti from "react-dom-confetti";
 import { Check, HelpCircle, X } from "lucide-react";
 
@@ -13,14 +14,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "./ui/button";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 type Billing = "monthly" | "annually";
 
 const PricingCards = ({ billing }: { billing: Billing }) => {
   return (
-    <div className="flex w-full flex-col gap-6 md:grid md:grid-cols-2">
+    <div
+      id="pricing"
+      className="flex w-full flex-col gap-6 md:grid md:grid-cols-2"
+    >
       {PLANS.map((plan) => (
         <div
           key={plan.name}

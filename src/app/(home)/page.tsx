@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Github } from "lucide-react";
+import { ChevronRight, Github } from "lucide-react";
 
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,22 @@ export default function Page() {
           </Button>
         </Link>
       </div>
+
+      <Button
+        variant="link"
+        size="sm"
+        asChild
+        className="mt-2 transition-transform ease-in-out active:scale-95"
+      >
+        <Link
+          href="https://twitter.com/Vanxhh/status/1696948312148943128"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Announcement Tweet
+          <ChevronRight size={12} className="ml-2" />
+        </Link>
+      </Button>
 
       <div className="my-12" />
 
