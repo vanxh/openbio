@@ -7,6 +7,7 @@ export const PLANS: {
     tooltip?: string;
     notAvailable?: boolean;
   }[];
+  footer?: string;
 }[] = [
   {
     name: "Free",
@@ -79,5 +80,6 @@ export const PLANS: {
         text: "Priority support",
       },
     ],
+    footer: "All features might not be available yet",
   },
 ];

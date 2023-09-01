@@ -76,6 +76,10 @@ const PricingCards = ({ billing }: { billing: Billing }) => {
               </span>
             ))}
           </div>
+
+          {plan.footer && (
+            <p className="mt-4 text-xs text-muted-foreground">{plan.footer}</p>
+          )}
         </div>
       ))}
     </div>
