@@ -17,7 +17,7 @@ model User {
     firstName  String
     lastName   String?
 
-    stripeCustomerId   String?
+    stripeCustomerId   String?   @unique
     subscriptionId     String?
     plan               Plan      @default(FREE)
     subscriptionEndsAt DateTime?

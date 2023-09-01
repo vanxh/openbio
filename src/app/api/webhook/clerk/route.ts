@@ -39,15 +39,15 @@ export async function POST(req: NextRequestWithSvixRequiredHeaders) {
 
   switch (event) {
     case "user.created":
-      await caller.clerk.webhooks.userCreated({ data: payload });
+      await caller.clerk.webhook.userCreated({ data: payload });
       break;
     case "user.updated":
-      await caller.clerk.webhooks.userUpdated({ data: payload });
+      await caller.clerk.webhook.userUpdated({ data: payload });
     case "user.deleted":
       break;
 
     case "session.created":
-      await caller.clerk.webhooks.userSignedIn({ data: payload });
+      await caller.clerk.webhook.userSignedIn({ data: payload });
       break;
     case "session.revoked":
     case "session.removed":
