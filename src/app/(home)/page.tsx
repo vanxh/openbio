@@ -4,6 +4,7 @@ import { Github } from "lucide-react";
 
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
+import Pricing from "@/components/pricing";
 
 export default function Page() {
   return (
@@ -17,7 +18,7 @@ export default function Page() {
         link in bio pages for free.
       </h1>
 
-      <p className="mt-4 text-xl md:text-2xl">
+      <p className="mt-4 text-lg md:text-xl">
         OpenBio is an open source link in bio page builder.
       </p>
 
@@ -40,6 +41,10 @@ export default function Page() {
           </Button>
         </Link>
       </div>
+
+      <div className="my-12" />
+
+      <Pricing />
     </div>
   );
 }
