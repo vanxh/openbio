@@ -4,11 +4,16 @@ import { api } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileLinkCard from "@/components/profile-link-card";
+import UserSettings from "@/components/user-settings";
 
 export default async function Page() {
   const links = await api.profileLink.getAll.query();
 
   const user = await api.user.me.query();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="flex h-full w-full flex-col items-center">
@@ -49,26 +54,7 @@ export default async function Page() {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-4 w-full">
-          <div className="flex w-full flex-col">
-            <h1 className="font-cal text-3xl md:text-5xl">Settings</h1>
-
-            <p className="mt-8">
-              You are currently logged in as{" "}
-              <span className="font-semibold">{user?.email}</span>.
-            </p>
-
-            <h3 className="mt-4 font-cal text-lg md:text-xl">Subscription</h3>
-
-            <p className="mt-2">
-              You are currently subscribed to the{" "}
-              <span className="font-semibold lowercase">{user?.plan}</span>{" "}
-              plan.
-            </p>
-
-            <Button asChild className="mt-4 w-max">
-              <Link href="/#pricing">Upgrade</Link>
-            </Button>
-          </div>
+          <UserSettings user={user} />
         </TabsContent>
       </Tabs>
     </div>

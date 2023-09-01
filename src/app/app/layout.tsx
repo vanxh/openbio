@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="container mx-auto flex min-h-screen w-full flex-col items-center pt-[100px]">
       <AppNavbar />
 
-      {children}
+      <div className="flex w-full max-w-3xl flex-col">{children}</div>
     </div>
   );
 }
