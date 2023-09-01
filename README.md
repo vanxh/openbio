@@ -15,7 +15,9 @@
 
 OpenBio is an open source link in bio page builder.
 
-[![OpenBio](https://openbio.app/example.jpg)](https://openbio.app/vanxh)
+<a href="https://openbio.app/vanxh">
+   <img width="300px" src="https://openbio.app/example.jpg" alt="OpenBio example" />
+</a>
 
 ## Contributing
 
