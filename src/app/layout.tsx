@@ -9,8 +9,7 @@ import {
   twitterMetadata,
   ogMetadata,
 } from "@/app/shared-metadata";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ClerkProvider } from "@/components/clerk-provider";
+import Providers from "@/app/providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/toaster";
 import Background from "@/components/background";
@@ -44,14 +43,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${calSans.variable} font-inter`}>
-        <ThemeProvider>
-          <ClerkProvider>
-            <Background />
-            {children}
-            <Toaster />
-            <TailwindIndicator />
-          </ClerkProvider>
-        </ThemeProvider>
+        <Providers>
+          <Background />
+          {children}
+          <Toaster />
+          <TailwindIndicator />
+        </Providers>
       </body>
     </html>
   );
