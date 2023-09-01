@@ -4,18 +4,23 @@ import { api } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileLinkCard from "@/components/profile-link-card";
+import UserSettings from "@/components/user-settings";
 
 export default async function Page() {
   const links = await api.profileLink.getAll.query();
+
+  const user = await api.user.me.query();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="flex h-full w-full flex-col items-center">
       <Tabs defaultValue="links" className="flex w-full flex-col items-center">
         <TabsList className="w-max">
           <TabsTrigger value="links">OpenBio Links</TabsTrigger>
-          <TabsTrigger value="settings" disabled>
-            Settings
-          </TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="links" className="mt-4 w-full">
@@ -40,18 +45,16 @@ export default async function Page() {
                   You don&apos;t have any links yet.
                 </p>
 
-                <Link href="/claim-link" passHref>
-                  <Button className="mt-4">Create Link</Button>
-                </Link>
+                <Button className="mt-4" asChild>
+                  <Link href="/claim-link">Create Link</Link>
+                </Button>
               </div>
             )}
           </div>
         </TabsContent>
 
         <TabsContent value="settings" className="mt-4 w-full">
-          <div className="flex w-full flex-col">
-            <h1 className="font-cal text-3xl md:text-5xl">Settings</h1>
-          </div>
+          <UserSettings user={user} />
         </TabsContent>
       </Tabs>
     </div>

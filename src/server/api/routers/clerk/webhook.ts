@@ -63,7 +63,3 @@ export const webhookRouter = createTRPCRouter({
     }
   }),
 });
-
-export const clerkRouter = createTRPCRouter({
-  webhooks: webhookRouter,
-});

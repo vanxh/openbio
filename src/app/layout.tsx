@@ -9,11 +9,11 @@ import {
   twitterMetadata,
   ogMetadata,
 } from "@/app/shared-metadata";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ClerkProvider } from "@/components/clerk-provider";
+import ClientProviders from "@/app/client-providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/toaster";
 import Background from "@/components/background";
+import { ClerkProvider } from "@/components/clerk-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,17 +42,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${calSans.variable} font-inter`}>
-        <ThemeProvider>
-          <ClerkProvider>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${inter.variable} ${calSans.variable} font-inter`}>
+          <ClientProviders>
             <Background />
             {children}
             <Toaster />
             <TailwindIndicator />
-          </ClerkProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+          </ClientProviders>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
