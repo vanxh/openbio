@@ -44,6 +44,7 @@ export const PLANS: {
         notAvailable: true,
       },
     ],
+    footer: "All features might not be available yet",
   },
   {
     name: "Pro",

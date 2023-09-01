@@ -6,6 +6,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sendEmail } from "@/server/emails";
 import { stripe } from "@/stripe";
 import UpgradedEmail from "@/components/emails/upgraded";
+import CancelledEmail from "@/components/emails/cancelled";
 
 export const webhookProcedure = publicProcedure.input(
   z.object({
@@ -76,13 +77,19 @@ export const webhookRouter = createTRPCRouter({
           ? subscription.customer
           : subscription.customer.id;
 
-      await ctx.prisma.user.update({
+      const user = await ctx.prisma.user.update({
         where: { stripeCustomerId: customerId },
         data: {
           plan: "FREE",
           subscriptionId: null,
           subscriptionEndsAt: null,
         },
+      });
+
+      await sendEmail({
+        subject: "Sad to see you go 😢",
+        to: [user.email],
+        react: CancelledEmail(),
       });
     }
   ),

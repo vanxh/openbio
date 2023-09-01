@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { type User } from "@prisma/client";
 import Confetti from "react-dom-confetti";
-import { Check, HelpCircle, X } from "lucide-react";
+import { Check, HelpCircle, Loader, X } from "lucide-react";
 
 import { PLANS } from "@/stripe/plans";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,10 +16,45 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/client";
+import { getStripe } from "@/stripe/client";
+import { redirect } from "next/navigation";
 
 type Billing = "monthly" | "annually";
 
-const PricingCards = ({ billing }: { billing: Billing }) => {
+export const PricingCards = ({
+  billing,
+  user,
+}: {
+  billing: Billing;
+  user?: User;
+}) => {
+  const [isPending, startTransition] = useTransition();
+
+  const handleCheckout = (plan: string) => {
+    startTransition(async () => {
+      switch (plan) {
+        case "free":
+          const billingPortal = await api.stripe.getBillingPortalUrl.mutate();
+
+          void redirect(billingPortal);
+          break;
+
+        case "pro":
+          const session = await api.stripe.getCheckoutSession.mutate({
+            billing,
+          });
+
+          const stripe = await getStripe();
+
+          void stripe?.redirectToCheckout({
+            sessionId: session.id,
+          });
+          break;
+      }
+    });
+  };
+
   return (
     <div
       id="pricing"
@@ -76,6 +112,29 @@ const PricingCards = ({ billing }: { billing: Billing }) => {
               </span>
             ))}
           </div>
+
+          <div className="my-auto" />
+
+          {user && (
+            <Button
+              className="mt-4"
+              disabled={
+                user.plan.toLowerCase() === plan.name.toLowerCase() || isPending
+              }
+              onClick={() => {
+                void handleCheckout(plan.name.toLowerCase());
+              }}
+            >
+              {isPending && (
+                <Loader className="mr-2 inline-block animate-spin" size={16} />
+              )}
+              {user.plan.toLowerCase() === plan.name.toLowerCase()
+                ? "Current plan"
+                : plan.name.toLowerCase() === "free"
+                ? "Downgrade"
+                : "Upgrade"}
+            </Button>
+          )}
 
           {plan.footer && (
             <p className="mt-4 text-xs text-muted-foreground">{plan.footer}</p>
