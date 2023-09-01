@@ -8,6 +8,9 @@ on:
     branches:
       - main 
 
+env:
+  SKIP_ENV_VALIDATION: true
+
 jobs:
   cache-and-install:
     runs-on: ubuntu-latest
