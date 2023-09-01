@@ -17,7 +17,19 @@ model User {
     firstName  String
     lastName   String?
 
+    stripeCustomerId   String?
+    subscriptionId     String?
+    plan               Plan      @default(FREE)
+    subscriptionEndsAt DateTime?
+
     ProfileLink ProfileLink[]
+
+    @@index([email])
+}
+
+enum Plan {
+    FREE
+    PRO
 }
 
 model ProfileLink {
