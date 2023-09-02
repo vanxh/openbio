@@ -4,6 +4,7 @@ import {
   type ProfileLink,
   BentoType,
   type Bento,
+  type Plan,
 } from "@prisma/client";
 import { kv } from "@vercel/kv";
 
@@ -94,6 +95,8 @@ type ProfileLinkCache = ProfileLink & {
   })[];
   user: {
     providerId: string;
+    subscriptionEndsAt: Date | null;
+    plan: Plan;
   };
 };
 
@@ -248,6 +251,10 @@ export const profileLinkRouter = createTRPCRouter({
         return {
           ...cached,
           isOwner: ctx.auth?.userId === cached.user.providerId,
+          isPremium:
+            cached.user.plan === "PRO" &&
+            cached.user.subscriptionEndsAt &&
+            cached.user.subscriptionEndsAt > new Date(),
         };
       }
 
@@ -260,6 +267,8 @@ export const profileLinkRouter = createTRPCRouter({
           user: {
             select: {
               providerId: true,
+              subscriptionEndsAt: true,
+              plan: true,
             },
           },
         },
@@ -292,6 +301,10 @@ export const profileLinkRouter = createTRPCRouter({
       return {
         ...data,
         isOwner: ctx.auth?.userId === profileLink.user.providerId,
+        isPremium:
+          profileLink.user.plan === "PRO" &&
+          profileLink.user.subscriptionEndsAt &&
+          profileLink.user.subscriptionEndsAt > new Date(),
       };
     }),
 

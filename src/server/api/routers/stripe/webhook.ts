@@ -4,7 +4,7 @@ import type Stripe from "stripe";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { sendEmail } from "@/server/emails";
-import { stripe } from "@/stripe";
+import { stripe } from "@/lib/stripe";
 import UpgradedEmail from "@/components/emails/upgraded";
 import CancelledEmail from "@/components/emails/cancelled";
 
