@@ -212,6 +212,8 @@ export const profileLinkRouter = createTRPCRouter({
           user: {
             select: {
               providerId: true,
+              subscriptionEndsAt: true,
+              plan: true,
             },
           },
         },
@@ -402,6 +404,8 @@ export const profileLinkRouter = createTRPCRouter({
           user: {
             select: {
               providerId: true,
+              subscriptionEndsAt: true,
+              plan: true,
             },
           },
         },
