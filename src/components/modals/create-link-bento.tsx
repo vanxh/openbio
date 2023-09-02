@@ -57,9 +57,20 @@ export default function CreateLinkBentoModal({
             onChange={(e) => setInput(e.target.value)}
           />
 
-          <Button type="submit" disabled={!input} className="w-full">
-            Create
-          </Button>
+          <div className="flex gap-x-4">
+            <Button type="submit" disabled={!input} className="w-full">
+              Create
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="w-full"
+            >
+              Close
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

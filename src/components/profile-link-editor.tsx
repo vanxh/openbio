@@ -1,27 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type ProfileLink } from "@prisma/client";
+import Image from "next/image";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useDropzone } from "react-dropzone";
-import type { FileWithPath } from "react-dropzone";
-import { UploadCloud } from "lucide-react";
+import { useDropzone, type FileWithPath } from "react-dropzone";
+import { QrCode, UploadCloud } from "lucide-react";
+import { generateClientDropzoneAccept } from "uploadthing/client";
 
-import { api } from "@/trpc/client";
+import { type RouterOutputs, api } from "@/trpc/client";
 import { useUploadThing } from "@/lib/uploadthing";
+import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import LinkQRModal from "@/components/modals/link-qr-modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { generateClientDropzoneAccept } from "uploadthing/client";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 type Props = {
-  profileLink: ProfileLink & {
-    isOwner: boolean;
-  };
+  profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
 };
 
 const extensions = [
@@ -156,20 +153,28 @@ export default function ProfileLinkEditor({ profileLink }: Props) {
         <ProfileLinkAvatar profileLink={profileLink} />
 
         {profileLink.isOwner && (
-          <Button
-            disabled={saving}
-            onClick={() => {
-              void navigator.clipboard.writeText(
-                `https://openbio.app/${profileLink.link}`
-              );
-              toast({
-                title: "Copied!",
-                description: "Copied profile link to clipboard!",
-              });
-            }}
-          >
-            {saving ? "Saving..." : "Share"}
-          </Button>
+          <div className="flex flex-row items-center gap-x-4">
+            <Button
+              disabled={saving}
+              onClick={() => {
+                void navigator.clipboard.writeText(
+                  `https://openbio.app/${profileLink.link}`
+                );
+                toast({
+                  title: "Copied to clipboard!",
+                  description: "Copied profile link to clipboard!",
+                });
+              }}
+            >
+              {saving ? "Saving..." : "Share"}
+            </Button>
+
+            <LinkQRModal profileLink={profileLink}>
+              <Button size="icon" variant="outline" disabled={saving}>
+                <QrCode className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+            </LinkQRModal>
+          </div>
         )}
       </div>
 
