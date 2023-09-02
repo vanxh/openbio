@@ -16,7 +16,7 @@ import type { CSSProperties } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import { escape } from "html-escaper";
 import qrcodegen from "./generator";
-import Image from "next/image";
+import NextImage from "next/image";
 
 type Modules = ReturnType<qrcodegen.QrCode["getModules"]>;
 type Excavation = { x: number; y: number; w: number; h: number };
@@ -291,7 +291,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
   let img = null;
   if (imgSrc != null) {
     img = (
-      <Image
+      <NextImage
         alt="QR code"
         src={imgSrc}
         key={imgSrc}
