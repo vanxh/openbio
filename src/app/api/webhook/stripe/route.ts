@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { createTRPCContext } from "@/server/api/trpc";
 import { appRouter } from "@/server/api/root";
-import { stripe } from "@/stripe";
+import { stripe } from "@/lib/stripe";
 import { env } from "@/env.mjs";
 
 export async function POST(req: NextRequest) {

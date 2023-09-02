@@ -6,7 +6,7 @@ import { type User } from "@prisma/client";
 import Confetti from "react-dom-confetti";
 import { Check, HelpCircle, Loader, X } from "lucide-react";
 
-import { PLANS } from "@/stripe/plans";
+import { PLANS } from "@/lib/stripe/plans";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/client";
-import { getStripe } from "@/stripe/client";
+import { getStripe } from "@/lib/stripe/client";
 import { redirect } from "next/navigation";
 
 type Billing = "monthly" | "annually";

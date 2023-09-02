@@ -2,7 +2,7 @@
 
 import { Elements as StripeElements } from "@stripe/react-stripe-js";
 
-import { getStripe } from "@/stripe/client";
+import { getStripe } from "@/lib/stripe/client";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export default function ClientProviders({
