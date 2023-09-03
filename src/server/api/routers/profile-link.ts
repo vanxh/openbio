@@ -14,8 +14,70 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 
+const RESERVED_LINKS = [
+  "sign-up",
+  "sign-in",
+  "claim",
+  "api",
+  "actions",
+  "app",
+  "create-link",
+  "twitter",
+  "github",
+  "linkedin",
+  "instagram",
+  "telegram",
+  "discord",
+  "youtube",
+  "twitch",
+  "about",
+  "pricing",
+  "contact",
+  "privacy",
+  "terms",
+  "legal",
+  "blog",
+  "docs",
+  "support",
+  "help",
+  "status",
+  "jobs",
+  "press",
+  "partners",
+  "developers",
+  "security",
+  "cookies",
+  "settings",
+  "profile",
+  "account",
+  "dashboard",
+  "admin",
+  "login",
+  "logout",
+  "signout",
+  "auth",
+  "oauth",
+  "openbio",
+];
+
+const validLinkSchema = z
+  .string()
+  .min(3, {
+    message: "Link must be at least 3 characters long.",
+  })
+  .max(50, {
+    message: "Link must be at most 50 characters long.",
+  })
+  .regex(/^[a-z0-9-]+$/, {
+    message: "Link must only contain lowercase letters, numbers, and dashes.",
+  })
+  .transform((value) => value.toLowerCase())
+  .refine((value) => !RESERVED_LINKS.includes(value), {
+    message: "This link is reserved.",
+  });
+
 const createProfileLinkInput = z.object({
-  link: z.string().toLowerCase(),
+  link: validLinkSchema,
   twitter: z.string().optional(),
   github: z.string().optional(),
   linkedin: z.string().optional(),
@@ -25,62 +87,6 @@ const createProfileLinkInput = z.object({
   youtube: z.string().optional(),
   twitch: z.string().optional(),
 });
-
-const isValidLink = (link: string) => {
-  if (
-    /^[a-zA-Z0-9_]+$/.test(link) &&
-    link.length >= 3 &&
-    ![
-      "sign-up",
-      "sign-in",
-      "claim",
-      "api",
-      "actions",
-      "app",
-      "create-link",
-      "twitter",
-      "github",
-      "linkedin",
-      "instagram",
-      "telegram",
-      "discord",
-      "youtube",
-      "twitch",
-      "about",
-      "pricing",
-      "contact",
-      "privacy",
-      "terms",
-      "legal",
-      "blog",
-      "docs",
-      "support",
-      "help",
-      "status",
-      "jobs",
-      "press",
-      "partners",
-      "developers",
-      "security",
-      "cookies",
-      "settings",
-      "profile",
-      "account",
-      "dashboard",
-      "admin",
-      "login",
-      "logout",
-      "signout",
-      "auth",
-      "oauth",
-      "openbio",
-    ].includes(link)
-  ) {
-    return true;
-  }
-
-  return false;
-};
 
 type ProfileLinkCache = ProfileLink & {
   Bento: (Bento & {
@@ -117,16 +123,12 @@ export const profileLinkRouter = createTRPCRouter({
 
       if (profileLink) return false;
 
-      return isValidLink(input.link);
+      return validLinkSchema.safeParse(input.link).success;
     }),
 
   create: protectedProcedure
     .input(createProfileLinkInput)
     .mutation(async ({ input, ctx }) => {
-      if (!isValidLink(input.link)) {
-        throw new Error("Invalid link");
-      }
-
       const profileLinks = await ctx.prisma.profileLink.count({
         where: {
           user: {
