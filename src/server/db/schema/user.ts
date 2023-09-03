@@ -13,7 +13,7 @@ export const user = pgTable("user", {
   firstName: text("first_name").default(""),
   lastName: text("last_name").default(""),
 
-  plan: plan("plan").default("free"),
+  plan: plan("plan").default("free").notNull(),
   stripeCustomerId: text("stripe_customer_id").unique(),
   subscriptionId: text("subscription_id"),
   subscriptionEndsAt: timestamp("subscription_ends_at", {

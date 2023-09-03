@@ -7,6 +7,7 @@ import { sendEmail } from "@/server/emails";
 import { stripe } from "@/lib/stripe";
 import UpgradedEmail from "@/components/emails/upgraded";
 import CancelledEmail from "@/components/emails/cancelled";
+import { eq, user } from "@/server/db";
 
 export const webhookProcedure = publicProcedure.input(
   z.object({
@@ -42,29 +43,29 @@ export const webhookRouter = createTRPCRouter({
         ? subscription.customer
         : subscription.customer.id;
 
-    const user = await ctx.prisma.user.findUnique({
-      where: { stripeCustomerId },
+    const res = await ctx.db.query.user.findFirst({
+      where: eq(user.stripeCustomerId, stripeCustomerId),
     });
 
-    if (!user) {
+    if (!res) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "User not found",
       });
     }
 
-    await ctx.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        plan: "PRO",
+    await ctx.db
+      .update(user)
+      .set({
+        plan: "pro",
         subscriptionId: subscription.id,
         subscriptionEndsAt: new Date(subscription.current_period_end * 1000),
-      },
-    });
+      })
+      .where(eq(user.id, res.id));
 
     await sendEmail({
       subject: "Thank you for upgrading! 🎉",
-      to: [user.email],
+      to: [res.email],
       react: UpgradedEmail(),
     });
   }),
@@ -77,18 +78,29 @@ export const webhookRouter = createTRPCRouter({
           ? subscription.customer
           : subscription.customer.id;
 
-      const user = await ctx.prisma.user.update({
-        where: { stripeCustomerId: customerId },
-        data: {
-          plan: "FREE",
+      const res = await ctx.db.query.user.findFirst({
+        where: eq(user.stripeCustomerId, customerId),
+      });
+
+      if (!res) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User not found",
+        });
+      }
+
+      await ctx.db
+        .update(user)
+        .set({
+          plan: "free",
           subscriptionId: null,
           subscriptionEndsAt: null,
-        },
-      });
+        })
+        .where(eq(user.id, res.id));
 
       await sendEmail({
         subject: "Sad to see you go 😢",
-        to: [user.email],
+        to: [res.email],
         react: CancelledEmail(),
       });
     }
