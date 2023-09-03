@@ -110,6 +110,9 @@ dependencies:
   drizzle-orm:
     specifier: ^0.28.5
     version: 0.28.5(@neondatabase/serverless@0.6.0)
+  drizzle-zod:
+    specifier: ^0.5.1
+    version: 0.5.1(drizzle-orm@0.28.5)(zod@3.22.2)
   html-escaper:
     specifier: ^3.0.3
     version: 3.0.3
@@ -3153,6 +3156,16 @@ packages:
         optional: true
     dependencies:
       '@neondatabase/serverless': 0.6.0
+    dev: false
+
+  /drizzle-zod@0.5.1(drizzle-orm@0.28.5)(zod@3.22.2):
+    resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
+    peerDependencies:
+      drizzle-orm: '>=0.23.13'
+      zod: '*'
+    dependencies:
+      drizzle-orm: 0.28.5(@neondatabase/serverless@0.6.0)
+      zod: 3.22.2
     dev: false
 
   /editorconfig@1.0.4:

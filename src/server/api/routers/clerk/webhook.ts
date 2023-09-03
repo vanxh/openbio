@@ -2,7 +2,7 @@ import * as z from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { clerkEvent } from "@/server/api/routers/clerk/type";
-import { eq, user } from "@/server/db";
+import { user } from "@/server/db";
 import { sendEmail } from "@/server/emails";
 import WelcomeEmail from "@/components/emails/welcome";
 
@@ -22,7 +22,7 @@ export const webhookRouter = createTRPCRouter({
       if (!email) throw new Error("No email provided");
 
       const exists = await ctx.db.query.user.findFirst({
-        where: eq(user.providerId, input.data.data.id),
+        where: (user, { eq }) => eq(user.providerId, input.data.data.id),
         columns: {
           id: true,
         },
@@ -53,7 +53,7 @@ export const webhookRouter = createTRPCRouter({
   userSignedIn: webhookProcedure.mutation(({ input, ctx }) => {
     if (input.data.type === "session.created") {
       const res = ctx.db.query.user.findFirst({
-        where: eq(user.providerId, input.data.data.id),
+        where: (user, { eq }) => eq(user.providerId, input.data.data.id),
         columns: {
           id: true,
         },

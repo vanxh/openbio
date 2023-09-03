@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { type ProfileLink } from "@prisma/client";
 import { Eye } from "lucide-react";
 
+import { type RouterOutputs, api } from "@/trpc/server";
 import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/server";
 
 export function ProfileLinkCardSkeleton() {
   return (
@@ -28,7 +27,11 @@ export function ProfileLinkCardSkeleton() {
   );
 }
 
-export default async function ProfileLinkCard({ link }: { link: ProfileLink }) {
+export default async function ProfileLinkCard({
+  link,
+}: {
+  link: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
+}) {
   const views = await api.profileLink.getViews.query({
     link: link.link,
   });

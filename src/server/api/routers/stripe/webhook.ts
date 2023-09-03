@@ -44,7 +44,7 @@ export const webhookRouter = createTRPCRouter({
         : subscription.customer.id;
 
     const res = await ctx.db.query.user.findFirst({
-      where: eq(user.stripeCustomerId, stripeCustomerId),
+      where: (user, { eq }) => eq(user.stripeCustomerId, stripeCustomerId),
     });
 
     if (!res) {
@@ -79,7 +79,7 @@ export const webhookRouter = createTRPCRouter({
           : subscription.customer.id;
 
       const res = await ctx.db.query.user.findFirst({
-        where: eq(user.stripeCustomerId, customerId),
+        where: (user, { eq }) => eq(user.stripeCustomerId, customerId),
       });
 
       if (!res) {

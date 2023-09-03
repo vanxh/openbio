@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type Bento } from "@prisma/client";
 import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
 import { BsDiscord } from "react-icons/bs";
 import { BiLogoTelegram } from "react-icons/bi";
+import type * as z from "zod";
 
+import { type linkBentoSchema } from "@/server/db";
 import { getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -224,7 +225,7 @@ export default async function LinkCard({
   bento,
   editable,
 }: {
-  bento: Bento;
+  bento: z.infer<typeof linkBentoSchema>;
   editable?: boolean;
 }) {
   if (!bento.href) return null;
@@ -259,8 +260,8 @@ export default async function LinkCard({
         <p
           className={cn(
             "mt-2 font-cal text-sm",
-            bento.mobileSize === "SIZE_4x1" ? "" : "hidden",
-            bento.desktopSize === "SIZE_4x1" ? "" : "hidden"
+            bento.size.sm === "4x1" ? "" : "hidden",
+            bento.size.md === "4x1" ? "" : "hidden"
           )}
         >
           {title}
@@ -270,8 +271,8 @@ export default async function LinkCard({
       <p
         className={cn(
           "mt-2 font-cal text-sm",
-          bento.mobileSize === "SIZE_4x1" ? "hidden" : "",
-          bento.desktopSize === "SIZE_4x1" ? "hidden" : ""
+          bento.size.sm === "4x1" ? "hidden" : "",
+          bento.size.md === "4x1" ? "hidden" : ""
         )}
       >
         {title}
@@ -281,8 +282,8 @@ export default async function LinkCard({
         <p
           className={cn(
             "truncate text-xs",
-            bento.mobileSize === "SIZE_4x1" ? "hidden" : "",
-            bento.desktopSize === "SIZE_4x1" ? "hidden" : ""
+            bento.size.sm === "4x1" ? "hidden" : "",
+            bento.size.md === "4x1" ? "hidden" : ""
           )}
         >
           {description}

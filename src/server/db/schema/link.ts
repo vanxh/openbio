@@ -5,48 +5,52 @@ import * as z from "zod";
 import { user } from "./user";
 import { linkView } from "./link-view";
 
-const sizeSchema = z.record(
+export const sizeSchema = z.record(
   z.enum(["sm", "md"]),
   z.enum(["4x1", "2x2", "2x4", "4x2", "4x4"])
 );
-const positionSchema = z.record(
+export const positionSchema = z.record(
   z.enum(["sm", "md"]),
   z.object({
     x: z.number().int().positive(),
     y: z.number().int().positive(),
   })
 );
-export const bentoSchema = z
-  .object({
-    type: z.literal("link"),
+export const linkBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal("link"),
 
-    href: z.string().url(),
-    clicks: z.number().int().positive().default(0),
+  href: z.string().url(),
+  clicks: z.number().int().positive().default(0),
 
-    size: sizeSchema,
-    position: positionSchema,
-  })
-  .or(
-    z.object({
-      type: z.literal("note"),
+  size: sizeSchema,
+  position: positionSchema,
+});
 
-      text: z.string(),
+export const noteBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal("note"),
 
-      size: sizeSchema,
-      position: positionSchema,
-    })
-  )
-  .or(
-    z.object({
-      type: z.enum(["image", "video"]),
+  text: z.string(),
 
-      url: z.string().url(),
-      caption: z.string().optional(),
+  size: sizeSchema,
+  position: positionSchema,
+});
 
-      size: sizeSchema,
-      position: positionSchema,
-    })
-  );
+export const assetBentoSchema = z.object({
+  id: z.string(),
+  type: z.enum(["image", "video"]),
+
+  url: z.string().url(),
+  caption: z.string().optional(),
+
+  size: sizeSchema,
+  position: positionSchema,
+});
+
+export const bentoSchema = linkBentoSchema
+  .or(noteBentoSchema)
+  .or(assetBentoSchema);
 
 export const link = pgTable("link", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -57,7 +61,10 @@ export const link = pgTable("link", {
   name: text("name").notNull(),
   bio: text("bio"),
 
-  bento: json("bento").$type<z.infer<typeof bentoSchema>>(),
+  bento: json("bento")
+    .$type<z.infer<typeof bentoSchema>[]>()
+    .default([])
+    .notNull(),
 
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

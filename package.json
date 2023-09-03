@@ -48,6 +48,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "drizzle-orm": "^0.28.5",
+    "drizzle-zod": "^0.5.1",
     "html-escaper": "^3.0.3",
     "lucide-react": "^0.268.0",
     "next": "^13.4.19",

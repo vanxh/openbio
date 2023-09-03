@@ -48,7 +48,7 @@ export const stripeRouter = createTRPCRouter({
     .input(z.undefined())
     .mutation(async ({ ctx }) => {
       const res = await ctx.db.query.user.findFirst({
-        where: eq(user.providerId, ctx.auth.userId),
+        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
       });
 
       if (!res) {
@@ -73,7 +73,7 @@ export const stripeRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const res = await ctx.db.query.user.findFirst({
-        where: eq(user.providerId, ctx.auth.userId),
+        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
       });
 
       if (!res) {

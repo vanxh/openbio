@@ -1,6 +1,6 @@
-import { type User } from "@prisma/client";
 import { currentUser } from "@clerk/nextjs";
 
+import { type RouterOutputs } from "@/trpc/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PricingCards } from "@/components/pricing";
 
-export default async function UserSettings({ user }: { user: User }) {
+export default async function UserSettings({
+  user,
+}: {
+  user: NonNullable<RouterOutputs["user"]["me"]>;
+}) {
   const clerk = await currentUser();
 
   return (
@@ -22,7 +26,7 @@ export default async function UserSettings({ user }: { user: User }) {
           <Avatar>
             <AvatarImage src={clerk?.imageUrl} />
             <AvatarFallback className="uppercase">
-              {user.firstName.charAt(0)}
+              {user.firstName?.charAt(0)}
               {user.lastName?.split("").pop()}
             </AvatarFallback>
           </Avatar>

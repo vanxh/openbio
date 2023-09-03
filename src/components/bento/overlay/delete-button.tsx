@@ -1,14 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { type Bento } from "@prisma/client";
+import { useParams, useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
+import type * as z from "zod";
 
+import { type bentoSchema } from "@/server/db";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 
-export default function DeleteButton({ bento }: { bento: Bento }) {
+export default function DeleteButton({
+  bento,
+}: {
+  bento: z.infer<typeof bentoSchema>;
+}) {
   const router = useRouter();
+  const { link } = useParams() as { link: string };
 
   return (
     <Button
@@ -18,6 +24,7 @@ export default function DeleteButton({ bento }: { bento: Bento }) {
       onClick={() => {
         void api.profileLink.deleteBento
           .mutate({
+            link,
             id: bento.id,
           })
           .then(() => {
