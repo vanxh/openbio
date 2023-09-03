@@ -8,7 +8,7 @@ import { type inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { prisma } from "@/server/db";
+import { prisma } from "@/server/db/db";
 
 type CreateContextOptions = {
   auth: SignedInAuthObject | SignedOutAuthObject | null;

@@ -2,7 +2,7 @@ import * as z from "zod";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { currentUser } from "@clerk/nextjs";
 
-import { prisma } from "@/server/db";
+import { prisma } from "@/server/db/db";
 import { utapi } from "uploadthing/server";
 
 const f = createUploadthing({

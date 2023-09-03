@@ -3,7 +3,7 @@ import { type User } from "@prisma/client";
 
 import { env } from "@/env.mjs";
 import { stripe } from "@/lib/stripe";
-import { prisma } from "@/server/db";
+import { prisma } from "@/server/db/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { webhookRouter } from "@/server/api/routers/stripe/webhook";
 
