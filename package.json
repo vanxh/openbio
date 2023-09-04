@@ -22,7 +22,6 @@
     "@clerk/themes": "^1.7.5",
     "@hookform/resolvers": "^3.3.1",
     "@neondatabase/serverless": "^0.6.0",
-    "@prisma/client": "^5.2.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",
@@ -94,7 +93,6 @@
     "postcss": "^8.4.29",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",
-    "prisma": "^5.2.0",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2"
   },
