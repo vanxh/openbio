@@ -3,7 +3,7 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-
+  swcMinify: true,
   images: {
     remotePatterns: [
       {
@@ -14,18 +14,15 @@ const config = {
       },
     ],
   },
-
   experimental: {
     serverActions: true,
   },
-
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-  swcMinify: true,
 };
 
 export default config;

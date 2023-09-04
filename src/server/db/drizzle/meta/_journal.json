@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1693845030498,
+      "tag": "0000_perpetual_paibok",
+      "breakpoints": true
+    }
+  ]
+}

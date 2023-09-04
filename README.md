@@ -1,11 +1,11 @@
 <p align="center" style="margin-top: 120px">
-   <a href="https://github.com/vanxh/openbio">
+   <a href="/github">
     <img width="100px" src="https://openbio.app/openbio.png" alt="OpenBio">
    </a>
 </p>
 
 <p align="center">
-   <a href="https://discord.gg/tvceMUv3tq"><img alt="Discord" src="https://img.shields.io/discord/1146392594948034682"></a>
+   <a href="/discord"><img alt="Discord" src="https://img.shields.io/discord/1146392594948034682"></a>
    <a href="https://github.com/vanxh/openbio/stargazers"><img src="https://img.shields.io/github/stars/vanxh/openbio" alt="Github Stars"></a>
    <a href="https://github.com/vanxh/openbio/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-purple" alt="License"></a>
    <a href="https://github.com/vanxh/openbio/pulse"><img src="https://img.shields.io/github/commit-activity/m/vanxh/openbio" alt="Commits-per-month"></a>

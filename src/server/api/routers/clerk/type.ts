@@ -71,6 +71,7 @@ export const clerkEvent = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("organizationMembership.created"),
     data: z.object({
+      id: z.string(),
       created_at: z.number(),
       organization: z.object({
         id: z.string(),

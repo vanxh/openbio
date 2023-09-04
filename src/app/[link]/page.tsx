@@ -65,7 +65,7 @@ export default async function Page({ params }: Props) {
         <ProfileLinkEditor profileLink={profileLink} />
 
         <BentoLayout profileLink={profileLink}>
-          {profileLink.Bento.map((b) => (
+          {profileLink.bento.map((b) => (
             <div key={b.id}>
               <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
             </div>

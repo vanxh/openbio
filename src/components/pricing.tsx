@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import { type User } from "@prisma/client";
 import Confetti from "react-dom-confetti";
 import { Check, HelpCircle, Loader, X } from "lucide-react";
 
 import { PLANS } from "@/lib/stripe/plans";
+import { getStripe } from "@/lib/stripe/client";
+import { type RouterOutputs, api } from "@/trpc/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,9 +18,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { api } from "@/trpc/client";
-import { getStripe } from "@/lib/stripe/client";
-import { redirect } from "next/navigation";
 
 type Billing = "monthly" | "annually";
 
@@ -27,7 +26,7 @@ export const PricingCards = ({
   user,
 }: {
   billing: Billing;
-  user?: User;
+  user?: RouterOutputs["user"]["me"];
 }) => {
   const [isPending, startTransition] = useTransition();
 

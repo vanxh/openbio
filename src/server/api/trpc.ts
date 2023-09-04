@@ -8,7 +8,7 @@ import { type inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { prisma } from "@/server/db";
+import { db } from "@/server/db";
 
 type CreateContextOptions = {
   auth: SignedInAuthObject | SignedOutAuthObject | null;
@@ -18,7 +18,7 @@ type CreateContextOptions = {
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     ...opts,
-    prisma,
+    db,
   };
 };
 

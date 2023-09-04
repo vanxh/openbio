@@ -1,9 +1,10 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
-import { type Bento } from "@prisma/client";
+import { useParams, useRouter } from "next/navigation";
+import type * as z from "zod";
 
+import { type bentoSchema } from "@/server/db";
 import { api } from "@/trpc/client";
 import { cn } from "@/lib/utils";
 import Size2x2 from "@/components/icons/size_2x2";
@@ -24,28 +25,29 @@ export default function ManageSize({
   bento,
   close,
 }: {
-  bento: Bento;
+  bento: z.infer<typeof bentoSchema>;
   close: () => void;
 }) {
   const router = useRouter();
+  const { link } = useParams() as { link: string };
 
-  const size = window.outerWidth < 500 ? bento.mobileSize : bento.desktopSize;
+  const size = window.outerWidth < 500 ? bento.size.sm : bento.size.md;
 
   const sizeOptions = [
     {
-      key: "SIZE_2x2",
+      key: "2x2",
       icon: Size2x2,
     },
     {
-      key: "SIZE_4x2",
+      key: "4x2",
       icon: Size4x2,
     },
     {
-      key: "SIZE_2x4",
+      key: "2x4",
       icon: Size2x4,
     },
     {
-      key: "SIZE_4x4",
+      key: "4x4",
       icon: Size4x4,
     },
   ];
@@ -65,9 +67,14 @@ export default function ManageSize({
               onClick={() => {
                 void api.profileLink.updateBento
                   .mutate({
-                    id: bento.id,
-                    [window.outerWidth < 500 ? "mobileSize" : "desktopSize"]:
-                      o.key,
+                    link,
+                    bento: {
+                      ...bento,
+                      size: {
+                        ...bento.size,
+                        [window.outerWidth < 500 ? "sm" : "md"]: o.key,
+                      },
+                    },
                   })
                   .then(() => {
                     void router.refresh();

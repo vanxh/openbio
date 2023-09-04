@@ -1,11 +1,4 @@
 import * as z from "zod";
-import {
-  BentoSize,
-  type ProfileLink,
-  BentoType,
-  type Bento,
-  type Plan,
-} from "@prisma/client";
 import { kv } from "@vercel/kv";
 
 import {
@@ -13,9 +6,81 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
+import {
+  link,
+  type sizeSchema,
+  type positionSchema,
+  type InferSelectModel,
+  eq,
+  sql,
+  linkView,
+  bentoSchema,
+} from "@/server/db";
+
+const RESERVED_LINKS = [
+  "sign-up",
+  "sign-in",
+  "claim",
+  "api",
+  "actions",
+  "app",
+  "create-link",
+  "twitter",
+  "github",
+  "linkedin",
+  "instagram",
+  "telegram",
+  "discord",
+  "youtube",
+  "twitch",
+  "about",
+  "pricing",
+  "contact",
+  "privacy",
+  "terms",
+  "legal",
+  "blog",
+  "docs",
+  "support",
+  "help",
+  "status",
+  "jobs",
+  "press",
+  "partners",
+  "developers",
+  "security",
+  "cookies",
+  "settings",
+  "profile",
+  "account",
+  "dashboard",
+  "admin",
+  "login",
+  "logout",
+  "signout",
+  "auth",
+  "oauth",
+  "openbio",
+];
+
+const validLinkSchema = z
+  .string()
+  .min(3, {
+    message: "Link must be at least 3 characters long.",
+  })
+  .max(50, {
+    message: "Link must be at most 50 characters long.",
+  })
+  .regex(/^[a-z0-9-]+$/, {
+    message: "Link must only contain lowercase letters, numbers, and dashes.",
+  })
+  .transform((value) => value.toLowerCase())
+  .refine((value) => !RESERVED_LINKS.includes(value), {
+    message: "This link is reserved.",
+  });
 
 const createProfileLinkInput = z.object({
-  link: z.string().toLowerCase(),
+  link: validLinkSchema,
   twitter: z.string().optional(),
   github: z.string().optional(),
   linkedin: z.string().optional(),
@@ -26,80 +91,6 @@ const createProfileLinkInput = z.object({
   twitch: z.string().optional(),
 });
 
-const isValidLink = (link: string) => {
-  if (
-    /^[a-zA-Z0-9_]+$/.test(link) &&
-    link.length >= 3 &&
-    ![
-      "sign-up",
-      "sign-in",
-      "claim",
-      "api",
-      "actions",
-      "app",
-      "create-link",
-      "twitter",
-      "github",
-      "linkedin",
-      "instagram",
-      "telegram",
-      "discord",
-      "youtube",
-      "twitch",
-      "about",
-      "pricing",
-      "contact",
-      "privacy",
-      "terms",
-      "legal",
-      "blog",
-      "docs",
-      "support",
-      "help",
-      "status",
-      "jobs",
-      "press",
-      "partners",
-      "developers",
-      "security",
-      "cookies",
-      "settings",
-      "profile",
-      "account",
-      "dashboard",
-      "admin",
-      "login",
-      "logout",
-      "signout",
-      "auth",
-      "oauth",
-      "openbio",
-    ].includes(link)
-  ) {
-    return true;
-  }
-
-  return false;
-};
-
-type ProfileLinkCache = ProfileLink & {
-  Bento: (Bento & {
-    mobilePosition: {
-      x: number;
-      y: number;
-    };
-    desktopPosition: {
-      x: number;
-      y: number;
-    };
-  })[];
-  user: {
-    providerId: string;
-    subscriptionEndsAt: Date | null;
-    plan: Plan;
-  };
-};
-
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
     .input(
@@ -108,50 +99,64 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const profileLink = await ctx.prisma.profileLink.findUnique({
-        where: {
-          link: input.link,
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
+          id: true,
         },
-        select: { id: true },
       });
 
       if (profileLink) return false;
 
-      return isValidLink(input.link);
+      return validLinkSchema.safeParse(input.link).success;
     }),
 
   create: protectedProcedure
     .input(createProfileLinkInput)
     .mutation(async ({ input, ctx }) => {
-      if (!isValidLink(input.link)) {
-        throw new Error("Invalid link");
-      }
-
-      const profileLinks = await ctx.prisma.profileLink.count({
-        where: {
-          user: {
-            providerId: ctx.auth.userId,
-          },
+      const user = await ctx.db.query.user.findFirst({
+        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
+        columns: {
+          id: true,
         },
       });
-      if (profileLinks >= 1) {
+
+      if (!user) throw new Error("User not found");
+
+      const profileLinks = await ctx.db
+        .select({
+          count: sql<number>`count(*)`,
+        })
+        .from(link)
+        .where(eq(link.userId, user.id));
+      const nProfileLinks = profileLinks[0]?.count ?? 0;
+
+      if (nProfileLinks >= 1) {
         throw new Error(
           "You can't create more profile links, upgrade your plan"
         );
       }
 
       const bento: {
-        type: BentoType;
+        id: string;
+        type: "link";
         href: string;
+        clicks: number;
 
-        mobileSize: BentoSize;
-        desktopSize: BentoSize;
-
-        mobilePosition: number;
-        desktopPosition: number;
+        size: z.infer<typeof sizeSchema>;
+        position: z.infer<typeof positionSchema>;
       }[] = [];
 
-      let position = 1;
+      let position = {
+        sm: {
+          x: 0,
+          y: 0,
+        },
+        md: {
+          x: 0,
+          y: 0,
+        },
+      };
       for (const [key, value] of Object.entries(input)) {
         if (key !== "link" && value) {
           let url = `https://${key}.com/${value}`;
@@ -173,53 +178,46 @@ export const profileLinkRouter = createTRPCRouter({
           }
 
           bento.push({
-            type: "LINK",
+            id: crypto.randomUUID(),
+            type: "link",
 
             href: url,
+            clicks: 0,
 
-            mobileSize: "SIZE_2x2",
-            desktopSize: "SIZE_2x2",
+            size: {
+              sm: "2x2",
+              md: "2x2",
+            },
 
-            mobilePosition: position,
-            desktopPosition: position,
+            position,
           });
 
-          position += 1;
+          position = {
+            sm: {
+              x: position.sm.x % 2 === 0 ? position.sm.x + 1 : 0,
+              y: position.sm.x % 2 === 0 ? position.sm.y + 1 : position.sm.y,
+            },
+            md: {
+              x: position.md.x % 4 === 0 ? position.md.x + 1 : 0,
+              y: position.md.x % 4 === 0 ? position.md.y + 1 : position.md.y,
+            },
+          };
         }
       }
 
-      const profileLink = await ctx.prisma.profileLink.create({
-        data: {
+      const profileLink = await ctx.db
+        .insert(link)
+        .values({
           link: input.link,
           name: input.link,
           bio: "I'm using OpenBio.app!",
+          bento,
+          userId: user.id,
+        })
+        .returning()
+        .execute();
 
-          Bento: {
-            createMany: {
-              data: bento,
-            },
-          },
-
-          user: {
-            connect: {
-              providerId: ctx.auth.userId,
-            },
-          },
-        },
-
-        include: {
-          Bento: true,
-          user: {
-            select: {
-              providerId: true,
-              subscriptionEndsAt: true,
-              plan: true,
-            },
-          },
-        },
-      });
-
-      await kv.set(`profile-link:${input.link}`, profileLink, {
+      await kv.set(`profile-link:${input.link}`, profileLink[0], {
         ex: 30 * 60,
       });
 
@@ -227,12 +225,17 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
-    const profileLinks = await ctx.prisma.profileLink.findMany({
-      where: {
-        user: {
-          providerId: ctx.auth.userId,
-        },
+    const user = await ctx.db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
+      columns: {
+        id: true,
       },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    const profileLinks = await ctx.db.query.link.findMany({
+      where: (link, { eq }) => eq(link.userId, user.id),
     });
 
     return profileLinks;
@@ -245,68 +248,55 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const cached = await kv.get<ProfileLinkCache | null>(
+      const authedUserId = ctx.auth?.userId;
+
+      const user = authedUserId
+        ? await ctx.db.query.user.findFirst({
+            where: (user, { eq }) => eq(user.providerId, authedUserId),
+            columns: {
+              id: true,
+              plan: true,
+              subscriptionEndsAt: true,
+            },
+          })
+        : null;
+
+      const cached = await kv.get<InferSelectModel<typeof link> | null>(
         `profile-link:${input.link}`
       );
 
       if (cached) {
         return {
           ...cached,
-          isOwner: ctx.auth?.userId === cached.user.providerId,
+          isOwner: user?.id === cached.userId,
           isPremium:
-            cached.user.plan === "PRO" &&
-            cached.user.subscriptionEndsAt &&
-            cached.user.subscriptionEndsAt > new Date(),
+            user?.id === cached.userId &&
+            user?.plan === "pro" &&
+            user?.subscriptionEndsAt &&
+            user?.subscriptionEndsAt > new Date(),
         };
       }
 
-      const profileLink = await ctx.prisma.profileLink.findUnique({
-        where: {
-          link: input.link,
-        },
-        include: {
-          Bento: true,
-          user: {
-            select: {
-              providerId: true,
-              subscriptionEndsAt: true,
-              plan: true,
-            },
-          },
-        },
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
       });
 
       if (!profileLink) {
         return null;
       }
 
-      const data = {
-        ...profileLink,
-
-        Bento: profileLink.Bento.map((b) => ({
-          ...b,
-          mobilePosition: b.mobilePosition as {
-            x: number;
-            y: number;
-          },
-          desktopPosition: b.desktopPosition as {
-            x: number;
-            y: number;
-          },
-        })),
-      };
-
-      await kv.set(`profile-link:${input.link}`, data, {
+      await kv.set(`profile-link:${input.link}`, profileLink, {
         ex: 30 * 60,
       });
 
       return {
-        ...data,
-        isOwner: ctx.auth?.userId === profileLink.user.providerId,
+        ...profileLink,
+        isOwner: user?.id === profileLink.userId,
         isPremium:
-          profileLink.user.plan === "PRO" &&
-          profileLink.user.subscriptionEndsAt &&
-          profileLink.user.subscriptionEndsAt > new Date(),
+          user?.id === profileLink.userId &&
+          user?.plan === "pro" &&
+          user?.subscriptionEndsAt &&
+          user?.subscriptionEndsAt > new Date(),
       };
     }),
 
@@ -317,36 +307,40 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
+          id: true,
+        },
+      });
+
+      if (!profileLink) {
+        return false;
+      }
+
       let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
       const forwardedFor = ctx.req.headers.get("x-forwarded-for");
       if (!ip && forwardedFor) {
         ip = forwardedFor.split(",").at(0) ?? "Unknown";
       }
 
-      const exists = await ctx.prisma.profileLinkView.findFirst({
-        where: {
-          ip: ip ?? "Unknown",
-          profileLink: {
-            link: input.link,
-          },
-          createdAt: {
-            gte: new Date(Date.now() - 60 * 60 * 1000),
-          },
+      const exists = await ctx.db.query.linkView.findFirst({
+        where: (linkView, { eq, and, sql }) =>
+          and(
+            eq(linkView.ip, ip ?? "Unknown"),
+            eq(linkView.linkId, profileLink.id),
+            sql`created_at > now() - interval '1 hour'`
+          ),
+        columns: {
+          id: true,
         },
       });
 
       if (!exists) {
-        console.log("Creating view", ip, input.link);
-        await ctx.prisma.profileLinkView.create({
-          data: {
-            ip: ip ?? "Unknown",
-            userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
-            profileLink: {
-              connect: {
-                link: input.link,
-              },
-            },
-          },
+        await ctx.db.insert(linkView).values({
+          ip: ip ?? "Unknown",
+          userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
+          linkId: profileLink.id,
         });
       }
 
@@ -360,27 +354,25 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      const exists = await ctx.prisma.profileLink.findUnique({
-        where: {
-          link: input.link,
-        },
-        select: {
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
           id: true,
         },
       });
-      if (!exists) {
-        throw new Error("Profile link not found");
+
+      if (!profileLink) {
+        return 0;
       }
 
-      const views = await ctx.prisma.profileLinkView.count({
-        where: {
-          profileLink: {
-            link: input.link,
-          },
-        },
-      });
+      const views = await ctx.db
+        .select({
+          count: sql<number>`count(*)`,
+        })
+        .from(linkView)
+        .where(eq(linkView.linkId, profileLink.id));
 
-      return views;
+      return views[0]?.count ?? 0;
     }),
 
   update: protectedProcedure
@@ -392,26 +384,17 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const update = await ctx.prisma.profileLink.update({
-        where: {
-          link: input.link,
-        },
-        data: {
-          ...input,
-        },
-        include: {
-          Bento: true,
-          user: {
-            select: {
-              providerId: true,
-              subscriptionEndsAt: true,
-              plan: true,
-            },
-          },
-        },
-      });
+      const update = await ctx.db
+        .update(link)
+        .set({
+          name: input.name,
+          bio: input.bio,
+        })
+        .where(eq(link.link, input.link))
+        .returning()
+        .execute();
 
-      await kv.set(`profile-link:${input.link}`, update, {
+      await kv.set(`profile-link:${input.link}`, update[0], {
         ex: 30 * 60,
       });
 
@@ -425,11 +408,7 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.prisma.profileLink.delete({
-        where: {
-          link: input.link,
-        },
-      });
+      await ctx.db.delete(link).where(eq(link.link, input.link));
 
       await kv.del(`profile-link:${input.link}`);
 
@@ -438,79 +417,43 @@ export const profileLinkRouter = createTRPCRouter({
 
   createBento: protectedProcedure
     .input(
-      z
-        .object({
-          link: z.string(),
-          type: z.nativeEnum(BentoType).refine((v) => v === "LINK"),
-          href: z.string().url(),
-        })
-        .or(
-          z.object({
-            link: z.string(),
-            type: z
-              .nativeEnum(BentoType)
-              .refine((v) => ["IMAGE", "VIDEO"].includes(v)),
-            url: z.string().url(),
-            caption: z.string().optional(),
-          })
-        )
+      z.object({
+        link: z.string(),
+        bento: bentoSchema,
+      })
     )
     .mutation(async ({ input, ctx }) => {
-      const cached = await kv.get<ProfileLinkCache | null>(
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
+          id: true,
+          bento: true,
+        },
+      });
+
+      if (!profileLink) {
+        throw new Error("Profile link not found");
+      }
+
+      const cached = await kv.get<InferSelectModel<typeof link> | null>(
         `profile-link:${input.link}`
       );
 
-      const mobileX =
-        cached?.Bento.reduce(
-          (acc, b) => Math.max(acc, b.mobilePosition.x),
-          0
-        ) ?? 0;
-      const mobileY =
-        cached?.Bento.reduce(
-          (acc, b) => Math.max(acc, b.mobilePosition.y),
-          0
-        ) ?? 0;
-      const desktopX =
-        cached?.Bento.reduce(
-          (acc, b) => Math.max(acc, b.desktopPosition.x),
-          0
-        ) ?? 0;
-      const desktopY =
-        cached?.Bento.reduce(
-          (acc, b) => Math.max(acc, b.desktopPosition.y),
-          0
-        ) ?? 0;
-
-      const data = {
-        ...input,
-        link: undefined,
-      };
-
-      const bento = await ctx.prisma.bento.create({
-        data: {
-          ...data,
-          mobilePosition: {
-            x: mobileX + 1,
-            y: mobileY + 1,
-          },
-          desktopPosition: {
-            x: desktopX + 1,
-            y: desktopY + 1,
-          },
-          profileLink: {
-            connect: {
-              link: input.link,
-            },
-          },
-        },
-      });
+      const update = await ctx.db
+        .update(link)
+        .set({
+          bento: (cached?.bento ?? []).concat([input.bento]),
+        })
+        .where(eq(link.link, input.link))
+        .returning()
+        .execute();
 
       if (cached) {
         await kv.set(
           `profile-link:${cached.link}`,
           {
             ...cached,
-            Bento: [...cached.Bento, bento],
+            bento: cached.bento.concat([input.bento]),
           },
           {
             ex: 30 * 60,
@@ -518,31 +461,35 @@ export const profileLinkRouter = createTRPCRouter({
         );
       }
 
-      return bento;
+      return update[0]?.bento;
     }),
 
   deleteBento: protectedProcedure
     .input(
       z.object({
+        link: z.string(),
         id: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const res = await ctx.prisma.bento.delete({
-        where: {
-          id: input.id,
-        },
-        select: {
-          profileLink: {
-            select: {
-              link: true,
-            },
-          },
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
+          id: true,
+          bento: true,
         },
       });
 
-      const cached = await kv.get<ProfileLinkCache | null>(
-        `profile-link:${res.profileLink.link}`
+      if (!profileLink) {
+        throw new Error("Profile link not found");
+      }
+
+      await ctx.db.update(link).set({
+        bento: profileLink.bento.filter((b) => b.id !== input.id),
+      });
+
+      const cached = await kv.get<InferSelectModel<typeof link> | null>(
+        `profile-link:${input.link}`
       );
 
       if (cached) {
@@ -550,7 +497,7 @@ export const profileLinkRouter = createTRPCRouter({
           `profile-link:${cached.link}`,
           {
             ...cached,
-            Bento: cached.Bento.filter((b) => b.id !== input.id),
+            bento: cached.bento.filter((b) => b.id !== input.id),
           },
           {
             ex: 30 * 60,
@@ -564,45 +511,37 @@ export const profileLinkRouter = createTRPCRouter({
   updateBento: protectedProcedure
     .input(
       z.object({
-        id: z.string(),
-        mobilePosition: z
-          .object({
-            x: z.number(),
-            y: z.number(),
-          })
-          .optional(),
-        desktopPosition: z
-          .object({
-            x: z.number(),
-            y: z.number(),
-          })
-          .optional(),
-        mobileSize: z.nativeEnum(BentoSize).optional(),
-        desktopSize: z.nativeEnum(BentoSize).optional(),
+        link: z.string(),
+        bento: bentoSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const update = await ctx.prisma.bento.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          mobilePosition: input.mobilePosition,
-          desktopPosition: input.desktopPosition,
-          mobileSize: input.mobileSize,
-          desktopSize: input.desktopSize,
-        },
-        select: {
-          profileLink: {
-            select: {
-              link: true,
-            },
-          },
+      const profileLink = await ctx.db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.link, input.link),
+        columns: {
+          id: true,
+          bento: true,
         },
       });
 
-      const cached = await kv.get<ProfileLinkCache | null>(
-        `profile-link:${update.profileLink.link}`
+      if (!profileLink) {
+        throw new Error("Profile link not found");
+      }
+
+      const update = await ctx.db
+        .update(link)
+        .set({
+          bento: [
+            ...profileLink.bento.filter((b) => b.id !== input.bento.id),
+            input.bento,
+          ],
+        })
+        .where(eq(link.link, input.link))
+        .returning()
+        .execute();
+
+      const cached = await kv.get<InferSelectModel<typeof link> | null>(
+        `profile-link:${input.link}`
       );
 
       if (cached) {
@@ -610,27 +549,7 @@ export const profileLinkRouter = createTRPCRouter({
           `profile-link:${cached.link}`,
           {
             ...cached,
-            Bento: cached.Bento.map((b) => {
-              if (b.id === input.id) {
-                return {
-                  ...b,
-                  mobilePosition:
-                    (input.mobilePosition as {
-                      x: number;
-                      y: number;
-                    }) ?? b.mobilePosition,
-                  desktopPosition:
-                    (input.desktopPosition as {
-                      x: number;
-                      y: number;
-                    }) ?? b.desktopPosition,
-                  mobileSize: input.mobileSize ?? b.mobileSize,
-                  desktopSize: input.desktopSize ?? b.desktopSize,
-                };
-              }
-
-              return b;
-            }),
+            ...update[0],
           },
           {
             ex: 30 * 60,

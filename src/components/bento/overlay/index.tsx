@@ -1,14 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { type Bento } from "@prisma/client";
+import type * as z from "zod";
 
+import { type bentoSchema } from "@/server/db";
 import { cn } from "@/lib/utils";
 import DeleteButton from "@/components/bento/overlay/delete-button";
 import DragHandle from "@/components/bento/overlay/drag-handle";
 import ManageSize from "@/components/bento/overlay/manage-size";
 
-export default function CardOverlay({ bento }: { bento: Bento }) {
+export default function CardOverlay({
+  bento,
+}: {
+  bento: z.infer<typeof bentoSchema>;
+}) {
   const [active, setActive] = useState(false);
 
   return (

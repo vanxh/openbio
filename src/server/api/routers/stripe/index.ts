@@ -1,33 +1,44 @@
 import * as z from "zod";
-import { type User } from "@prisma/client";
 
 import { env } from "@/env.mjs";
 import { stripe } from "@/lib/stripe";
-import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { webhookRouter } from "@/server/api/routers/stripe/webhook";
+import { db, eq, user } from "@/server/db";
 
-const getStripeCustomer = async (user: User) => {
+const getStripeCustomer = async ({
+  id,
+  email,
+  firstName,
+  lastName,
+  stripeCustomerId,
+}: {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  stripeCustomerId: string | null;
+}) => {
   if (!user.stripeCustomerId) {
     const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.firstName + " " + user.lastName,
+      email: email,
+      name: firstName + " " + lastName,
       metadata: {
-        id: user.id,
+        id: id,
       },
     });
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await db
+      .update(user)
+      .set({
         stripeCustomerId: customer.id,
-      },
-    });
+      })
+      .where(eq(user.id, id));
 
     return customer;
   }
 
-  return stripe.customers.retrieve(user.stripeCustomerId);
+  return stripe.customers.retrieve(stripeCustomerId!);
 };
 
 export const stripeRouter = createTRPCRouter({
@@ -36,15 +47,15 @@ export const stripeRouter = createTRPCRouter({
   getBillingPortalUrl: protectedProcedure
     .input(z.undefined())
     .mutation(async ({ ctx }) => {
-      const user = await ctx.prisma.user.findUnique({
-        where: { providerId: ctx.auth.userId },
+      const res = await ctx.db.query.user.findFirst({
+        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
       });
 
-      if (!user) {
+      if (!res) {
         throw new Error("User not found");
       }
 
-      const customer = await getStripeCustomer(user);
+      const customer = await getStripeCustomer(res);
 
       const portalSession = await stripe.billingPortal.sessions.create({
         customer: customer.id,
@@ -61,15 +72,15 @@ export const stripeRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.prisma.user.findUnique({
-        where: { providerId: ctx.auth.userId },
+      const res = await ctx.db.query.user.findFirst({
+        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
       });
 
-      if (!user) {
+      if (!res) {
         throw new Error("User not found");
       }
 
-      const customer = await getStripeCustomer(user);
+      const customer = await getStripeCustomer(res);
 
       const session = await stripe.checkout.sessions.create({
         customer: customer.id,

@@ -29,12 +29,7 @@ export default function Page() {
           </Button>
         </Link>
 
-        <Link
-          href="https://github.com/vanxh/openbio"
-          target="_blank"
-          rel="noopener noreferrer"
-          passHref
-        >
+        <Link href="/github" target="_blank" rel="noopener noreferrer" passHref>
           <Button className="whitespace-nowrap">
             <Github size={24} className="mr-2" />
             Star on Github
