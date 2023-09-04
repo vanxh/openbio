@@ -8,8 +8,8 @@ export const user = pgTable("user", {
   providerId: text("provider_id").unique(),
 
   email: text("email").unique().notNull(),
-  firstName: text("first_name").default(""),
-  lastName: text("last_name").default(""),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
 
   plan: text("plan", {
     enum: ["free", "pro"],
