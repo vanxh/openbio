@@ -8,6 +8,7 @@ import superjson from "superjson";
 
 import { type AppRouter } from "@/server/api/root";
 import { endingLink } from "@/trpc/shared";
+import { env } from "@/env.mjs";
 
 export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
   config() {
@@ -16,7 +17,7 @@ export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
       links: [
         loggerLink({
           enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
+            env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
         endingLink({

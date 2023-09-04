@@ -49,6 +49,7 @@ export default async function Page({ params }: Props) {
   const { link } = params;
   const profileLink = await api.profileLink.getByLink.query({ link });
 
+  console.log(profileLink);
   if (!profileLink) {
     return (
       <div className="mx-auto h-full w-full text-center">
@@ -65,7 +66,7 @@ export default async function Page({ params }: Props) {
         <ProfileLinkEditor profileLink={profileLink} />
 
         <BentoLayout profileLink={profileLink}>
-          {profileLink.Bento.map((b) => (
+          {profileLink.bento.map((b) => (
             <div key={b.id}>
               <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
             </div>

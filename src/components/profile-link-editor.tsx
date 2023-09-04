@@ -80,7 +80,7 @@ function ProfileLinkAvatar({ profileLink }: Props) {
           alt="Profile link image"
           width={150}
           height={150}
-          className="rounded-full object-cover"
+          className="max-h-full max-w-full rounded-full object-cover"
         />
       )}
 

@@ -147,7 +147,16 @@ export const profileLinkRouter = createTRPCRouter({
         position: z.infer<typeof positionSchema>;
       }[] = [];
 
-      let position = 1;
+      let position = {
+        sm: {
+          x: 0,
+          y: 0,
+        },
+        md: {
+          x: 0,
+          y: 0,
+        },
+      };
       for (const [key, value] of Object.entries(input)) {
         if (key !== "link" && value) {
           let url = `https://${key}.com/${value}`;
@@ -180,19 +189,19 @@ export const profileLinkRouter = createTRPCRouter({
               md: "2x2",
             },
 
-            position: {
-              sm: {
-                x: position,
-                y: position,
-              },
-              md: {
-                x: position,
-                y: position,
-              },
-            },
+            position,
           });
 
-          position += 1;
+          position = {
+            sm: {
+              x: position.sm.x % 2 === 0 ? position.sm.x + 1 : 0,
+              y: position.sm.x % 2 === 0 ? position.sm.y + 1 : position.sm.y,
+            },
+            md: {
+              x: position.md.x % 4 === 0 ? position.md.x + 1 : 0,
+              y: position.md.x % 4 === 0 ? position.md.y + 1 : position.md.y,
+            },
+          };
         }
       }
 
@@ -205,20 +214,10 @@ export const profileLinkRouter = createTRPCRouter({
           bento,
           userId: user.id,
         })
-        .returning({
-          id: link.id,
-          link: link.link,
-          image: link.image,
-          name: link.name,
-          bio: link.bio,
-          bento: link.bento,
-          createdAt: link.createdAt,
-          updatedAt: link.updatedAt,
-          userId: link.userId,
-        })
+        .returning()
         .execute();
 
-      await kv.set(`profile-link:${input.link}`, profileLink, {
+      await kv.set(`profile-link:${input.link}`, profileLink[0], {
         ex: 30 * 60,
       });
 
@@ -316,7 +315,7 @@ export const profileLinkRouter = createTRPCRouter({
       });
 
       if (!profileLink) {
-        throw new Error("Profile link not found");
+        return false;
       }
 
       let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
@@ -363,7 +362,7 @@ export const profileLinkRouter = createTRPCRouter({
       });
 
       if (!profileLink) {
-        throw new Error("Profile link not found");
+        return 0;
       }
 
       const views = await ctx.db
@@ -392,20 +391,10 @@ export const profileLinkRouter = createTRPCRouter({
           bio: input.bio,
         })
         .where(eq(link.link, input.link))
-        .returning({
-          id: link.id,
-          link: link.link,
-          image: link.image,
-          name: link.name,
-          bio: link.bio,
-          bento: link.bento,
-          createdAt: link.createdAt,
-          updatedAt: link.updatedAt,
-          userId: link.userId,
-        })
+        .returning()
         .execute();
 
-      await kv.set(`profile-link:${input.link}`, update, {
+      await kv.set(`profile-link:${input.link}`, update[0], {
         ex: 30 * 60,
       });
 

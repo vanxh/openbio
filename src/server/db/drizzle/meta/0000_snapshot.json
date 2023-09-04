@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "4ceb433f-a80f-476a-83d4-f3491fad11c6",
+  "id": "4da35f4f-52b9-4a4b-84cc-6926f5884556",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "user": {
@@ -43,7 +43,7 @@
         },
         "plan": {
           "name": "plan",
-          "type": "plan",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'free'"

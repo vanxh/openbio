@@ -2,7 +2,7 @@ import * as z from "zod";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { currentUser } from "@clerk/nextjs";
 
-import { prisma } from "@/server/db/db";
+import { db, eq, link } from "@/server/db";
 import { utapi } from "uploadthing/server";
 
 const f = createUploadthing({
@@ -34,19 +34,21 @@ export const appFileRouter = {
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      const profileLink = await prisma.profileLink.findUnique({
-        where: { id: metadata.profileLinkId },
-        select: { image: true },
+      const profileLink = await db.query.link.findFirst({
+        where: (link, { eq }) => eq(link.id, metadata.profileLinkId),
+        columns: { image: true },
       });
 
       if (profileLink?.image) {
         await utapi.deleteFiles(profileLink.image.split("/").pop()!);
       }
 
-      await prisma.profileLink.update({
-        where: { id: metadata.profileLinkId },
-        data: { image: file.url },
-      });
+      await db
+        .update(link)
+        .set({
+          image: file.url,
+        })
+        .where(eq(link.id, metadata.profileLinkId));
     }),
 } satisfies FileRouter;
 

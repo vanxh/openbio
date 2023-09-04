@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"email" text NOT NULL,
 	"first_name" text DEFAULT '',
 	"last_name" text DEFAULT '',
-	"plan" "plan" DEFAULT 'free' NOT NULL,
+	"plan" text DEFAULT 'free' NOT NULL,
 	"stripe_customer_id" text,
 	"subscription_id" text,
 	"subscription_ends_at" timestamp with time zone,

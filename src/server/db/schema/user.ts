@@ -1,9 +1,7 @@
 import { relations } from "drizzle-orm";
-import { uuid, pgTable, timestamp, text, pgEnum } from "drizzle-orm/pg-core";
+import { uuid, pgTable, timestamp, text } from "drizzle-orm/pg-core";
 
 import { link } from "./link";
-
-const plan = pgEnum("plan", ["free", "pro"]);
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -13,7 +11,11 @@ export const user = pgTable("user", {
   firstName: text("first_name").default(""),
   lastName: text("last_name").default(""),
 
-  plan: plan("plan").default("free").notNull(),
+  plan: text("plan", {
+    enum: ["free", "pro"],
+  })
+    .default("free")
+    .notNull(),
   stripeCustomerId: text("stripe_customer_id").unique(),
   subscriptionId: text("subscription_id"),
   subscriptionEndsAt: timestamp("subscription_ends_at", {

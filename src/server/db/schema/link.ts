@@ -12,8 +12,8 @@ export const sizeSchema = z.record(
 export const positionSchema = z.record(
   z.enum(["sm", "md"]),
   z.object({
-    x: z.number().int().positive(),
-    y: z.number().int().positive(),
+    x: z.number().int().min(0).default(0),
+    y: z.number().int().min(0).default(0),
   })
 );
 export const linkBentoSchema = z.object({
@@ -21,7 +21,7 @@ export const linkBentoSchema = z.object({
   type: z.literal("link"),
 
   href: z.string().url(),
-  clicks: z.number().int().positive().default(0),
+  clicks: z.number().int().min(0).default(0),
 
   size: sizeSchema,
   position: positionSchema,
