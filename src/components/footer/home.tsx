@@ -4,13 +4,13 @@ export default function HomeFooter() {
   const footerLinks = {
     Developer: [
       {
-        href: "https://twitter.com/vanxhh",
+        href: "/twitter",
         label: "Twitter",
       },
     ],
     Links: [
       {
-        href: "https://github.com/vanxh/openbio",
+        href: "/github",
         label: "Github",
       },
     ],

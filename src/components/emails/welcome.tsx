@@ -18,10 +18,10 @@ export default function WelcomeEmail() {
       Thank you,
       <br />
       <br />
-      <a href="https://twitter.com/vanxhh">Vanxh</a>
+      <a href="/twitter">Vanxh</a>
       <br />
       <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{" "}
-      <a href="https://github.com/vanxh/openbio">GitHub</a>
+      <a href="/github">GitHub</a>
     </div>
   );
 }
