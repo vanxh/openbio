@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "@/components/ui/use-toast";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function LinkQRModal({
   children,
@@ -152,16 +152,16 @@ export default function LinkQRModal({
                           borderColor: qrConfig.fgColor,
                         }}
                       >
-                        <HoverCard>
-                          <HoverCardTrigger>
+                        <Popover>
+                          <PopoverTrigger>
                             <div
                               className="aspect-square h-10"
                               style={{
                                 backgroundColor: qrConfig.fgColor,
                               }}
                             />
-                          </HoverCardTrigger>
-                          <HoverCardContent className="w-max">
+                          </PopoverTrigger>
+                          <PopoverContent className="w-max">
                             <HexColorPicker
                               color={qrConfig.fgColor}
                               onChange={(color) =>
@@ -171,8 +171,8 @@ export default function LinkQRModal({
                                 }))
                               }
                             />
-                          </HoverCardContent>
-                        </HoverCard>
+                          </PopoverContent>
+                        </Popover>
 
                         <input
                           className="border-0 caret-foreground outline-none ring-0"
