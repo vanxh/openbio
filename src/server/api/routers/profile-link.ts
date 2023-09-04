@@ -484,9 +484,12 @@ export const profileLinkRouter = createTRPCRouter({
         throw new Error("Profile link not found");
       }
 
-      await ctx.db.update(link).set({
-        bento: profileLink.bento.filter((b) => b.id !== input.id),
-      });
+      await ctx.db
+        .update(link)
+        .set({
+          bento: profileLink.bento.filter((b) => b.id !== input.id),
+        })
+        .where(eq(link.link, input.link));
 
       const cached = await kv.get<InferSelectModel<typeof link> | null>(
         `profile-link:${input.link}`
