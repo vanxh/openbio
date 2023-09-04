@@ -30,7 +30,7 @@ export function ProfileLinkCardSkeleton() {
 export default async function ProfileLinkCard({
   link,
 }: {
-  link: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
+  link: NonNullable<RouterOutputs["profileLink"]["getAll"][0]>;
 }) {
   const views = await api.profileLink.getViews.query({
     link: link.link,

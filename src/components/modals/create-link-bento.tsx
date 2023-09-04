@@ -42,8 +42,11 @@ export default function CreateLinkBentoModal({
 
             await api.profileLink.createBento.mutate({
               link,
-              type: "LINK",
-              href: input,
+              bento: {
+                id: crypto.randomUUID(),
+                type: "link",
+                href: input,
+              },
             });
 
             void router.refresh();

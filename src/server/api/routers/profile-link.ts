@@ -427,6 +427,7 @@ export const profileLinkRouter = createTRPCRouter({
         where: (link, { eq }) => eq(link.link, input.link),
         columns: {
           id: true,
+          bento: true,
         },
       });
 
