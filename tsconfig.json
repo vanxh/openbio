@@ -42,7 +42,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/server/db/migrate.mts"
   ],
   "exclude": [
     "node_modules"

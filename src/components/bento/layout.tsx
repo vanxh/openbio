@@ -19,51 +19,51 @@ export default function BentoLayout({
 
   const layouts = {
     sm: [
-      ...profileLink!.Bento.map((b) => ({
+      ...profileLink!.bento.map((b) => ({
         i: b.id,
-        x: b.mobilePosition?.x ?? 0,
-        y: b.mobilePosition?.y ?? 0,
+        x: b.position.sm?.x ?? 0,
+        y: b.position.sm?.y ?? 0,
         w: {
-          SIZE_4x1: 2,
-          SIZE_2x2: 1,
-          SIZE_2x4: 1,
-          SIZE_4x2: 2,
-          SIZE_4x4: 2,
-        }[b.mobileSize],
+          "4x1": 2,
+          "2x2": 1,
+          "2x4": 1,
+          "4x2": 2,
+          "4x4": 2,
+        }[b.size.sm ?? "2x2"],
         h: {
-          SIZE_4x1: 0.5,
-          SIZE_2x2: 1,
-          SIZE_2x4: 2,
-          SIZE_4x2: 1,
-          SIZE_4x4: 2,
-        }[b.mobileSize],
+          "4x1": 0.5,
+          "2x2": 1,
+          "2x4": 2,
+          "4x2": 1,
+          "4x4": 2,
+        }[b.size.sm ?? "2x2"],
       })),
     ],
     md: [
-      ...profileLink!.Bento.map((b) => ({
+      ...profileLink!.bento.map((b) => ({
         i: b.id,
-        x: b.desktopPosition?.x ?? 0,
-        y: b.desktopPosition?.y ?? 0,
+        x: b.position.md?.x ?? 0,
+        y: b.position.md?.y ?? 0,
         w: {
-          SIZE_4x1: 2,
-          SIZE_2x2: 1,
-          SIZE_2x4: 1,
-          SIZE_4x2: 2,
-          SIZE_4x4: 2,
-        }[b.desktopSize],
+          "4x1": 2,
+          "2x2": 1,
+          "2x4": 1,
+          "4x2": 2,
+          "4x4": 2,
+        }[b.size.md ?? "2x2"],
         h: {
-          SIZE_4x1: 0.5,
-          SIZE_2x2: 1,
-          SIZE_2x4: 2,
-          SIZE_4x2: 1,
-          SIZE_4x4: 2,
-        }[b.desktopSize],
+          "4x1": 0.5,
+          "2x2": 1,
+          "2x4": 2,
+          "4x2": 1,
+          "4x4": 2,
+        }[b.size.md ?? "2x2"],
       })),
     ],
   };
 
   const onLayoutChange = async (newLayouts: Layouts) => {
-    for (const bento of profileLink!.Bento) {
+    for (const bento of profileLink!.bento) {
       const sm = newLayouts.sm?.find((l) => l.i === bento.id);
       const md = newLayouts.md?.find((l) => l.i === bento.id);
 
@@ -85,22 +85,27 @@ export default function BentoLayout({
 
       if (
         (mobilePosition !== undefined &&
-          mobilePosition.x !== bento.mobilePosition?.x) ||
+          mobilePosition.x !== bento.position.sm?.x) ||
         (desktopPosition !== undefined &&
-          desktopPosition.x !== bento.desktopPosition?.x) ||
+          desktopPosition.x !== bento.position.md?.x) ||
         (mobilePosition !== undefined &&
-          mobilePosition.y !== bento.mobilePosition?.y) ||
+          mobilePosition.y !== bento.position.sm?.y) ||
         (desktopPosition !== undefined &&
-          desktopPosition.y !== bento.desktopPosition?.y)
+          desktopPosition.y !== bento.position.md?.y)
       ) {
         update = true;
       }
 
       if (update) {
         await api.profileLink.updateBento.mutate({
-          id: bento.id,
-          mobilePosition,
-          desktopPosition,
+          link: profileLink!.link,
+          bento: {
+            ...bento,
+            position: {
+              sm: mobilePosition,
+              md: desktopPosition,
+            },
+          },
         });
       }
     }

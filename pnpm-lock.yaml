@@ -107,9 +107,12 @@ dependencies:
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
+  dotenv:
+    specifier: ^16.3.1
+    version: 16.3.1
   drizzle-orm:
     specifier: ^0.28.5
-    version: 0.28.5(@neondatabase/serverless@0.6.0)
+    version: 0.28.5(@neondatabase/serverless@0.6.0)(postgres@3.3.5)
   drizzle-zod:
     specifier: ^0.5.1
     version: 0.5.1(drizzle-orm@0.28.5)(zod@3.22.2)
@@ -125,6 +128,9 @@ dependencies:
   next-themes:
     specifier: ^0.2.1
     version: 0.2.1(next@13.4.19)(react-dom@18.2.0)(react@18.2.0)
+  postgres:
+    specifier: ^3.3.5
+    version: 3.3.5
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -3066,6 +3072,11 @@ packages:
       tslib: 2.4.1
     dev: false
 
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: false
+
   /dreamopt@0.8.0:
     resolution: {integrity: sha512-vyJTp8+mC+G+5dfgsY+r3ckxlz+QMX40VjPQsZc5gxVAxLmi64TBoVkP54A/pRAXMXsbu2GMMBrZPxNv23waMg==}
     engines: {node: '>=0.4.0'}
@@ -3093,7 +3104,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.28.5(@neondatabase/serverless@0.6.0):
+  /drizzle-orm@0.28.5(@neondatabase/serverless@0.6.0)(postgres@3.3.5):
     resolution: {integrity: sha512-6r6Iw4c38NAmW6TiKH3TUpGUQ1YdlEoLJOQptn8XPx3Z63+vFNKfAiANqrIiYZiMjKR9+NYAL219nFrmo1duXA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -3156,6 +3167,7 @@ packages:
         optional: true
     dependencies:
       '@neondatabase/serverless': 0.6.0
+      postgres: 3.3.5
     dev: false
 
   /drizzle-zod@0.5.1(drizzle-orm@0.28.5)(zod@3.22.2):
@@ -3164,7 +3176,7 @@ packages:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
-      drizzle-orm: 0.28.5(@neondatabase/serverless@0.6.0)
+      drizzle-orm: 0.28.5(@neondatabase/serverless@0.6.0)(postgres@3.3.5)
       zod: 3.22.2
     dev: false
 
@@ -5030,6 +5042,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       xtend: 4.0.2
+    dev: false
+
+  /postgres@3.3.5:
+    resolution: {integrity: sha512-+JD93VELV9gHkqpV5gdL5/70HdGtEw4/XE1S4BC8f1mcPmdib3K5XsKVbnR1XcAyC41zOnifJ+9YRKxdIsXiUw==}
     dev: false
 
   /prebuild-install@7.1.1:
