@@ -7,7 +7,9 @@ export const claimLink = (link: string) => {
   const { userId } = auth();
 
   if (!userId) {
-    return redirect(`/sign-up?redirectUrl=/create-link?link=${link}`);
+    return redirect(
+      `/sign-up?redirectUrl=/create-link?link=${link.toLowerCase()}`
+    );
   }
 
   redirect(`/create-link?link=${link}`);
