@@ -12,5 +12,5 @@ export const claimLink = (link: string) => {
     );
   }
 
-  redirect(`/create-link?link=${link}`);
+  redirect(`/create-link?link=${link.toLowerCase()}`);
 };
