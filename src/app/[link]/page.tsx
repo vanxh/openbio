@@ -6,9 +6,9 @@ import {
   ogMetadata,
 } from "@/app/shared-metadata";
 import { api } from "@/trpc/server";
-import ActionBar from "@/components/bento/action-bar";
 import ProfileLinkHeader from "./_components/header";
 import Bento from "./_components/bento";
+import ActionBar from "./_components/action-bar";
 
 type Props = {
   params: {
