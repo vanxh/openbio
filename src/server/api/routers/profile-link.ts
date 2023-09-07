@@ -356,12 +356,24 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
+      const cached = await kv.get<number | null>(
+        `profile-link-views:${input.id}`
+      );
+
+      if (cached) {
+        return cached;
+      }
+
       const views = await ctx.db
         .select({
           count: sql<number>`count(*)`,
         })
         .from(linkView)
         .where(eq(linkView.linkId, input.id));
+
+      await kv.set(`profile-link-views:${input.id}`, views[0]?.count ?? 0, {
+        ex: 30 * 60,
+      });
 
       return views[0]?.count ?? 0;
     }),
