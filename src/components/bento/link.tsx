@@ -1,4 +1,4 @@
-"use server";
+// "use server";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -8,10 +8,11 @@ import { BiLogoTelegram } from "react-icons/bi";
 import type * as z from "zod";
 
 import { type linkBentoSchema } from "@/server/db";
-import { getMetadata } from "@/lib/metadata";
+import { type getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import CardOverlay from "@/components/bento/overlay";
+import { api } from "@/trpc/react";
 
 const getBackgroundColor = (url: string) => {
   const urlObj = new URL(url);
@@ -42,7 +43,7 @@ const getBackgroundColor = (url: string) => {
 
 const getIcon = (
   url: string,
-  metadata: Awaited<ReturnType<typeof getMetadata>>
+  metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -88,7 +89,7 @@ const getIcon = (
 
 const getTitle = (
   url: string,
-  metadata: Awaited<ReturnType<typeof getMetadata>>
+  metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -126,7 +127,7 @@ const getTitle = (
 
 const getDescription = (
   url: string,
-  _metadata: Awaited<ReturnType<typeof getMetadata>>
+  _metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -221,7 +222,7 @@ const getAction = (url: string) => {
   return null;
 };
 
-export default async function LinkCard({
+export default function LinkCard({
   bento,
   editable,
 }: {
@@ -230,10 +231,12 @@ export default async function LinkCard({
 }) {
   if (!bento.href) return null;
 
-  const metadata = await getMetadata(bento.href);
+  const { data: metadata } = api.profileLink.getMetadataOfURL.useQuery({
+    url: bento.href,
+  });
 
-  const title = getTitle(bento.href, metadata);
-  const description = getDescription(bento.href, metadata);
+  const title = getTitle(bento.href, metadata ?? null);
+  const description = getDescription(bento.href, metadata ?? null);
 
   const Wrapper = editable ? "div" : Link;
 

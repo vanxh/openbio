@@ -17,6 +17,7 @@ import {
   linkView,
   bentoSchema,
 } from "@/server/db";
+import { getMetadata } from "@/lib/metadata";
 
 const RESERVED_LINKS = [
   "sign-up",
@@ -564,5 +565,15 @@ export const profileLinkRouter = createTRPCRouter({
       }
 
       return true;
+    }),
+
+  getMetadataOfURL: publicProcedure
+    .input(
+      z.object({
+        url: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getMetadata(input.url);
     }),
 });

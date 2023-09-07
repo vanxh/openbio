@@ -6,10 +6,9 @@ import {
   ogMetadata,
 } from "@/app/shared-metadata";
 import { api } from "@/trpc/server";
-import BentoCard from "@/components/bento/card";
 import ActionBar from "@/components/bento/action-bar";
 import ProfileLinkHeader from "./_components/header";
-import BentoLayout from "./_components/bento-layout";
+import Bento from "./_components/bento";
 
 type Props = {
   params: {
@@ -64,13 +63,7 @@ export default async function Page({ params }: Props) {
       <div className="flex flex-col gap-y-6">
         <ProfileLinkHeader profileLink={profileLink} />
 
-        <BentoLayout profileLink={profileLink}>
-          {profileLink.bento.map((b) => (
-            <div key={b.id}>
-              <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
-            </div>
-          ))}
-        </BentoLayout>
+        <Bento profileLink={profileLink} />
 
         {profileLink.isOwner && <ActionBar />}
       </div>
