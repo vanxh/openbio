@@ -7,7 +7,7 @@ import { BsDiscord } from "react-icons/bs";
 import { BiLogoTelegram } from "react-icons/bi";
 import type * as z from "zod";
 
-import { type linkBentoSchema } from "@/server/db";
+import { type linkBentoSchema } from "@/types";
 import { type getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

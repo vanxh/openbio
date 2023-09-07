@@ -9,12 +9,12 @@ import {
 } from "@/server/api/trpc";
 import {
   link,
-  type sizeSchema,
-  type positionSchema,
   type InferSelectModel,
   eq,
   sql,
   linkView,
+  type sizeSchema,
+  type positionSchema,
   bentoSchema,
 } from "@/server/db";
 import { getMetadata } from "@/lib/metadata";
