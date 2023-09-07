@@ -46,6 +46,7 @@ export default function CreateLinkBentoModal({
       );
     },
     onSuccess: () => {
+      void queryClient.profileLink.getByLink.invalidate({ link });
       void router.refresh();
       setOpen(false);
     },

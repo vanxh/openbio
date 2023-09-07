@@ -35,6 +35,7 @@ export default function DeleteButton({
       );
     },
     onSuccess: () => {
+      void queryClient.profileLink.getByLink.invalidate({ link });
       void router.refresh();
     },
   });
