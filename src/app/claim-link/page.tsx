@@ -19,7 +19,7 @@ export default function Page() {
 
       <ClaimLinkForm className="mt-12" />
 
-      <Link href="/sign-in" className="mt-12 self-start md:self-auto">
+      <Link href="/app/sign-in" className="mt-12 self-start md:self-auto">
         <Button variant="link" className="px-0">
           or sign in
         </Button>

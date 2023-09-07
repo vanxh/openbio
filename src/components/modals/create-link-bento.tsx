@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-import { api } from "@/trpc/client";
+import { api } from "@/trpc/react";
+import { linkBentoSchema } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,31 @@ export default function CreateLinkBentoModal({
 
   const [input, setInput] = useState("");
 
+  const queryClient = api.useContext();
+
+  const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
+    onMutate: (bento) => {
+      void queryClient.profileLink.getByLink.setData(
+        {
+          link,
+        },
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            bento: [...old.bento, linkBentoSchema.parse(bento.bento)],
+          };
+        }
+      );
+    },
+    onSuccess: () => {
+      void queryClient.profileLink.getByLink.invalidate({ link });
+      void router.refresh();
+      setOpen(false);
+    },
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -37,10 +63,10 @@ export default function CreateLinkBentoModal({
         <form
           className="space-y-4"
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault();
 
-            await api.profileLink.createBento.mutate({
+            void createBento({
               link,
               bento: {
                 id: crypto.randomUUID(),
@@ -48,9 +74,6 @@ export default function CreateLinkBentoModal({
                 href: input,
               },
             });
-
-            void router.refresh();
-            setOpen(false);
           }}
         >
           <Input

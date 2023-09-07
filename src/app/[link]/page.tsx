@@ -6,10 +6,9 @@ import {
   ogMetadata,
 } from "@/app/shared-metadata";
 import { api } from "@/trpc/server";
-import BentoCard from "@/components/bento/card";
-import BentoLayout from "@/components/bento/layout";
-import ActionBar from "@/components/bento/action-bar";
-import ProfileLinkEditor from "@/components/profile-link-editor";
+import ProfileLinkHeader from "./_components/header";
+import Bento from "./_components/bento";
+import ActionBar from "./_components/action-bar";
 
 type Props = {
   params: {
@@ -57,20 +56,14 @@ export default async function Page({ params }: Props) {
     );
   }
 
-  await api.profileLink.recordVisit.mutate({ link });
+  void api.profileLink.recordVisit.mutate({ id: profileLink.id });
 
   return (
     <div className="h-full w-full max-w-3xl">
       <div className="flex flex-col gap-y-6">
-        <ProfileLinkEditor profileLink={profileLink} />
+        <ProfileLinkHeader profileLink={profileLink} />
 
-        <BentoLayout profileLink={profileLink}>
-          {profileLink.bento.map((b) => (
-            <div key={b.id}>
-              <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
-            </div>
-          ))}
-        </BentoLayout>
+        <Bento profileLink={profileLink} />
 
         {profileLink.isOwner && <ActionBar />}
       </div>

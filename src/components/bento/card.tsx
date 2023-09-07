@@ -1,12 +1,9 @@
-"use server";
-
 import type * as z from "zod";
 
 import { type bentoSchema } from "@/server/db";
 import LinkCard from "./link";
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export default async function BentoCard({
+export default function BentoCard({
   bento,
   editable,
 }: {

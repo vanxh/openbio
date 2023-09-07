@@ -6,16 +6,31 @@ import "react-resizable/css/styles.css";
 import { useMemo } from "react";
 import { type Layouts, Responsive, WidthProvider } from "react-grid-layout";
 
-import { api } from "@/trpc/client";
+import { type api } from "@/trpc/client";
+import { api as apiReact } from "@/trpc/react";
 
 export default function BentoLayout({
   children,
-  profileLink,
+  profileLink: initialProfileLink,
 }: {
   children: React.ReactNode;
   profileLink: Awaited<ReturnType<typeof api.profileLink.getByLink.query>>;
 }) {
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
+
+  if (!initialProfileLink) return null;
+
+  const { data: profileLink } = apiReact.profileLink.getByLink.useQuery(
+    {
+      link: initialProfileLink.link,
+    },
+    {
+      initialData: initialProfileLink,
+    }
+  );
+
+  const { mutateAsync: updateBento } =
+    apiReact.profileLink.updateBento.useMutation();
 
   const layouts = {
     sm: [
@@ -62,7 +77,7 @@ export default function BentoLayout({
     ],
   };
 
-  const onLayoutChange = async (newLayouts: Layouts) => {
+  const onLayoutChange = (newLayouts: Layouts) => {
     for (const bento of profileLink!.bento) {
       const sm = newLayouts.sm?.find((l) => l.i === bento.id);
       const md = newLayouts.md?.find((l) => l.i === bento.id);
@@ -97,7 +112,7 @@ export default function BentoLayout({
       }
 
       if (update) {
-        await api.profileLink.updateBento.mutate({
+        void updateBento({
           link: profileLink!.link,
           bento: {
             ...bento,

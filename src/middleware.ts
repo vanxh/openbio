@@ -51,7 +51,7 @@ export default authMiddleware({
       !auth.userId &&
       ["/app", "/create-link"].includes(req.nextUrl.pathname)
     ) {
-      return NextResponse.redirect(new URL("/sign-up", req.nextUrl.origin));
+      return NextResponse.redirect(new URL("/app/sign-up", req.nextUrl.origin));
     }
   },
 });

@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import LocalFont from "next/font/local";
+import { ClerkProvider } from "@clerk/nextjs";
 
 import {
   defaultMetadata,
@@ -13,7 +14,6 @@ import ClientProviders from "@/app/client-providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/toaster";
 import Background from "@/components/background";
-import { ClerkProvider } from "@/components/clerk-provider";
 
 const inter = Inter({
   subsets: ["latin"],

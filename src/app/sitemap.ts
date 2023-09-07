@@ -9,8 +9,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/legal/terms",
     "/create-link",
     "/claim-link",
-    "/sign-in",
-    "/sign-up",
+    "/app/sign-in",
+    "/app/sign-up",
   ].map((route) => ({
     url: addPathToBaseURL(route),
     lastModified: new Date(),
