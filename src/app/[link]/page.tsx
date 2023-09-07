@@ -7,9 +7,9 @@ import {
 } from "@/app/shared-metadata";
 import { api } from "@/trpc/server";
 import BentoCard from "@/components/bento/card";
-import BentoLayout from "@/components/bento/layout";
 import ActionBar from "@/components/bento/action-bar";
 import ProfileLinkHeader from "./_components/header";
+import BentoLayout from "./_components/bento-layout";
 
 type Props = {
   params: {
