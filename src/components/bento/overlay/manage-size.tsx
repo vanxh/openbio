@@ -4,8 +4,8 @@ import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
 import type * as z from "zod";
 
-import { type bentoSchema } from "@/server/db";
-import { api } from "@/trpc/client";
+import { bentoSchema } from "@/types";
+import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import Size2x2 from "@/components/icons/size_2x2";
 import Size4x2 from "@/components/icons/size_4x2";
@@ -52,6 +52,37 @@ export default function ManageSize({
     },
   ];
 
+  const queryClient = api.useContext();
+
+  const { mutateAsync: updateBento } = api.profileLink.updateBento.useMutation({
+    onMutate: (bento) => {
+      void queryClient.profileLink.getByLink.setData(
+        {
+          link,
+        },
+        (old) => {
+          if (!old) return old;
+
+          return {
+            ...old,
+            bento: old.bento.map((b) => {
+              if (b.id === bento.bento.id) {
+                return bentoSchema.parse(bento.bento);
+              }
+
+              return b;
+            }),
+          };
+        }
+      );
+    },
+    onSuccess: () => {
+      void queryClient.profileLink.getByLink.invalidate({ link });
+      void router.refresh();
+      close();
+    },
+  });
+
   return (
     <ResponsivePortal>
       <div className="container fixed bottom-6 left-1/2 z-20 mx-auto -translate-x-1/2 md:absolute md:bottom-0 md:w-max md:translate-y-1/2">
@@ -65,20 +96,16 @@ export default function ManageSize({
                   "rounded-sm bg-secondary text-secondary-foreground"
               )}
               onClick={() => {
-                void api.profileLink.updateBento
-                  .mutate({
-                    link,
-                    bento: {
-                      ...bento,
-                      size: {
-                        ...bento.size,
-                        [window.outerWidth < 500 ? "sm" : "md"]: o.key,
-                      },
+                void updateBento({
+                  link,
+                  bento: {
+                    ...bento,
+                    size: {
+                      ...bento.size,
+                      [window.outerWidth < 500 ? "sm" : "md"]: o.key,
                     },
-                  })
-                  .then(() => {
-                    void router.refresh();
-                  });
+                  },
+                });
               }}
             >
               <o.icon />
