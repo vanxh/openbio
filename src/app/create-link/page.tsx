@@ -20,7 +20,7 @@ export default async function Page({
   const user = await currentUser();
 
   if (!user) {
-    return redirect(`/sign-up?redirectUrl=/create-link?link=${link}`);
+    return redirect(`/app/sign-up?redirectUrl=/create-link?link=${link}`);
   }
 
   return (

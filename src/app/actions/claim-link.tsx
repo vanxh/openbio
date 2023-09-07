@@ -8,7 +8,7 @@ export const claimLink = (link: string) => {
 
   if (!userId) {
     return redirect(
-      `/sign-up?redirectUrl=/create-link?link=${link.toLowerCase()}`
+      `/app/sign-up?redirectUrl=/create-link?link=${link.toLowerCase()}`
     );
   }
 
