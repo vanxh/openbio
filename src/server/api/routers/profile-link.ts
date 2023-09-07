@@ -2,6 +2,7 @@ import * as z from "zod";
 import { kv } from "@vercel/kv";
 
 import {
+  type Context,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -79,17 +80,26 @@ const validLinkSchema = z
     message: "This link is reserved.",
   });
 
-const createProfileLinkInput = z.object({
-  link: validLinkSchema,
-  twitter: z.string().optional(),
-  github: z.string().optional(),
-  linkedin: z.string().optional(),
-  instagram: z.string().optional(),
-  telegram: z.string().optional(),
-  discord: z.string().optional(),
-  youtube: z.string().optional(),
-  twitch: z.string().optional(),
-});
+const getUser = async (
+  ctx: Context & {
+    auth: {
+      userId: string;
+    };
+  }
+) => {
+  const user = await ctx.db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
+    columns: {
+      id: true,
+      plan: true,
+      subscriptionEndsAt: true,
+    },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  return user;
+};
 
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
@@ -112,16 +122,21 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(createProfileLinkInput)
+    .input(
+      z.object({
+        link: validLinkSchema,
+        twitter: z.string().optional(),
+        github: z.string().optional(),
+        linkedin: z.string().optional(),
+        instagram: z.string().optional(),
+        telegram: z.string().optional(),
+        discord: z.string().optional(),
+        youtube: z.string().optional(),
+        twitch: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      const user = await ctx.db.query.user.findFirst({
-        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
-        columns: {
-          id: true,
-        },
-      });
-
-      if (!user) throw new Error("User not found");
+      const user = await getUser(ctx);
 
       const profileLinks = await ctx.db
         .select({
@@ -131,7 +146,12 @@ export const profileLinkRouter = createTRPCRouter({
         .where(eq(link.userId, user.id));
       const nProfileLinks = profileLinks[0]?.count ?? 0;
 
-      if (nProfileLinks >= 1) {
+      const isPremium =
+        user.plan === "pro" &&
+        user.subscriptionEndsAt &&
+        user.subscriptionEndsAt > new Date();
+
+      if (nProfileLinks >= 1 && !isPremium) {
         throw new Error(
           "You can't create more profile links, upgrade your plan"
         );
@@ -225,14 +245,7 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
-    const user = await ctx.db.query.user.findFirst({
-      where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
-      columns: {
-        id: true,
-      },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getUser(ctx);
 
     const profileLinks = await ctx.db.query.link.findMany({
       where: (link, { eq }) => eq(link.userId, user.id),
@@ -303,21 +316,10 @@ export const profileLinkRouter = createTRPCRouter({
   recordVisit: publicProcedure
     .input(
       z.object({
-        link: z.string(),
+        id: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const profileLink = await ctx.db.query.link.findFirst({
-        where: (link, { eq }) => eq(link.link, input.link),
-        columns: {
-          id: true,
-        },
-      });
-
-      if (!profileLink) {
-        return false;
-      }
-
       let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
       const forwardedFor = ctx.req.headers.get("x-forwarded-for");
       if (!ip && forwardedFor) {
@@ -328,7 +330,7 @@ export const profileLinkRouter = createTRPCRouter({
         where: (linkView, { eq, and, sql }) =>
           and(
             eq(linkView.ip, ip ?? "Unknown"),
-            eq(linkView.linkId, profileLink.id),
+            eq(linkView.linkId, input.id),
             sql`created_at > now() - interval '1 hour'`
           ),
         columns: {
@@ -340,7 +342,7 @@ export const profileLinkRouter = createTRPCRouter({
         await ctx.db.insert(linkView).values({
           ip: ip ?? "Unknown",
           userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
-          linkId: profileLink.id,
+          linkId: input.id,
         });
       }
 
@@ -350,27 +352,16 @@ export const profileLinkRouter = createTRPCRouter({
   getViews: publicProcedure
     .input(
       z.object({
-        link: z.string(),
+        id: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
-      const profileLink = await ctx.db.query.link.findFirst({
-        where: (link, { eq }) => eq(link.link, input.link),
-        columns: {
-          id: true,
-        },
-      });
-
-      if (!profileLink) {
-        return 0;
-      }
-
       const views = await ctx.db
         .select({
           count: sql<number>`count(*)`,
         })
         .from(linkView)
-        .where(eq(linkView.linkId, profileLink.id));
+        .where(eq(linkView.linkId, input.id));
 
       return views[0]?.count ?? 0;
     }),
@@ -378,7 +369,7 @@ export const profileLinkRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        link: z.string(),
+        id: z.string(),
         name: z.string().optional(),
         bio: z.string().optional(),
       })
@@ -390,11 +381,11 @@ export const profileLinkRouter = createTRPCRouter({
           name: input.name,
           bio: input.bio,
         })
-        .where(eq(link.link, input.link))
+        .where(eq(link.id, input.id))
         .returning()
         .execute();
 
-      await kv.set(`profile-link:${input.link}`, update[0], {
+      await kv.set(`profile-link:${update[0]?.link}`, update[0], {
         ex: 30 * 60,
       });
 

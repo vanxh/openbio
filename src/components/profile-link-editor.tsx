@@ -116,7 +116,7 @@ export default function ProfileLinkEditor({ profileLink }: Props) {
     setSaving(true);
     api.profileLink.update
       .mutate({
-        link: profileLink.link,
+        id: profileLink.id,
         name: debouncedName,
         bio: debouncedBio ?? undefined,
       })
@@ -129,7 +129,7 @@ export default function ProfileLinkEditor({ profileLink }: Props) {
     debouncedName,
     debouncedBio,
     profileLink.isOwner,
-    profileLink.link,
+    profileLink.id,
     profileLink.name,
   ]);
 

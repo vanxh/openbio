@@ -13,12 +13,22 @@ export default function MarketingFooter() {
   const [views, setViews] = useState<number | null>(null);
 
   useEffect(() => {
-    api.profileLink.getViews
-      .query({
-        link,
-      })
-      .then((res) => setViews(res))
-      .catch(() => setViews(null));
+    const getViews = async () => {
+      const profileLink = await api.profileLink.getByLink.query({ link });
+      if (!profileLink) return;
+
+      const views = await api.profileLink.getViews.query({
+        id: profileLink.id,
+      });
+
+      setViews(views);
+    };
+
+    void getViews();
+
+    return () => {
+      setViews(null);
+    };
   }, [link]);
 
   return (

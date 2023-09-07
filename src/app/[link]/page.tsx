@@ -57,7 +57,7 @@ export default async function Page({ params }: Props) {
     );
   }
 
-  await api.profileLink.recordVisit.mutate({ link });
+  await api.profileLink.recordVisit.mutate({ id: profileLink.id });
 
   return (
     <div className="h-full w-full max-w-3xl">
