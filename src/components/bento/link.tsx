@@ -93,33 +93,26 @@ const getTitle = (
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
+  const pathSegments = urlObj.pathname.split("/");
+  const knownHostnames = [
+    "twitter.com",
+    "x.com",
+    "linkedin.com",
+    "github.com",
+    "instagram.com",
+    "twitch.tv",
+    "t.me",
+    "telegram.com",
+    "discord.com",
+  ];
+  let userHandle = pathSegments.pop();
 
-  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
-    return `@${urlObj.pathname.split("/")[1]}`;
+  if (!userHandle) {
+    userHandle = pathSegments.pop();
   }
 
-  if (hostname.includes("linkedin.com")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
-  }
-
-  if (hostname.includes("github.com")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
-  }
-
-  if (hostname.includes("instagram.com")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
-  }
-
-  if (hostname.includes("twitch.tv")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
-  }
-
-  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
-  }
-
-  if (hostname.includes("discord.com")) {
-    return `@${urlObj.pathname.split("/").pop()}`;
+  if (knownHostnames.some((knownHost) => hostname.includes(knownHost))) {
+    return `@${userHandle}`;
   }
 
   return metadata?.title;
@@ -131,29 +124,35 @@ const getDescription = (
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
+  const pathSegments = urlObj.pathname.split("/");
+  let userHandle = pathSegments.pop();
+
+  if (!userHandle) {
+    userHandle = pathSegments.pop();
+  }
 
   if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
-    return `x.com/${urlObj.pathname.split("/")[1]}`;
+    return `x.com/${userHandle}`;
   }
 
   if (hostname.includes("linkedin.com")) {
-    return `linkedin.com/in/${urlObj.pathname.split("/").pop()}`;
+    return `linkedin.com/in/${userHandle}`;
   }
 
   if (hostname.includes("github.com")) {
-    return `github.com/${urlObj.pathname.split("/").pop()}`;
+    return `github.com/${userHandle}`;
   }
 
   if (hostname.includes("instagram.com")) {
-    return `instagr.am/${urlObj.pathname.split("/").pop()}`;
+    return `instagr.am/${userHandle}`;
   }
 
   if (hostname.includes("twitch.tv")) {
-    return `twitch.tv/${urlObj.pathname.split("/").pop()}`;
+    return `twitch.tv/${userHandle}`;
   }
 
   if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
-    return `t.me/${urlObj.pathname.split("/").pop()}`;
+    return `t.me/${userHandle}`;
   }
 
   if (hostname.includes("discord.com")) {
