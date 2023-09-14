@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import LocalFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import {
@@ -45,12 +46,13 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.variable} ${calSans.variable} font-inter`}>
-          <ClientProviders>
-            <Background />
-            {children}
-            <Toaster />
-            <TailwindIndicator />
-          </ClientProviders>
+          <Background />
+
+          <ClientProviders>{children}</ClientProviders>
+
+          <Toaster />
+          <TailwindIndicator />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
