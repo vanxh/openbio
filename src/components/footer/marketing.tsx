@@ -1,35 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Eye } from "lucide-react";
 
-import { api } from "@/trpc/client";
+import { api } from "@/trpc/react";
 
 export default function MarketingFooter() {
   const { link } = useParams() as { link: string };
 
-  const [views, setViews] = useState<number | null>(null);
+  const { data: profileLink } = api.profileLink.getByLink.useQuery(
+    {
+      link,
+    },
+    {
+      staleTime: Infinity,
+      enabled: !!link,
+    }
+  );
 
-  useEffect(() => {
-    const getViews = async () => {
-      const profileLink = await api.profileLink.getByLink.query({ link });
-      if (!profileLink) return;
-
-      const views = await api.profileLink.getViews.query({
-        id: profileLink.id,
-      });
-
-      setViews(views);
-    };
-
-    void getViews();
-
-    return () => {
-      setViews(null);
-    };
-  }, [link]);
+  const { data: views } = api.profileLink.getViews.useQuery(
+    {
+      id: profileLink?.id ?? "",
+    },
+    {
+      staleTime: Infinity,
+      enabled: !!profileLink,
+    }
+  );
 
   return (
     <footer className="bottom-0 flex w-full max-w-3xl flex-col items-center justify-center gap-y-2 md:items-start">

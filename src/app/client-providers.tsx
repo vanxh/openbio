@@ -43,16 +43,16 @@ export default function ClientProviders({
   );
 
   return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryStreamedHydration transformer={superjson}>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryStreamedHydration transformer={superjson}>
+        <api.Provider client={trpcClient} queryClient={queryClient}>
           <ThemeProvider>
             <StripeElements stripe={getStripe()} options={{}}>
               {children}
             </StripeElements>
           </ThemeProvider>
-        </ReactQueryStreamedHydration>
-      </QueryClientProvider>
-    </api.Provider>
+        </api.Provider>
+      </ReactQueryStreamedHydration>
+    </QueryClientProvider>
   );
 }

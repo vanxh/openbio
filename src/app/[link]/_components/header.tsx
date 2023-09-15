@@ -6,15 +6,12 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { QrCode } from "lucide-react";
 
-import { type RouterOutputs, api } from "@/trpc/react";
+import { api } from "@/trpc/react";
 import LinkQRModal from "@/components/modals/link-qr-modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import ProfileLinkAvatar from "./avatar";
-
-type Props = {
-  profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
-};
+import { useParams } from "next/navigation";
 
 const extensions = [
   StarterKit,
@@ -24,20 +21,15 @@ const extensions = [
   }),
 ] as Extension[];
 
-export default function ProfileLinkHeader({
-  profileLink: initialProfileLink,
-}: Props) {
-  const { data: profileLink } = api.profileLink.getByLink.useQuery(
-    {
-      link: initialProfileLink.link,
-    },
-    {
-      initialData: initialProfileLink,
-    }
-  );
+export default function ProfileLinkHeader() {
+  const { link } = useParams() as { link: string };
 
-  const [name, setName] = useState(initialProfileLink.name);
-  const [bio, setBio] = useState(initialProfileLink.bio);
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
+    link,
+  });
+
+  const [name, setName] = useState(profileLink?.name);
+  const [bio, setBio] = useState(profileLink?.bio);
   const [saving, startSaving] = useTransition();
 
   const { mutateAsync: updateProfileLink } =
@@ -79,7 +71,7 @@ export default function ProfileLinkHeader({
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex items-start justify-between">
-        <ProfileLinkAvatar profileLink={initialProfileLink} />
+        <ProfileLinkAvatar profileLink={profileLink} />
 
         {profileLink.isOwner && (
           <div className="flex flex-row items-center gap-x-4">

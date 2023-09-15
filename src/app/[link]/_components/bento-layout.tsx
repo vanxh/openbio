@@ -6,31 +6,23 @@ import "react-resizable/css/styles.css";
 import { useMemo } from "react";
 import { type Layouts, Responsive, WidthProvider } from "react-grid-layout";
 
-import { type api } from "@/trpc/client";
-import { api as apiReact } from "@/trpc/react";
+import { api } from "@/trpc/react";
+import { useParams } from "next/navigation";
 
 export default function BentoLayout({
   children,
-  profileLink: initialProfileLink,
 }: {
   children: React.ReactNode;
-  profileLink: Awaited<ReturnType<typeof api.profileLink.getByLink.query>>;
 }) {
+  const { link } = useParams() as { link: string };
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
-  if (!initialProfileLink) return null;
-
-  const { data: profileLink } = apiReact.profileLink.getByLink.useQuery(
-    {
-      link: initialProfileLink.link,
-    },
-    {
-      initialData: initialProfileLink,
-    }
-  );
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
+    link,
+  });
 
   const { mutateAsync: updateBento } =
-    apiReact.profileLink.updateBento.useMutation();
+    api.profileLink.updateBento.useMutation();
 
   const layouts = {
     sm: [

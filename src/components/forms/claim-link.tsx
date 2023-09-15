@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, Loader, X } from "lucide-react";
 
-import { api } from "@/trpc/client";
+import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import { claimLink } from "@/app/actions/claim-link";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -13,33 +13,23 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
   const [link, setLink] = useState("");
 
   const debouncedLink = useDebounce(link, 500);
-  const [available, setAvailable] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!debouncedLink) return;
-
-    const checkLink = async () => {
-      setLoading(true);
-      const available = await api.profileLink.linkAvailable.query({
+  const { data: available, isFetching } =
+    api.profileLink.linkAvailable.useQuery(
+      {
         link: debouncedLink,
-      });
-      setLoading(false);
-      setAvailable(available);
-    };
-
-    void checkLink();
-
-    return () => {
-      setLoading(false);
-    };
-  }, [debouncedLink]);
+      },
+      {
+        enabled: !!debouncedLink,
+        staleTime: Infinity,
+      }
+    );
 
   return (
     <form
       className={cn("w-full space-y-4 md:w-[300px]", className)}
       action={() => {
-        if (!debouncedLink || loading || !available) return;
+        if (!debouncedLink || isFetching || !available) return;
         void claimLink(link);
       }}
     >
@@ -55,7 +45,7 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
 
         {debouncedLink && (
           <div className="ml-auto">
-            {loading ? (
+            {isFetching ? (
               <Loader className="h-5 w-5 animate-spin" />
             ) : available ? (
               <Check className="h-5 w-5 text-green-500" />
@@ -66,7 +56,7 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
         )}
       </div>
 
-      {debouncedLink && !loading && available && (
+      {debouncedLink && !isFetching && available && (
         <Button className="w-full">Claim my link</Button>
       )}
     </form>

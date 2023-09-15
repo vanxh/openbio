@@ -61,9 +61,9 @@ export default async function Page({ params }: Props) {
   return (
     <div className="h-full w-full max-w-3xl">
       <div className="flex flex-col gap-y-6">
-        <ProfileLinkHeader profileLink={profileLink} />
+        <ProfileLinkHeader />
 
-        <Bento profileLink={profileLink} />
+        <Bento />
 
         {profileLink.isOwner && <ActionBar />}
       </div>

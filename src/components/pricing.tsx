@@ -8,7 +8,7 @@ import { Check, HelpCircle, Loader, X } from "lucide-react";
 
 import { PLANS } from "@/lib/stripe/plans";
 import { getStripe } from "@/lib/stripe/client";
-import { type RouterOutputs, api } from "@/trpc/client";
+import { type RouterOutputs, api } from "@/trpc/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,17 +30,23 @@ export const PricingCards = ({
 }) => {
   const [isPending, startTransition] = useTransition();
 
+  const { mutateAsync: getBillingPortalUrl } =
+    api.stripe.getBillingPortalUrl.useMutation();
+
+  const { mutateAsync: getCheckoutSession } =
+    api.stripe.getCheckoutSession.useMutation();
+
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
       switch (plan) {
         case "free":
-          const billingPortal = await api.stripe.getBillingPortalUrl.mutate();
+          const billingPortal = await getBillingPortalUrl();
 
           void redirect(billingPortal);
           break;
 
         case "pro":
-          const session = await api.stripe.getCheckoutSession.mutate({
+          const session = await getCheckoutSession({
             billing,
           });
 

@@ -1,14 +1,7 @@
-import { createTRPCRouter } from "@/server/api/trpc";
-import { clerkRouter } from "@/server/api/routers/clerk";
-import { stripeRouter } from "@/server/api/routers/stripe";
-import { userRouter } from "@/server/api/routers/user";
-import { profileLinkRouter } from "@/server/api/routers/profile-link";
+import { mergeRouters } from "@/server/api/trpc";
+import { edgeRouter } from "@/server/api/edge";
+import { serverlessRouter } from "@/server/api/serverless";
 
-export const appRouter = createTRPCRouter({
-  clerk: clerkRouter,
-  stripe: stripeRouter,
-  user: userRouter,
-  profileLink: profileLinkRouter,
-});
+export const appRouter = mergeRouters(edgeRouter, serverlessRouter);
 
 export type AppRouter = typeof appRouter;
