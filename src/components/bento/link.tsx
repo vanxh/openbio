@@ -248,7 +248,7 @@ export default function LinkCard({
         "group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-md border border-border p-5",
         getBackgroundColor(bento.href),
         editable
-          ? "md:cursor-move"
+          ? "transition-transform duration-200 ease-in-out md:cursor-move"
           : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
       )}
     >
