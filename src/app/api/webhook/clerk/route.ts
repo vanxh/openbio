@@ -6,7 +6,7 @@ import { Webhook } from "svix";
 import { type IncomingHttpHeaders } from "http";
 
 import { createTRPCContext } from "@/server/api/trpc";
-import { appRouter } from "@/server/api/root";
+import { serverlessRouter } from "@/server/api/serverless";
 import { clerkEvent } from "@/server/api/routers/clerk/type";
 import { env } from "@/env.mjs";
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequestWithSvixRequiredHeaders) {
   }
 
   const ctx = createTRPCContext({ req });
-  const caller = appRouter.createCaller(ctx);
+  const caller = serverlessRouter.createCaller(ctx);
   const event = payload.type;
 
   switch (event) {
@@ -62,6 +62,7 @@ export async function POST(req: NextRequestWithSvixRequiredHeaders) {
       console.error(`${event as string} is not a valid event`);
       return null;
   }
+
   return NextResponse.json({ success: true });
 }
 

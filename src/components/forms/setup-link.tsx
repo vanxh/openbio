@@ -1,7 +1,6 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { type TRPCError } from "@trpc/server";
 import * as z from "zod";
 import {
   AtSign,
@@ -15,7 +14,7 @@ import {
 import { BiLogoTelegram } from "react-icons/bi";
 import { BsDiscord } from "react-icons/bs";
 
-import { api } from "@/trpc/client";
+import { api } from "@/trpc/react";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -97,24 +96,27 @@ export default function SetupLink() {
 
   const router = useRouter();
 
+  const { mutateAsync: createLink } = api.profileLink.create.useMutation({
+    onSuccess: () => {
+      void router.push(`/${link}`);
+    },
+    onError: (e) => {
+      toast({
+        title: "Error",
+        description: e.message,
+      });
+    },
+  });
+
   const form = useZodForm({
     schema: setupLinkSchema,
   });
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    try {
-      await api.profileLink.create.mutate({
-        link,
-        ...data,
-      });
-
-      void router.push(`/${link}`);
-    } catch (e) {
-      toast({
-        title: "Error",
-        description: (e as TRPCError).message,
-      });
-    }
+  const onSubmit = form.handleSubmit((data) => {
+    void createLink({
+      link,
+      ...data,
+    });
   });
 
   return (

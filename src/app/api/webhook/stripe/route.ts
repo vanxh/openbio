@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { createTRPCContext } from "@/server/api/trpc";
-import { appRouter } from "@/server/api/root";
+import { serverlessRouter } from "@/server/api/serverless";
 import { stripe } from "@/lib/stripe";
 import { env } from "@/env.mjs";
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     );
 
     const ctx = createTRPCContext({ req });
-    const caller = appRouter.createCaller(ctx);
+    const caller = serverlessRouter.createCaller(ctx);
 
     switch (event.type) {
       case "checkout.session.completed":

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Copy, Download } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 
-import { type RouterOutputs } from "@/trpc/client";
+import { type RouterOutputs } from "@/trpc/react";
 import { QRCodeSVG, getQRAsCanvas } from "@/lib/qr";
 import {
   Dialog,

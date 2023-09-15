@@ -230,7 +230,7 @@ export default function LinkCard({
 }) {
   if (!bento.href) return null;
 
-  const { data: metadata } = api.profileLink.getMetadataOfURL.useQuery({
+  const [metadata] = api.profileLink.getMetadataOfURL.useSuspenseQuery({
     url: bento.href,
   });
 

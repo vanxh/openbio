@@ -1,5 +1,6 @@
-import type { HTTPBatchLinkOptions, HTTPHeaders } from "@trpc/client";
-import { httpBatchLink } from "@trpc/client";
+import { type AppRouter } from "@/server/api/root";
+import type { HTTPBatchLinkOptions, HTTPHeaders, TRPCLink } from "@trpc/client";
+import { unstable_httpBatchStreamLink } from "@trpc/client";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return "";
@@ -8,15 +9,36 @@ const getBaseUrl = () => {
   return `http://localhost:3000`;
 };
 
-export const endingLink = (opts?: { headers?: HTTPHeaders }) => {
-  const sharedOpts = {
-    headers: opts?.headers,
-  } satisfies Partial<HTTPBatchLinkOptions>;
+const serverlessRouters = ["clerk", "stripe"];
 
-  const link = httpBatchLink({
-    ...sharedOpts,
-    url: `${getBaseUrl()}/api/trpc`,
-  });
+export const endingLink = (opts?: { headers?: HTTPHeaders }) =>
+  ((runtime) => {
+    const sharedOpts = {
+      headers: opts?.headers,
+    } satisfies Partial<HTTPBatchLinkOptions>;
 
-  return link;
-};
+    const edgeLink = unstable_httpBatchStreamLink({
+      ...sharedOpts,
+      url: `${getBaseUrl()}/api/trpc/edge`,
+    })(runtime);
+    const serverlessLink = unstable_httpBatchStreamLink({
+      ...sharedOpts,
+      url: `${getBaseUrl()}/api/trpc/serverless`,
+    })(runtime);
+
+    return (ctx) => {
+      const path = ctx.op.path.split(".") as [string, ...string[]];
+      const endpoint = serverlessRouters.includes(path[0])
+        ? "serverless"
+        : "edge";
+
+      const newCtx = {
+        ...ctx,
+        op: { ...ctx.op, path: path.join(".") },
+      };
+
+      return endpoint === "serverless"
+        ? serverlessLink(newCtx)
+        : edgeLink(newCtx);
+    };
+  }) satisfies TRPCLink<AppRouter>;
