@@ -67,7 +67,7 @@ dependencies:
     version: 2.1.0
   '@t3-oss/env-nextjs':
     specifier: ^0.3.1
-    version: 0.3.1(typescript@5.2.2)(zod@3.22.2)
+    version: 0.3.1(typescript@5.2.2)(zod@3.22.3)
   '@tanstack/react-query':
     specifier: ^4.33.0
     version: 4.33.0(react-dom@18.2.0)(react@18.2.0)
@@ -103,7 +103,7 @@ dependencies:
     version: 10.38.0
   '@uploadthing/react':
     specifier: ^5.4.0
-    version: 5.4.0(react-dropzone@14.2.3)(react@18.2.0)(uploadthing@5.4.0)(zod@3.22.2)
+    version: 5.4.0(react-dropzone@14.2.3)(react@18.2.0)(uploadthing@5.4.0)(zod@3.22.3)
   '@vercel/analytics':
     specifier: ^1.0.2
     version: 1.0.2
@@ -124,7 +124,7 @@ dependencies:
     version: 0.28.5(@neondatabase/serverless@0.6.0)(pg@8.11.3)(postgres@3.3.5)
   drizzle-zod:
     specifier: ^0.5.1
-    version: 0.5.1(drizzle-orm@0.28.5)(zod@3.22.2)
+    version: 0.5.1(drizzle-orm@0.28.5)(zod@3.22.3)
   html-escaper:
     specifier: ^3.0.3
     version: 3.0.3
@@ -187,10 +187,10 @@ dependencies:
     version: 1.0.7(tailwindcss@3.3.3)
   uploadthing:
     specifier: ^5.4.0
-    version: 5.4.0(zod@3.22.2)
+    version: 5.4.0(zod@3.22.3)
   zod:
-    specifier: ^3.22.2
-    version: 3.22.2
+    specifier: ^3.22.3
+    version: 3.22.3
 
 devDependencies:
   '@tailwindcss/typography':
@@ -1757,25 +1757,25 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@t3-oss/env-core@0.3.1(typescript@5.2.2)(zod@3.22.2):
+  /@t3-oss/env-core@0.3.1(typescript@5.2.2)(zod@3.22.3):
     resolution: {integrity: sha512-iEnBuWeSjzqQLDTUw7H+YhstV4OZrGXTkQGL6ZOMxZQoCmwGX7GVS+1KCd5RvCzOtrIAD9jeOItSWNjC7sG4Sg==}
     peerDependencies:
       typescript: '>=4.7.2'
       zod: ^3.0.0
     dependencies:
       typescript: 5.2.2
-      zod: 3.22.2
+      zod: 3.22.3
     dev: false
 
-  /@t3-oss/env-nextjs@0.3.1(typescript@5.2.2)(zod@3.22.2):
+  /@t3-oss/env-nextjs@0.3.1(typescript@5.2.2)(zod@3.22.3):
     resolution: {integrity: sha512-W1OgOn5xtpdEGraAQesyLzO2aNLRfSJEyK6qjQFfEUnrPbkvB+WxABX2bPMqfn4KJQ8pziLCSdBFiUN8OagqAg==}
     peerDependencies:
       typescript: '>=4.7.2'
       zod: ^3.0.0
     dependencies:
-      '@t3-oss/env-core': 0.3.1(typescript@5.2.2)(zod@3.22.2)
+      '@t3-oss/env-core': 0.3.1(typescript@5.2.2)(zod@3.22.3)
       typescript: 5.2.2
-      zod: 3.22.2
+      zod: 3.22.3
     dev: false
 
   /@tailwindcss/typography@0.5.9(tailwindcss@3.3.3):
@@ -2478,24 +2478,24 @@ packages:
     resolution: {integrity: sha512-UDySsPbdi7wp52WG7mp5CiZwaTvokDubqhm1xhFm73Bqhp0PsGbwSSF5PdCXH4fe8Y4EKGrMyWQ4i1fF9+DVVQ==}
     dev: false
 
-  /@uploadthing/react@5.4.0(react-dropzone@14.2.3)(react@18.2.0)(uploadthing@5.4.0)(zod@3.22.2):
+  /@uploadthing/react@5.4.0(react-dropzone@14.2.3)(react@18.2.0)(uploadthing@5.4.0)(zod@3.22.3):
     resolution: {integrity: sha512-nBu8Eg9vCaLtv+NM6+PwlU0cYuX63mJZFlPJ09sNBFkCli7d2VKr43S72xE9205rgxm5/SOPIOam442kM+2nsg==}
     peerDependencies:
       react: ^17.0.2 || ^18.0.0
       react-dropzone: ^14.2.3
       uploadthing: ^5.0.0
     dependencies:
-      '@uploadthing/shared': 5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.2)
+      '@uploadthing/shared': 5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.3)
       react: 18.2.0
       react-dropzone: 14.2.3(react@18.2.0)
       tailwind-merge: 1.14.0
-      uploadthing: 5.4.0(zod@3.22.2)
+      uploadthing: 5.4.0(zod@3.22.3)
     transitivePeerDependencies:
       - '@uploadthing/mime-types'
       - zod
     dev: false
 
-  /@uploadthing/shared@5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.2):
+  /@uploadthing/shared@5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.3):
     resolution: {integrity: sha512-ISb78wuHqU5F/7TVw/3eO0VHQdSx3qdN7I4R4knHynuWFjgJjfUsc+zAAAtpo0UZlwfjIQIv/WtSwxdlNxRPGw==}
     peerDependencies:
       '@uploadthing/mime-types': ^0.2.0
@@ -2505,7 +2505,7 @@ packages:
         optional: true
     dependencies:
       '@uploadthing/mime-types': 0.2.1
-      zod: 3.22.2
+      zod: 3.22.3
     dev: false
 
   /@upstash/redis@1.21.0:
@@ -3213,7 +3213,7 @@ packages:
       hanji: 0.0.5
       json-diff: 0.9.0
       minimatch: 7.4.6
-      zod: 3.22.2
+      zod: 3.22.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3285,14 +3285,14 @@ packages:
       postgres: 3.3.5
     dev: false
 
-  /drizzle-zod@0.5.1(drizzle-orm@0.28.5)(zod@3.22.2):
+  /drizzle-zod@0.5.1(drizzle-orm@0.28.5)(zod@3.22.3):
     resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
     peerDependencies:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
       drizzle-orm: 0.28.5(@neondatabase/serverless@0.6.0)(pg@8.11.3)(postgres@3.3.5)
-      zod: 3.22.2
+      zod: 3.22.3
     dev: false
 
   /editorconfig@1.0.4:
@@ -6394,11 +6394,11 @@ packages:
       picocolors: 1.0.0
     dev: true
 
-  /uploadthing@5.4.0(zod@3.22.2):
+  /uploadthing@5.4.0(zod@3.22.3):
     resolution: {integrity: sha512-JTOopJ686gvZAdPTyB+40vFL2LhoQlx+uSqx6fWzM4EjvPgQQLkMdFh/aBq0/1xmv1YjFs324kJy6fsqMj3ULg==}
     dependencies:
       '@uploadthing/mime-types': 0.2.1
-      '@uploadthing/shared': 5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.2)
+      '@uploadthing/shared': 5.2.1(@uploadthing/mime-types@0.2.1)(zod@3.22.3)
     transitivePeerDependencies:
       - zod
     dev: false
@@ -6585,5 +6585,5 @@ packages:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
     dev: false
 
-  /zod@3.22.2:
-    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
+  /zod@3.22.3:
+    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
