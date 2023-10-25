@@ -58,7 +58,7 @@
     "drizzle-zod": "^0.5.1",
     "html-escaper": "^3.0.3",
     "lucide-react": "^0.268.0",
-    "next": "^13.4.19",
+    "next": "^13.5.0",
     "next-themes": "^0.2.1",
     "postgres": "^3.3.5",
     "react": "^18.2.0",
