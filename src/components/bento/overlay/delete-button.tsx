@@ -14,7 +14,7 @@ export default function DeleteButton({
   bento: z.infer<typeof bentoSchema>;
 }) {
   const router = useRouter();
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const queryClient = api.useContext();
 

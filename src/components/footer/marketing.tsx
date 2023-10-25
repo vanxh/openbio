@@ -7,7 +7,7 @@ import { Eye } from "lucide-react";
 import { api } from "@/trpc/react";
 
 export default function MarketingFooter() {
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const { data: profileLink } = api.profileLink.getByLink.useQuery(
     {

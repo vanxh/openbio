@@ -39,7 +39,7 @@ export default function LinkQRModal({
 }) {
   const [open, setOpen] = useState(false);
 
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
   const [showLogo, setShowLogo] = useState(true);

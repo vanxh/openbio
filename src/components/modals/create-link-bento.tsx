@@ -23,7 +23,7 @@ export default function CreateLinkBentoModal({
   const [open, setOpen] = useState(false);
 
   const router = useRouter();
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const [input, setInput] = useState("");
 

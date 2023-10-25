@@ -14,7 +14,7 @@ export default function BentoLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
   const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({

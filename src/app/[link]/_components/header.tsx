@@ -22,7 +22,7 @@ const extensions = [
 ] as Extension[];
 
 export default function ProfileLinkHeader() {
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
     link,

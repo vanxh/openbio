@@ -6,7 +6,7 @@ import BentoLayout from "./bento-layout";
 import { useParams } from "next/navigation";
 
 export default function Bento() {
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
     link,

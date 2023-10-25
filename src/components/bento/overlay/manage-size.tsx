@@ -29,7 +29,7 @@ export default function ManageSize({
   close: () => void;
 }) {
   const router = useRouter();
-  const { link } = useParams() as { link: string };
+  const { link } = useParams<{ link: string }>();
 
   const size = window.outerWidth < 500 ? bento.size.sm : bento.size.md;
 
