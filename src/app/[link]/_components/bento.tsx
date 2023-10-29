@@ -18,7 +18,7 @@ export default function Bento() {
     <BentoLayout>
       {profileLink.bento.map((b) => (
         <div key={b.id}>
-          <BentoCard key={b.id} bento={b} editable={profileLink.isOwner} />
+          <BentoCard bento={b} editable={profileLink.isOwner} />
         </div>
       ))}
     </BentoLayout>

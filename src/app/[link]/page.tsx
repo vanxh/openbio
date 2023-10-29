@@ -10,6 +10,8 @@ import ProfileLinkHeader from "./_components/header";
 import Bento from "./_components/bento";
 import ActionBar from "./_components/action-bar";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   params: {
@@ -59,7 +61,17 @@ export default async function Page({ params }: Props) {
       <div className="flex flex-col gap-y-6">
         <ProfileLinkHeader />
 
-        <Bento />
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-square h-full w-full" />
+              ))}
+            </div>
+          }
+        >
+          <Bento />
+        </Suspense>
 
         {profileLink.isOwner && <ActionBar />}
       </div>
