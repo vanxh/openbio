@@ -6,6 +6,7 @@ export const sizeSchema = z
     sm: "2x2",
     md: "2x2",
   });
+
 export const positionSchema = z
   .record(
     z.enum(["sm", "md"]),
@@ -20,6 +21,7 @@ export const positionSchema = z
     sm: { x: 0, y: 0 },
     md: { x: 0, y: 0 },
   });
+
 export const linkBentoSchema = z.object({
   id: z.string(),
   type: z.literal("link"),
@@ -55,3 +57,65 @@ export const assetBentoSchema = z.object({
 export const bentoSchema = linkBentoSchema
   .or(noteBentoSchema)
   .or(assetBentoSchema);
+
+export const RESERVED_LINKS = [
+  "sign-up",
+  "sign-in",
+  "claim",
+  "api",
+  "actions",
+  "app",
+  "create-link",
+  "twitter",
+  "github",
+  "linkedin",
+  "instagram",
+  "telegram",
+  "discord",
+  "youtube",
+  "twitch",
+  "about",
+  "pricing",
+  "contact",
+  "privacy",
+  "terms",
+  "legal",
+  "blog",
+  "docs",
+  "support",
+  "help",
+  "status",
+  "jobs",
+  "press",
+  "partners",
+  "developers",
+  "security",
+  "cookies",
+  "settings",
+  "profile",
+  "account",
+  "dashboard",
+  "admin",
+  "login",
+  "logout",
+  "signout",
+  "auth",
+  "oauth",
+  "openbio",
+];
+
+export const validLinkSchema = z
+  .string()
+  .min(3, {
+    message: "Link must be at least 3 characters long.",
+  })
+  .max(50, {
+    message: "Link must be at most 50 characters long.",
+  })
+  .regex(/^[a-z0-9-]+$/, {
+    message: "Link must only contain lowercase letters, numbers, and dashes.",
+  })
+  .transform((value) => value.toLowerCase())
+  .refine((value) => !RESERVED_LINKS.includes(value), {
+    message: "This link is reserved.",
+  });

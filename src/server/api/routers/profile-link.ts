@@ -18,68 +18,7 @@ import {
   bentoSchema,
 } from "@/server/db";
 import { getMetadata } from "@/lib/metadata";
-
-const RESERVED_LINKS = [
-  "sign-up",
-  "sign-in",
-  "claim",
-  "api",
-  "actions",
-  "app",
-  "create-link",
-  "twitter",
-  "github",
-  "linkedin",
-  "instagram",
-  "telegram",
-  "discord",
-  "youtube",
-  "twitch",
-  "about",
-  "pricing",
-  "contact",
-  "privacy",
-  "terms",
-  "legal",
-  "blog",
-  "docs",
-  "support",
-  "help",
-  "status",
-  "jobs",
-  "press",
-  "partners",
-  "developers",
-  "security",
-  "cookies",
-  "settings",
-  "profile",
-  "account",
-  "dashboard",
-  "admin",
-  "login",
-  "logout",
-  "signout",
-  "auth",
-  "oauth",
-  "openbio",
-];
-
-const validLinkSchema = z
-  .string()
-  .min(3, {
-    message: "Link must be at least 3 characters long.",
-  })
-  .max(50, {
-    message: "Link must be at most 50 characters long.",
-  })
-  .regex(/^[a-z0-9-]+$/, {
-    message: "Link must only contain lowercase letters, numbers, and dashes.",
-  })
-  .transform((value) => value.toLowerCase())
-  .refine((value) => !RESERVED_LINKS.includes(value), {
-    message: "This link is reserved.",
-  });
+import { validLinkSchema } from "@/types";
 
 const getUser = async (
   ctx: Context & {
