@@ -4,7 +4,12 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
 import { useMemo } from "react";
-import { type Layouts, Responsive, WidthProvider } from "react-grid-layout";
+import {
+  type Layouts,
+  Responsive,
+  WidthProvider,
+  type ResponsiveProps,
+} from "react-grid-layout";
 
 import { api } from "@/trpc/react";
 import { useParams } from "next/navigation";
@@ -15,7 +20,10 @@ export default function BentoLayout({
   children: React.ReactNode;
 }) {
   const { link } = useParams<{ link: string }>();
-  const ResponsiveGridLayout = useMemo(() => WidthProvider(Responsive), []);
+  const ResponsiveGridLayout = useMemo(
+    () => WidthProvider(Responsive) as React.ComponentType<ResponsiveProps>,
+    []
+  );
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
     link,
@@ -144,6 +152,8 @@ export default function BentoLayout({
         void onLayoutChange(newLayouts);
       }}
     >
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore */}
       {children}
     </ResponsiveGridLayout>
   );
