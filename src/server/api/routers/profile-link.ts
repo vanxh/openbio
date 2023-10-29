@@ -303,24 +303,6 @@ export const profileLinkRouter = createTRPCRouter({
         ex: 30 * 60,
       });
 
-      return {
-        ...profileLink,
-        isOwner: user?.id === profileLink.userId,
-        isPremium:
-          user?.id === profileLink.userId &&
-          user?.plan === "pro" &&
-          user?.subscriptionEndsAt &&
-          user?.subscriptionEndsAt > new Date(),
-      };
-    }),
-
-  recordVisit: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
       let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
       const forwardedFor = ctx.req.headers.get("x-forwarded-for");
       if (!ip && forwardedFor) {
@@ -331,7 +313,7 @@ export const profileLinkRouter = createTRPCRouter({
         where: (linkView, { eq, and, sql }) =>
           and(
             eq(linkView.ip, ip ?? "Unknown"),
-            eq(linkView.linkId, input.id),
+            eq(linkView.linkId, profileLink.id),
             sql`created_at > now() - interval '1 hour'`
           ),
         columns: {
@@ -343,11 +325,19 @@ export const profileLinkRouter = createTRPCRouter({
         await ctx.db.insert(linkView).values({
           ip: ip ?? "Unknown",
           userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
-          linkId: input.id,
+          linkId: profileLink.id,
         });
       }
 
-      return true;
+      return {
+        ...profileLink,
+        isOwner: user?.id === profileLink.userId,
+        isPremium:
+          user?.id === profileLink.userId &&
+          user?.plan === "pro" &&
+          user?.subscriptionEndsAt &&
+          user?.subscriptionEndsAt > new Date(),
+      };
     }),
 
   getViews: publicProcedure
