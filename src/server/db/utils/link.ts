@@ -131,8 +131,7 @@ export const canModifyProfileLink = async ({
     ? await getProfileLinkByLink(link)
     : null;
 
-  const canModify =
-    profileLink?.userId === userId && profileLink?.id === linkId;
+  const canModify = profileLink?.userId === userId;
 
   if (!canModify) {
     throw new Error("You can't modify this profile link");
