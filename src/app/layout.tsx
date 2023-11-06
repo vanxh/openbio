@@ -1,20 +1,18 @@
 import "@/styles/globals.css";
-
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import LocalFont from "next/font/local";
-import { Analytics } from "@vercel/analytics/react";
 import { ClerkProvider } from "@clerk/nextjs";
-
+import { Analytics } from "@vercel/analytics/react";
+import ClientProviders from "@/app/client-providers";
 import {
   defaultMetadata,
-  twitterMetadata,
   ogMetadata,
+  twitterMetadata,
 } from "@/app/shared-metadata";
-import ClientProviders from "@/app/client-providers";
+import Background from "@/components/background";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/toaster";
-import Background from "@/components/background";
 
 const inter = Inter({
   subsets: ["latin"],

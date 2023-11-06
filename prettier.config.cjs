@@ -12,16 +12,13 @@ const config = {
     "^(react/(.*)$)|^(react$)|^(react-native(.*)$)",
     "^(next/(.*)$)|^(next$)",
     "<THIRD_PARTY_MODULES>",
-    "",
     "^@/public/(.*)$",
-    "",
     "^@/",
-    "^~/",
     "^[../]",
     "^[./]",
   ],
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
-  importOrderTypeScriptVersion: "4.4.0",
+  importOrderTypeScriptVersion: "5.2.2",
 };
 
-export default config;
+module.exports = config;

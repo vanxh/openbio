@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileLinkCardSkeleton } from "@/components/profile-link-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Page() {
   return (

@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-
-import { createTRPCContext } from "@/server/api/trpc";
 import { serverlessRouter } from "@/server/api/serverless";
+import { createTRPCContext } from "@/server/api/trpc";
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-
-import { api } from "@/trpc/react";
-import { linkBentoSchema } from "@/types";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +11,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/react";
+import { LinkBentoSchema } from "@/types";
 
 export default function CreateLinkBentoModal({
   children,
@@ -40,9 +39,9 @@ export default function CreateLinkBentoModal({
 
           return {
             ...old,
-            bento: [...old.bento, linkBentoSchema.parse(bento.bento)],
+            bento: [...old.bento, LinkBentoSchema.parse(bento.bento)],
           };
-        }
+        },
       );
     },
     onSuccess: () => {

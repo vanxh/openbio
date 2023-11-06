@@ -1,7 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import * as z from "zod";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   AtSign,
   Github,
@@ -13,9 +12,7 @@ import {
 } from "lucide-react";
 import { BiLogoTelegram } from "react-icons/bi";
 import { BsDiscord } from "react-icons/bs";
-
-import { api } from "@/trpc/react";
-import { useZodForm } from "@/hooks/use-zod-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,6 +22,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
+import { useZodForm } from "@/hooks/use-zod-form";
+import { api } from "@/trpc/react";
 
 const setupLinkSchema = z.object({
   twitter: z.string().optional(),

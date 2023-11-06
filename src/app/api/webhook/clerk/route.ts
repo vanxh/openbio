@@ -1,14 +1,11 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import type { WebhookEvent } from "@clerk/nextjs/server";
-import type { WebhookRequiredHeaders } from "svix";
-import { Webhook } from "svix";
 import { type IncomingHttpHeaders } from "http";
-
-import { createTRPCContext } from "@/server/api/trpc";
-import { serverlessRouter } from "@/server/api/serverless";
-import { clerkEvent } from "@/server/api/routers/clerk/type";
+import { NextResponse, type NextRequest } from "next/server";
+import type { WebhookEvent } from "@clerk/nextjs/server";
+import { Webhook, type WebhookRequiredHeaders } from "svix";
 import { env } from "@/env.mjs";
+import { clerkEvent } from "@/server/api/routers/clerk/type";
+import { serverlessRouter } from "@/server/api/serverless";
+import { createTRPCContext } from "@/server/api/trpc";
 
 export async function POST(req: NextRequestWithSvixRequiredHeaders) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -17,7 +14,7 @@ export async function POST(req: NextRequestWithSvixRequiredHeaders) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
   const payload = parsed.data;

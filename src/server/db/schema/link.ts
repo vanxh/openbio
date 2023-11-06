@@ -1,12 +1,11 @@
 import { relations } from "drizzle-orm";
-import { uuid, pgTable, timestamp, text, json } from "drizzle-orm/pg-core";
+import { json, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import type * as z from "zod";
-
-import { sizeSchema, positionSchema, bentoSchema } from "@/types";
-import { user } from "./user";
+import { BentoSchema, PositionSchema, SizeSchema } from "@/types";
 import { linkView } from "./link-view";
+import { user } from "./user";
 
-export { sizeSchema, positionSchema, bentoSchema };
+export { SizeSchema, PositionSchema, BentoSchema };
 
 export const link = pgTable("link", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -18,7 +17,7 @@ export const link = pgTable("link", {
   bio: text("bio"),
 
   bento: json("bento")
-    .$type<z.infer<typeof bentoSchema>[]>()
+    .$type<z.infer<typeof BentoSchema>[]>()
     .default([])
     .notNull(),
 

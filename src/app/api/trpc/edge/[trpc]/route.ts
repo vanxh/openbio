@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-
-import { createTRPCContext } from "@/server/api/trpc";
 import { edgeRouter } from "@/server/api/edge";
+import { createTRPCContext } from "@/server/api/trpc";
 
 export const runtime = "edge";
 export const preferredRegion = "iad1";

@@ -195,7 +195,7 @@ dependencies:
 devDependencies:
   "@ianvs/prettier-plugin-sort-imports":
     specifier: ^4.1.1
-    version: 4.1.1(prettier@2.8.8)
+    version: 4.1.1(prettier@3.0.3)
   "@tailwindcss/typography":
     specifier: ^0.5.10
     version: 0.5.10(tailwindcss@3.3.5)
@@ -242,11 +242,11 @@ devDependencies:
     specifier: ^8.4.31
     version: 8.4.31
   prettier:
-    specifier: ^2.8.8
-    version: 2.8.8
+    specifier: ^3.0.3
+    version: 3.0.3
   prettier-plugin-tailwindcss:
     specifier: ^0.5.6
-    version: 0.5.6(@ianvs/prettier-plugin-sort-imports@4.1.1)(prettier@2.8.8)
+    version: 0.5.6(@ianvs/prettier-plugin-sort-imports@4.1.1)(prettier@3.0.3)
   tailwindcss:
     specifier: ^3.3.5
     version: 3.3.5(ts-node@10.9.1)
@@ -1071,7 +1071,7 @@ packages:
       }
     dev: true
 
-  /@ianvs/prettier-plugin-sort-imports@4.1.1(prettier@2.8.8):
+  /@ianvs/prettier-plugin-sort-imports@4.1.1(prettier@3.0.3):
     resolution:
       {
         integrity: sha512-kJhXq63ngpTQ2dxgf5GasbPJWsJA3LgoOdd7WGhpUSzLgLgI4IsIzYkbJf9kmpOHe7Vdm/o3PcRA3jmizXUuAQ==,
@@ -1088,7 +1088,7 @@ packages:
       "@babel/parser": 7.23.0
       "@babel/traverse": 7.23.2
       "@babel/types": 7.23.0
-      prettier: 2.8.8
+      prettier: 3.0.3
       semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
@@ -7352,7 +7352,7 @@ packages:
     engines: { node: ">= 0.8.0" }
     dev: true
 
-  /prettier-plugin-tailwindcss@0.5.6(@ianvs/prettier-plugin-sort-imports@4.1.1)(prettier@2.8.8):
+  /prettier-plugin-tailwindcss@0.5.6(@ianvs/prettier-plugin-sort-imports@4.1.1)(prettier@3.0.3):
     resolution:
       {
         integrity: sha512-2Xgb+GQlkPAUCFi3sV+NOYcSI5XgduvDBL2Zt/hwJudeKXkyvRS65c38SB0yb9UB40+1rL83I6m0RtlOQ8eHdg==,
@@ -7407,16 +7407,16 @@ packages:
       prettier-plugin-twig-melody:
         optional: true
     dependencies:
-      "@ianvs/prettier-plugin-sort-imports": 4.1.1(prettier@2.8.8)
-      prettier: 2.8.8
+      "@ianvs/prettier-plugin-sort-imports": 4.1.1(prettier@3.0.3)
+      prettier: 3.0.3
     dev: true
 
-  /prettier@2.8.8:
+  /prettier@3.0.3:
     resolution:
       {
-        integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==,
+        integrity: sha512-L/4pUDMxcNa8R/EthV08Zt42WBO4h1rarVtK0K+QJG0X187OLo7l699jWw0GKuwzkPQ//jMFA/8Xm6Fh3J/DAg==,
       }
-    engines: { node: ">=10.13.0" }
+    engines: { node: ">=14" }
     hasBin: true
     dev: true
 

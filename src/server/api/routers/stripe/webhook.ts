@@ -1,13 +1,12 @@
-import * as z from "zod";
 import { TRPCError } from "@trpc/server";
 import type Stripe from "stripe";
-
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { sendEmail } from "@/server/emails";
-import { stripe } from "@/lib/stripe";
-import UpgradedEmail from "@/components/emails/upgraded";
+import * as z from "zod";
 import CancelledEmail from "@/components/emails/cancelled";
+import UpgradedEmail from "@/components/emails/upgraded";
+import { stripe } from "@/lib/stripe";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { eq, user } from "@/server/db";
+import { sendEmail } from "@/server/emails";
 
 export const webhookProcedure = publicProcedure.input(
   z.object({
@@ -20,7 +19,7 @@ export const webhookProcedure = publicProcedure.input(
       }),
       type: z.string(),
     }),
-  })
+  }),
 );
 
 export const webhookRouter = createTRPCRouter({
@@ -35,7 +34,7 @@ export const webhookRouter = createTRPCRouter({
     }
 
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription
+      session.subscription,
     );
 
     const stripeCustomerId =
@@ -103,6 +102,6 @@ export const webhookRouter = createTRPCRouter({
         to: [res.email],
         react: CancelledEmail(),
       });
-    }
+    },
   ),
 });

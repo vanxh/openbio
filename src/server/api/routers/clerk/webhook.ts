@@ -1,15 +1,14 @@
 import * as z from "zod";
-
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import WelcomeEmail from "@/components/emails/welcome";
 import { clerkEvent } from "@/server/api/routers/clerk/type";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { user } from "@/server/db";
 import { sendEmail } from "@/server/emails";
-import WelcomeEmail from "@/components/emails/welcome";
 
 export const webhookProcedure = publicProcedure.input(
   z.object({
     data: clerkEvent,
-  })
+  }),
 );
 
 export const webhookRouter = createTRPCRouter({

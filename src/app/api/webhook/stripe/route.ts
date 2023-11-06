@@ -1,10 +1,8 @@
-import { type NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-
-import { createTRPCContext } from "@/server/api/trpc";
-import { serverlessRouter } from "@/server/api/serverless";
-import { stripe } from "@/lib/stripe";
+import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/env.mjs";
+import { stripe } from "@/lib/stripe";
+import { serverlessRouter } from "@/server/api/serverless";
+import { createTRPCContext } from "@/server/api/trpc";
 
 export async function POST(req: NextRequest) {
   const payload = await req.text();
@@ -18,7 +16,7 @@ export async function POST(req: NextRequest) {
     const event = stripe.webhooks.constructEvent(
       payload,
       signature,
-      env.STRIPE_WEBHOOK_SECRET
+      env.STRIPE_WEBHOOK_SECRET,
     );
 
     const ctx = createTRPCContext({ req });

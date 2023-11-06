@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useClerk } from "@clerk/clerk-react";
 import { LogOut } from "lucide-react";
-
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
 

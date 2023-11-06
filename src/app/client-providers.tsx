@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { Elements as StripeElements } from "@stripe/react-stripe-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import { loggerLink } from "@trpc/client";
-import { Elements as StripeElements } from "@stripe/react-stripe-js";
 import superjson from "superjson";
-
+import { ThemeProvider } from "@/components/theme-provider";
 import { getStripe } from "@/lib/stripe/client";
 import { api } from "@/trpc/react";
 import { endingLink } from "@/trpc/shared";
-import { ThemeProvider } from "@/components/theme-provider";
 
 export default function ClientProviders({
   children,
@@ -25,7 +24,7 @@ export default function ClientProviders({
             staleTime: 5 * 1000,
           },
         },
-      })
+      }),
   );
 
   const [trpcClient] = useState(() =>
@@ -39,7 +38,7 @@ export default function ClientProviders({
         }),
         endingLink(),
       ],
-    })
+    }),
   );
 
   return (

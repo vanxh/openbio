@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
 

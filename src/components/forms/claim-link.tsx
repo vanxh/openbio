@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { Check, Loader, X } from "lucide-react";
-
-import { api } from "@/trpc/react";
-import { cn } from "@/lib/utils";
 import { claimLink } from "@/app/actions/claim-link";
-import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
+import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 export default function ClaimLinkForm({ className }: { className?: string }) {
   const [link, setLink] = useState("");
@@ -22,7 +21,7 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
       {
         enabled: !!debouncedLink,
         staleTime: Infinity,
-      }
+      },
     );
 
   return (

@@ -2,14 +2,13 @@
 
 import { useCallback, useState } from "react";
 import Image from "next/image";
-import { useDropzone, type FileWithPath } from "react-dropzone";
 import { UploadCloud } from "lucide-react";
+import { useDropzone, type FileWithPath } from "react-dropzone";
 import { generateClientDropzoneAccept } from "uploadthing/client";
-
-import { type RouterOutputs } from "@/trpc/react";
+import { toast } from "@/components/ui/use-toast";
 import { useUploadThing } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
-import { toast } from "@/components/ui/use-toast";
+import { type RouterOutputs } from "@/trpc/react";
 
 type Props = {
   profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
@@ -39,7 +38,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
       });
       setImg(URL.createObjectURL(acceptedFiles[0]!));
     },
-    [profileLink.id, startUpload]
+    [profileLink.id, startUpload],
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -56,7 +55,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
         "flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 md:h-[150px] md:w-[150px]",
         !profileLink.image && profileLink.isOwner && "border-dashed",
         profileLink.isOwner && "cursor-pointer",
-        img && "border-0 border-transparent bg-transparent"
+        img && "border-0 border-transparent bg-transparent",
       )}
     >
       {img && (

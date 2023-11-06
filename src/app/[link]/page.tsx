@@ -1,17 +1,16 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-
+import { notFound } from "next/navigation";
 import {
   defaultMetadata,
-  twitterMetadata,
   ogMetadata,
+  twitterMetadata,
 } from "@/app/shared-metadata";
-import { api } from "@/trpc/server";
-import ProfileLinkHeader from "./_components/header";
-import Bento from "./_components/bento";
-import ActionBar from "./_components/action-bar";
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@/trpc/server";
+import ActionBar from "./_components/action-bar";
+import Bento from "./_components/bento";
+import ProfileLinkHeader from "./_components/header";
 
 type Props = {
   params: {

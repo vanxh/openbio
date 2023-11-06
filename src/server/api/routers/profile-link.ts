@@ -1,523 +1,276 @@
-import * as z from "zod";
-import { kv } from "@vercel/kv";
-
 import { type SignedInAuthObject } from "@clerk/nextjs/api";
+import * as z from "zod";
+import { getMetadata } from "@/lib/metadata";
 import {
-    type Context,
-    createTRPCRouter,
-    protectedProcedure,
-    publicProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+  type Context,
 } from "@/server/api/trpc";
 import {
-    link,
-    type InferSelectModel,
-    eq,
-    sql,
-    linkView,
-    type sizeSchema,
-    type positionSchema,
-    bentoSchema,
+  addProfileLinkBento,
+  canModifyProfileLink,
+  canUserCreateProfileLink,
+  createProfileLink,
+  deleteProfileLink,
+  deleteProfileLinkBento,
+  getProfileLinkByLink,
+  getProfileLinksOfUser,
+  getProfileLinkViews,
+  getUserByProviderId,
+  isProfileLinkAvailable,
+  recordLinkView,
+  updateProfileLink,
+  updateProfileLinkBento,
 } from "@/server/db";
-import { getMetadata } from "@/lib/metadata";
-import { validLinkSchema } from "@/types";
+import { type LinkBento } from "@/types";
+import {
+  CreateLinkBentoSchema,
+  CreateLinkSchema,
+  DeleteLinkBentoSchema,
+  DeleteLinkSchema,
+  GetByLinkSchema,
+  GetLinkViewsSchema,
+  LinkAvailableSchema,
+  UpdateLinkBentoSchema,
+  UpdateLinkSchema,
+} from "../schemas";
 
 const getUser = async (
-    ctx: Context & {
-        auth: SignedInAuthObject;
-    }
+  ctx: Context & {
+    auth: SignedInAuthObject;
+  },
 ) => {
-    const user = await ctx.db.query.user.findFirst({
-        where: (user, { eq }) => eq(user.providerId, ctx.auth.userId),
-        columns: {
-            id: true,
-            plan: true,
-            subscriptionEndsAt: true,
-        },
-    });
+  const user = await getUserByProviderId(ctx.auth.userId, {
+    id: true,
+    plan: true,
+    subscriptionEndsAt: true,
+  });
 
-    if (!user) throw new Error("User not found");
+  if (!user) throw new Error("User not found");
 
-    return user;
+  return user;
 };
 
 export const profileLinkRouter = createTRPCRouter({
-    linkAvailable: publicProcedure
-        .input(
-            z.object({
-                link: z.string().toLowerCase(),
-            })
-        )
-        .query(async ({ input, ctx }) => {
-            const profileLink = await ctx.db.query.link.findFirst({
-                where: (link, { eq }) => eq(link.link, input.link),
-                columns: {
-                    id: true,
-                },
-            });
-
-            if (profileLink) return false;
-
-            return validLinkSchema.safeParse(input.link).success;
-        }),
-
-    create: protectedProcedure
-        .input(
-            z.object({
-                link: validLinkSchema,
-                twitter: z.string().optional(),
-                github: z.string().optional(),
-                linkedin: z.string().optional(),
-                instagram: z.string().optional(),
-                telegram: z.string().optional(),
-                discord: z.string().optional(),
-                youtube: z.string().optional(),
-                twitch: z.string().optional(),
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const user = await getUser(ctx);
-
-            const profileLinks = await ctx.db
-                .select({
-                    count: sql<number>`count(*)`,
-                })
-                .from(link)
-                .where(eq(link.userId, user.id));
-            const nProfileLinks = profileLinks[0]?.count ?? 0;
-
-            const isPremium =
-                user.plan === "pro" &&
-                user.subscriptionEndsAt &&
-                user.subscriptionEndsAt > new Date();
-
-            if (nProfileLinks >= 1 && !isPremium) {
-                throw new Error(
-                    "You can't create more profile links, upgrade your plan"
-                );
-            }
-
-            const bento: {
-                id: string;
-                type: "link";
-                href: string;
-                clicks: number;
-
-                size: z.infer<typeof sizeSchema>;
-                position: z.infer<typeof positionSchema>;
-            }[] = [];
-
-            let position = {
-                sm: {
-                    x: 0,
-                    y: 0,
-                },
-                md: {
-                    x: 0,
-                    y: 0,
-                },
-            };
-            for (const [key, value] of Object.entries(input)) {
-                if (key !== "link" && value) {
-                    let url = `https://${key}.com/${value}`;
-
-                    if (key === "linkedin") {
-                        url = `https://www.${key}.com/in/${value}`;
-                    }
-
-                    if (key === "youtube") {
-                        url = `https://www.${key}.com/@${value.replace(
-                            "@",
-                            ""
-                        )}`;
-                    }
-
-                    if (key === "twitch") {
-                        url = `https://www.${key}.tv/${value}`;
-                    }
-
-                    if (key === "telegram") {
-                        url = `https://t.me/${value}`;
-                    }
-
-                    bento.push({
-                        id: crypto.randomUUID(),
-                        type: "link",
-
-                        href: url,
-                        clicks: 0,
-
-                        size: {
-                            sm: "2x2",
-                            md: "2x2",
-                        },
-
-                        position,
-                    });
-
-                    position = {
-                        sm: {
-                            x: position.sm.x % 2 === 0 ? position.sm.x + 1 : 0,
-                            y:
-                                position.sm.x % 2 === 0
-                                    ? position.sm.y + 1
-                                    : position.sm.y,
-                        },
-                        md: {
-                            x: position.md.x % 4 === 0 ? position.md.x + 1 : 0,
-                            y:
-                                position.md.x % 4 === 0
-                                    ? position.md.y + 1
-                                    : position.md.y,
-                        },
-                    };
-                }
-            }
-
-            const profileLink = await ctx.db
-                .insert(link)
-                .values({
-                    link: input.link,
-                    name: input.link,
-                    bio: "I'm using OpenBio.app!",
-                    bento,
-                    userId: user.id,
-                })
-                .returning()
-                .execute();
-
-            await kv.set(`profile-link:${input.link}`, profileLink[0], {
-                ex: 30 * 60,
-            });
-
-            return profileLink;
-        }),
-
-    getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
-        const user = await getUser(ctx);
-
-        const profileLinks = await ctx.db.query.link.findMany({
-            where: (link, { eq }) => eq(link.userId, user.id),
-        });
-
-        return profileLinks;
+  linkAvailable: publicProcedure
+    .input(LinkAvailableSchema)
+    .query(async ({ input }) => {
+      return isProfileLinkAvailable(input.link);
     }),
 
-    getByLink: publicProcedure
-        .input(
-            z.object({
-                link: z.string(),
-            })
-        )
-        .query(async ({ input, ctx }) => {
-            const authedUserId = ctx.auth?.userId;
+  create: protectedProcedure
+    .input(CreateLinkSchema)
+    .mutation(async ({ input, ctx }) => {
+      const user = await getUser(ctx);
 
-            const user = authedUserId
-                ? await ctx.db.query.user.findFirst({
-                      where: (user, { eq }) =>
-                          eq(user.providerId, authedUserId),
-                      columns: {
-                          id: true,
-                          plan: true,
-                          subscriptionEndsAt: true,
-                      },
-                  })
-                : null;
+      const canCreate = await canUserCreateProfileLink(user);
+      if (!canCreate) {
+        throw new Error(
+          "You can't create more profile links, upgrade your plan",
+        );
+      }
 
-            const cached = await kv.get<InferSelectModel<typeof link> | null>(
-                `profile-link:${input.link}`
-            );
+      const isAvailable = await isProfileLinkAvailable(input.link);
+      if (!isAvailable) {
+        throw new Error("This profile link is not available");
+      }
 
-            if (cached) {
-                return {
-                    ...cached,
-                    isOwner: user?.id === cached.userId,
-                    isPremium:
-                        user?.id === cached.userId &&
-                        user?.plan === "pro" &&
-                        user?.subscriptionEndsAt &&
-                        user?.subscriptionEndsAt > new Date(),
-                };
-            }
+      const bento: LinkBento[] = [];
 
-            const profileLink = await ctx.db.query.link.findFirst({
-                where: (link, { eq }) => eq(link.link, input.link),
-            });
+      let position = {
+        sm: {
+          x: 0,
+          y: 0,
+        },
+        md: {
+          x: 0,
+          y: 0,
+        },
+      };
+      for (const [key, value] of Object.entries(input)) {
+        if (key !== "link" && value) {
+          let url = `https://${key}.com/${value}`;
 
-            if (!profileLink) {
-                return null;
-            }
+          if (key === "linkedin") {
+            url = `https://www.${key}.com/in/${value}`;
+          }
 
-            await kv.set(`profile-link:${input.link}`, profileLink, {
-                ex: 30 * 60,
-            });
+          if (key === "youtube") {
+            url = `https://www.${key}.com/@${value.replace("@", "")}`;
+          }
 
-            let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
-            const forwardedFor = ctx.req.headers.get("x-forwarded-for");
-            if (!ip && forwardedFor) {
-                ip = forwardedFor.split(",").at(0) ?? "Unknown";
-            }
+          if (key === "twitch") {
+            url = `https://www.${key}.tv/${value}`;
+          }
 
-            const exists = await ctx.db.query.linkView.findFirst({
-                where: (linkView, { eq, and, sql }) =>
-                    and(
-                        eq(linkView.ip, ip ?? "Unknown"),
-                        eq(linkView.linkId, profileLink.id),
-                        sql`created_at > now() - interval '1 hour'`
-                    ),
-                columns: {
-                    id: true,
-                },
-            });
+          if (key === "telegram") {
+            url = `https://t.me/${value}`;
+          }
 
-            if (!exists) {
-                await ctx.db.insert(linkView).values({
-                    ip: ip ?? "Unknown",
-                    userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
-                    linkId: profileLink.id,
-                });
-            }
+          bento.push({
+            id: crypto.randomUUID(),
+            type: "link",
 
-            return {
-                ...profileLink,
-                isOwner: user?.id === profileLink.userId,
-                isPremium:
-                    user?.id === profileLink.userId &&
-                    user?.plan === "pro" &&
-                    user?.subscriptionEndsAt &&
-                    user?.subscriptionEndsAt > new Date(),
-            };
-        }),
+            href: url,
+            clicks: 0,
 
-    getViews: publicProcedure
-        .input(
-            z.object({
-                id: z.string(),
-            })
-        )
-        .query(async ({ input, ctx }) => {
-            const cached = await kv.get<number | null>(
-                `profile-link-views:${input.id}`
-            );
+            size: {
+              sm: "2x2",
+              md: "2x2",
+            },
 
-            if (cached) {
-                return cached;
-            }
+            position,
+          });
 
-            const views = await ctx.db
-                .select({
-                    count: sql<number>`count(*)`,
-                })
-                .from(linkView)
-                .where(eq(linkView.linkId, input.id));
+          position = {
+            sm: {
+              x: position.sm.x % 2 === 0 ? position.sm.x + 1 : 0,
+              y: position.sm.x % 2 === 0 ? position.sm.y + 1 : position.sm.y,
+            },
+            md: {
+              x: position.md.x % 4 === 0 ? position.md.x + 1 : 0,
+              y: position.md.x % 4 === 0 ? position.md.y + 1 : position.md.y,
+            },
+          };
+        }
+      }
 
-            await kv.set(
-                `profile-link-views:${input.id}`,
-                views[0]?.count ?? 0,
-                {
-                    ex: 30 * 60,
-                }
-            );
+      const profileLink = await createProfileLink({
+        link: input.link,
+        name: input.link,
+        bio: "I'm using OpenBio.app!",
+        bento,
+        userId: user.id,
+      });
 
-            return views[0]?.count ?? 0;
-        }),
+      return profileLink;
+    }),
 
-    update: protectedProcedure
-        .input(
-            z.object({
-                id: z.string(),
-                name: z.string().optional(),
-                bio: z.string().optional(),
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const update = await ctx.db
-                .update(link)
-                .set({
-                    name: input.name,
-                    bio: input.bio,
-                })
-                .where(eq(link.id, input.id))
-                .returning()
-                .execute();
+  getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
+    const user = await getUser(ctx);
+    const profileLinks = await getProfileLinksOfUser(user.id);
 
-            await kv.set(`profile-link:${update[0]?.link}`, update[0], {
-                ex: 30 * 60,
-            });
+    return profileLinks;
+  }),
 
-            return update;
-        }),
+  getByLink: publicProcedure
+    .input(GetByLinkSchema)
+    .query(async ({ input, ctx }) => {
+      const authedUserId = ctx.auth?.userId;
 
-    delete: protectedProcedure
-        .input(
-            z.object({
-                link: z.string(),
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            await ctx.db.delete(link).where(eq(link.link, input.link));
+      const user = authedUserId
+        ? await ctx.db.query.user.findFirst({
+            where: (user, { eq }) => eq(user.providerId, authedUserId),
+            columns: {
+              id: true,
+              plan: true,
+              subscriptionEndsAt: true,
+            },
+          })
+        : null;
 
-            await kv.del(`profile-link:${input.link}`);
+      const profileLink = await getProfileLinkByLink(input.link);
 
-            return true;
-        }),
+      if (!profileLink) {
+        return null;
+      }
 
-    createBento: protectedProcedure
-        .input(
-            z.object({
-                link: z.string(),
-                bento: bentoSchema,
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const profileLink = await ctx.db.query.link.findFirst({
-                where: (link, { eq }) => eq(link.link, input.link),
-                columns: {
-                    id: true,
-                    bento: true,
-                },
-            });
+      let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
+      const forwardedFor = ctx.req.headers.get("x-forwarded-for");
+      if (!ip && forwardedFor) {
+        ip = forwardedFor.split(",").at(0) ?? "Unknown";
+      }
 
-            if (!profileLink) {
-                throw new Error("Profile link not found");
-            }
+      await recordLinkView(profileLink.id, {
+        ip: ip ?? "Unknown",
+        userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
+      });
 
-            const cached = await kv.get<InferSelectModel<typeof link> | null>(
-                `profile-link:${input.link}`
-            );
+      return {
+        ...profileLink,
+        isOwner: user?.id === profileLink.userId,
+        isPremium:
+          user?.id === profileLink.userId &&
+          user?.plan === "pro" &&
+          user?.subscriptionEndsAt &&
+          user?.subscriptionEndsAt > new Date(),
+      };
+    }),
 
-            const update = await ctx.db
-                .update(link)
-                .set({
-                    bento: (cached?.bento ?? []).concat([input.bento]),
-                })
-                .where(eq(link.link, input.link))
-                .returning()
-                .execute();
+  getViews: publicProcedure
+    .input(GetLinkViewsSchema)
+    .query(async ({ input }) => {
+      return getProfileLinkViews(input.id);
+    }),
 
-            if (cached) {
-                await kv.set(
-                    `profile-link:${cached.link}`,
-                    {
-                        ...cached,
-                        bento: cached.bento.concat([input.bento]),
-                    },
-                    {
-                        ex: 30 * 60,
-                    }
-                );
-            }
+  update: protectedProcedure
+    .input(UpdateLinkSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = await getUser(ctx);
+      await canModifyProfileLink({
+        userId,
+        linkId: input.id,
+      });
 
-            return update[0]?.bento;
-        }),
+      return updateProfileLink(input);
+    }),
 
-    deleteBento: protectedProcedure
-        .input(
-            z.object({
-                link: z.string(),
-                id: z.string(),
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const profileLink = await ctx.db.query.link.findFirst({
-                where: (link, { eq }) => eq(link.link, input.link),
-                columns: {
-                    id: true,
-                    bento: true,
-                },
-            });
+  delete: protectedProcedure
+    .input(DeleteLinkSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = await getUser(ctx);
+      await canModifyProfileLink({
+        userId,
+        link: input.link,
+      });
 
-            if (!profileLink) {
-                throw new Error("Profile link not found");
-            }
+      return deleteProfileLink(input.link);
+    }),
 
-            await ctx.db
-                .update(link)
-                .set({
-                    bento: profileLink.bento.filter((b) => b.id !== input.id),
-                })
-                .where(eq(link.link, input.link));
+  createBento: protectedProcedure
+    .input(CreateLinkBentoSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = await getUser(ctx);
+      await canModifyProfileLink({
+        userId,
+        link: input.link,
+      });
 
-            const cached = await kv.get<InferSelectModel<typeof link> | null>(
-                `profile-link:${input.link}`
-            );
+      return addProfileLinkBento(input.link, input.bento);
+    }),
 
-            if (cached) {
-                await kv.set(
-                    `profile-link:${cached.link}`,
-                    {
-                        ...cached,
-                        bento: cached.bento.filter((b) => b.id !== input.id),
-                    },
-                    {
-                        ex: 30 * 60,
-                    }
-                );
-            }
+  deleteBento: protectedProcedure
+    .input(DeleteLinkBentoSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = await getUser(ctx);
+      await canModifyProfileLink({
+        userId,
+        link: input.link,
+      });
 
-            return true;
-        }),
+      return deleteProfileLinkBento(input.link, input.id);
+    }),
 
-    updateBento: protectedProcedure
-        .input(
-            z.object({
-                link: z.string(),
-                bento: bentoSchema,
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const profileLink = await ctx.db.query.link.findFirst({
-                where: (link, { eq }) => eq(link.link, input.link),
-                columns: {
-                    id: true,
-                    bento: true,
-                },
-            });
+  updateBento: protectedProcedure
+    .input(UpdateLinkBentoSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { id: userId } = await getUser(ctx);
+      await canModifyProfileLink({
+        userId,
+        link: input.link,
+      });
 
-            if (!profileLink) {
-                throw new Error("Profile link not found");
-            }
+      return updateProfileLinkBento(input.link, input.bento);
+    }),
 
-            const update = await ctx.db
-                .update(link)
-                .set({
-                    bento: [
-                        ...profileLink.bento.filter(
-                            (b) => b.id !== input.bento.id
-                        ),
-                        input.bento,
-                    ],
-                })
-                .where(eq(link.link, input.link))
-                .returning()
-                .execute();
-
-            const cached = await kv.get<InferSelectModel<typeof link> | null>(
-                `profile-link:${input.link}`
-            );
-
-            if (cached) {
-                await kv.set(
-                    `profile-link:${cached.link}`,
-                    {
-                        ...cached,
-                        ...update[0],
-                    },
-                    {
-                        ex: 30 * 60,
-                    }
-                );
-            }
-
-            return true;
-        }),
-
-    getMetadataOfURL: publicProcedure
-        .input(
-            z.object({
-                url: z.string(),
-            })
-        )
-        .query(async ({ input }) => {
-            return getMetadata(input.url);
-        }),
+  getMetadataOfURL: publicProcedure
+    .input(
+      z.object({
+        url: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return getMetadata(input.url);
+    }),
 });

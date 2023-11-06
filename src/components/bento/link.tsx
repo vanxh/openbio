@@ -3,16 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
-import { BsDiscord } from "react-icons/bs";
 import { BiLogoTelegram } from "react-icons/bi";
+import { BsDiscord } from "react-icons/bs";
 import type * as z from "zod";
-
-import { type linkBentoSchema } from "@/types";
+import CardOverlay from "@/components/bento/overlay";
+import { Button } from "@/components/ui/button";
 import { type getMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import CardOverlay from "@/components/bento/overlay";
 import { api } from "@/trpc/react";
+import { type LinkBentoSchema } from "@/types";
 
 const getBackgroundColor = (url: string) => {
   const urlObj = new URL(url);
@@ -43,7 +42,7 @@ const getBackgroundColor = (url: string) => {
 
 const getIcon = (
   url: string,
-  metadata?: Awaited<ReturnType<typeof getMetadata>>
+  metadata?: Awaited<ReturnType<typeof getMetadata>>,
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -89,7 +88,7 @@ const getIcon = (
 
 const getTitle = (
   url: string,
-  metadata?: Awaited<ReturnType<typeof getMetadata>>
+  metadata?: Awaited<ReturnType<typeof getMetadata>>,
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -120,7 +119,7 @@ const getTitle = (
 
 const getDescription = (
   url: string,
-  _metadata?: Awaited<ReturnType<typeof getMetadata>>
+  _metadata?: Awaited<ReturnType<typeof getMetadata>>,
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
@@ -225,7 +224,7 @@ export default function LinkCard({
   bento,
   editable,
 }: {
-  bento: z.infer<typeof linkBentoSchema>;
+  bento: z.infer<typeof LinkBentoSchema>;
   editable?: boolean;
 }) {
   if (!bento.href) return null;
@@ -249,7 +248,7 @@ export default function LinkCard({
         getBackgroundColor(bento.href),
         editable
           ? "transition-transform duration-200 ease-in-out md:cursor-move"
-          : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95"
+          : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95",
       )}
     >
       {editable && <CardOverlay bento={bento} />}
@@ -263,7 +262,7 @@ export default function LinkCard({
           className={cn(
             "mt-2 font-cal text-sm",
             bento.size.sm === "4x1" ? "" : "hidden",
-            bento.size.md === "4x1" ? "" : "hidden"
+            bento.size.md === "4x1" ? "" : "hidden",
           )}
         >
           {title}
@@ -274,7 +273,7 @@ export default function LinkCard({
         className={cn(
           "mt-2 font-cal text-sm",
           bento.size.sm === "4x1" ? "hidden" : "",
-          bento.size.md === "4x1" ? "hidden" : ""
+          bento.size.md === "4x1" ? "hidden" : "",
         )}
       >
         {title}
@@ -285,7 +284,7 @@ export default function LinkCard({
           className={cn(
             "truncate text-xs",
             bento.size.sm === "4x1" ? "hidden" : "",
-            bento.size.md === "4x1" ? "hidden" : ""
+            bento.size.md === "4x1" ? "hidden" : "",
           )}
         >
           {description}

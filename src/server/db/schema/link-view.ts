@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
-import { uuid, pgTable, timestamp, text } from "drizzle-orm/pg-core";
-
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { link } from "./link";
 
 export const linkView = pgTable("link_view", {

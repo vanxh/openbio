@@ -1,7 +1,5 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { authMiddleware } from "@clerk/nextjs";
-
 import { env } from "@/env.mjs";
 
 const before = (req: NextRequest) => {

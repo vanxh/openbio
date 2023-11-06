@@ -1,9 +1,8 @@
-import * as z from "zod";
-import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { currentUser } from "@clerk/nextjs";
-
-import { db, eq, link } from "@/server/db";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { utapi } from "uploadthing/server";
+import * as z from "zod";
+import { db, eq, link } from "@/server/db";
 
 const f = createUploadthing({
   errorFormatter: (err) => {
@@ -21,7 +20,7 @@ export const appFileRouter = {
     .input(
       z.object({
         profileLinkId: z.string(),
-      })
+      }),
     )
     .middleware(async ({ input }) => {
       const user = await currentUser();

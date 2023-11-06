@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-
 import {
   defaultMetadata,
-  twitterMetadata,
   ogMetadata,
+  twitterMetadata,
 } from "@/app/shared-metadata";
 import HomeFooter from "@/components/footer/home";
 import HomeNavbar from "@/components/navbar/home";

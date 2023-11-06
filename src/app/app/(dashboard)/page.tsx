@@ -1,10 +1,9 @@
 import Link from "next/link";
-
-import { api } from "@/trpc/server";
+import ProfileLinkCard from "@/components/profile-link-card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProfileLinkCard from "@/components/profile-link-card";
 import UserSettings from "@/components/user-settings";
+import { api } from "@/trpc/server";
 
 export default async function Page() {
   const links = await api.profileLink.getAll.query();

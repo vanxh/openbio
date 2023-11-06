@@ -1,13 +1,13 @@
 import * as z from "zod";
 
-export const sizeSchema = z
+export const SizeSchema = z
   .record(z.enum(["sm", "md"]), z.enum(["4x1", "2x2", "2x4", "4x2", "4x4"]))
   .default({
     sm: "2x2",
     md: "2x2",
   });
 
-export const positionSchema = z
+export const PositionSchema = z
   .record(
     z.enum(["sm", "md"]),
     z
@@ -15,48 +15,47 @@ export const positionSchema = z
         x: z.number().int().min(0).default(0),
         y: z.number().int().min(0).default(0),
       })
-      .default({ x: 0, y: 0 })
+      .default({ x: 0, y: 0 }),
   )
   .default({
     sm: { x: 0, y: 0 },
     md: { x: 0, y: 0 },
   });
 
-export const linkBentoSchema = z.object({
+export const LinkBentoSchema = z.object({
   id: z.string(),
   type: z.literal("link"),
 
   href: z.string().url(),
   clicks: z.number().int().min(0).default(0),
 
-  size: sizeSchema,
-  position: positionSchema,
+  size: SizeSchema,
+  position: PositionSchema,
 });
 
-export const noteBentoSchema = z.object({
+export const NoteBentoSchema = z.object({
   id: z.string(),
   type: z.literal("note"),
 
   text: z.string(),
 
-  size: sizeSchema,
-  position: positionSchema,
+  size: SizeSchema,
+  position: PositionSchema,
 });
 
-export const assetBentoSchema = z.object({
+export const AssetBentoSchema = z.object({
   id: z.string(),
   type: z.enum(["image", "video"]),
 
   url: z.string().url(),
   caption: z.string().optional(),
 
-  size: sizeSchema,
-  position: positionSchema,
+  size: SizeSchema,
+  position: PositionSchema,
 });
 
-export const bentoSchema = linkBentoSchema
-  .or(noteBentoSchema)
-  .or(assetBentoSchema);
+export const BentoSchema =
+  LinkBentoSchema.or(NoteBentoSchema).or(AssetBentoSchema);
 
 export const RESERVED_LINKS = [
   "sign-up",
@@ -104,7 +103,7 @@ export const RESERVED_LINKS = [
   "openbio",
 ];
 
-export const validLinkSchema = z
+export const ValidLinkSchema = z
   .string()
   .min(3, {
     message: "Link must be at least 3 characters long.",
@@ -119,3 +118,13 @@ export const validLinkSchema = z
   .refine((value) => !RESERVED_LINKS.includes(value), {
     message: "This link is reserved.",
   });
+
+export type LinkBento = {
+  id: string;
+  type: "link";
+  href: string;
+  clicks: number;
+
+  size: z.infer<typeof SizeSchema>;
+  position: z.infer<typeof PositionSchema>;
+};

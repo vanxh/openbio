@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Eye } from "lucide-react";
-
 import { api } from "@/trpc/react";
 
 export default function MarketingFooter() {
@@ -16,7 +15,7 @@ export default function MarketingFooter() {
     {
       staleTime: Infinity,
       enabled: !!link,
-    }
+    },
   );
 
   const { data: views } = api.profileLink.getViews.useQuery(
@@ -26,7 +25,7 @@ export default function MarketingFooter() {
     {
       staleTime: Infinity,
       enabled: !!profileLink,
-    }
+    },
   );
 
   return (

@@ -12,11 +12,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import type { CSSProperties } from "react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type CSSProperties } from "react";
+import NextImage from "next/image";
 import { escape } from "html-escaper";
 import qrcodegen from "./generator";
-import NextImage from "next/image";
 
 type Modules = ReturnType<qrcodegen.QrCode["getModules"]>;
 type Excavation = { x: number; y: number; w: number; h: number };
@@ -74,7 +73,7 @@ function generatePath(modules: Modules, margin = 0): string {
         // M0 0h7v1H0z injects the space with the move and drops the comma,
         // saving a char per operation
         ops.push(
-          `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`
+          `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`,
         );
         start = null;
         return;
@@ -95,7 +94,7 @@ function generatePath(modules: Modules, margin = 0): string {
           ops.push(
             `M${start + margin},${y + margin} h${x + 1 - start}v1H${
               start + margin
-            }z`
+            }z`,
           );
         }
         return;
@@ -129,7 +128,7 @@ function getImageSettings(
   cells: Modules,
   size: number,
   includeMargin: boolean,
-  imageSettings?: ImageSettings
+  imageSettings?: ImageSettings,
 ): null | {
   x: number;
   y: number;
@@ -216,7 +215,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
 
       let cells = qrcodegen.QrCode.encodeText(
         value,
-        ERROR_LEVEL_MAP[level]
+        ERROR_LEVEL_MAP[level],
       ).getModules();
 
       const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -225,7 +224,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
         cells,
         size,
         includeMargin,
-        imageSettings
+        imageSettings,
       );
 
       const image = _image.current;
@@ -275,7 +274,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
           calculatedImageSettings.x + margin,
           calculatedImageSettings.y + margin,
           calculatedImageSettings.w,
-          calculatedImageSettings.h
+          calculatedImageSettings.h,
         );
       }
     }
@@ -333,7 +332,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level]
+    ERROR_LEVEL_MAP[level],
   ).getModules();
 
   const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -342,7 +341,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
     cells,
     size,
     includeMargin,
-    imageSettings
+    imageSettings,
   );
 
   let image = null;
@@ -402,7 +401,7 @@ export function getQRAsSVGDataUri(props: QRProps) {
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level]
+    ERROR_LEVEL_MAP[level],
   ).getModules();
 
   const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -411,7 +410,7 @@ export function getQRAsSVGDataUri(props: QRProps) {
     cells,
     size,
     includeMargin,
-    imageSettings
+    imageSettings,
   );
 
   let image = "";
@@ -457,7 +456,7 @@ function waitUntilImageLoaded(img: HTMLImageElement, src: string) {
 export async function getQRAsCanvas(
   props: QRProps,
   type: string,
-  getCanvas?: boolean
+  getCanvas?: boolean,
 ): Promise<HTMLCanvasElement | string> {
   const {
     value,
@@ -474,7 +473,7 @@ export async function getQRAsCanvas(
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level]
+    ERROR_LEVEL_MAP[level],
   ).getModules();
   const margin = includeMargin ? MARGIN_SIZE : 0;
   const numCells = cells.length + margin * 2;
@@ -482,7 +481,7 @@ export async function getQRAsCanvas(
     cells,
     size,
     includeMargin,
-    imageSettings
+    imageSettings,
   );
 
   const image = new Image();
@@ -529,7 +528,7 @@ export async function getQRAsCanvas(
       calculatedImageSettings.x + margin,
       calculatedImageSettings.y + margin,
       calculatedImageSettings.w,
-      calculatedImageSettings.h
+      calculatedImageSettings.h,
     );
   }
 

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import OpenBio from "@/public/openbio.png";
 
 export default function AuthNavbar() {

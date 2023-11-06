@@ -3,15 +3,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
 import type * as z from "zod";
-
-import { type bentoSchema } from "@/server/db";
-import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
+import { type BentoSchema } from "@/server/db";
+import { api } from "@/trpc/react";
 
 export default function DeleteButton({
   bento,
 }: {
-  bento: z.infer<typeof bentoSchema>;
+  bento: z.infer<typeof BentoSchema>;
 }) {
   const router = useRouter();
   const { link } = useParams<{ link: string }>();
@@ -31,7 +30,7 @@ export default function DeleteButton({
             ...old,
             bento: old.bento.filter((b) => b.id !== bento.id),
           };
-        }
+        },
       );
     },
     onSuccess: () => {

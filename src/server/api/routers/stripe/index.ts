@@ -1,9 +1,8 @@
 import * as z from "zod";
-
 import { env } from "@/env.mjs";
 import { stripe } from "@/lib/stripe";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { webhookRouter } from "@/server/api/routers/stripe/webhook";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { db, eq, user } from "@/server/db";
 
 const getStripeCustomer = async ({
@@ -69,7 +68,7 @@ export const stripeRouter = createTRPCRouter({
     .input(
       z.object({
         billing: z.enum(["monthly", "annually"]),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const res = await ctx.db.query.user.findFirst({

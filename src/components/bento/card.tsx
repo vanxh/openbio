@@ -1,13 +1,12 @@
 import type * as z from "zod";
-
-import { type bentoSchema } from "@/server/db";
+import { type BentoSchema } from "@/server/db";
 import LinkCard from "./link";
 
 export default function BentoCard({
   bento,
   editable,
 }: {
-  bento: z.infer<typeof bentoSchema>;
+  bento: z.infer<typeof BentoSchema>;
   editable?: boolean;
 }) {
   if (bento.type === "link") {

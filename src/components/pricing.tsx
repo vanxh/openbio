@@ -1,23 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import Confetti from "react-dom-confetti";
+import { redirect } from "next/navigation";
 import { Check, HelpCircle, Loader, X } from "lucide-react";
-
-import { PLANS } from "@/lib/stripe/plans";
-import { getStripe } from "@/lib/stripe/client";
-import { type RouterOutputs, api } from "@/trpc/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Confetti from "react-dom-confetti";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { getStripe } from "@/lib/stripe/client";
+import { PLANS } from "@/lib/stripe/plans";
+import { api, type RouterOutputs } from "@/trpc/react";
 
 type Billing = "monthly" | "annually";
 

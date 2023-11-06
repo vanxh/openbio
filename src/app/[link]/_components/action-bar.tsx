@@ -1,9 +1,8 @@
 "use client";
 
 import { Link, Rocket } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import CreateLinkBentoModal from "@/components/modals/create-link-bento";
+import { cn } from "@/lib/utils";
 
 export default function ActionBar() {
   const btnClass =

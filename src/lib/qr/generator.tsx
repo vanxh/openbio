@@ -51,7 +51,7 @@ namespace qrcodegen {
     // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
     public static encodeBinary(
       data: Readonly<Array<byte>>,
-      ecl: QrCode.Ecc
+      ecl: QrCode.Ecc,
     ): QrCode {
       const seg: QrSegment = qrcodegen.QrSegment.makeBytes(data);
       return QrCode.encodeSegments([seg], ecl);
@@ -74,7 +74,7 @@ namespace qrcodegen {
       minVersion: int = 1,
       maxVersion: int = 40,
       mask: int = -1,
-      boostEcl = true
+      boostEcl = true,
     ): QrCode {
       if (
         !(
@@ -146,7 +146,7 @@ namespace qrcodegen {
       const dataCodewords: Array<byte> = [];
       while (dataCodewords.length * 8 < bb.length) dataCodewords.push(0);
       bb.forEach(
-        (b: bit, i: int) => (dataCodewords[i >>> 3] |= b << (7 - (i & 7)))
+        (b: bit, i: int) => (dataCodewords[i >>> 3] |= b << (7 - (i & 7))),
       );
 
       // Create the QR Code object
@@ -187,7 +187,7 @@ namespace qrcodegen {
 
       dataCodewords: Readonly<Array<byte>>,
 
-      msk: int
+      msk: int,
     ) {
       // Check scalar arguments
       if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
@@ -354,7 +354,7 @@ namespace qrcodegen {
           this.setFunctionModule(
             x + dx,
             y + dy,
-            Math.max(Math.abs(dx), Math.abs(dy)) != 1
+            Math.max(Math.abs(dx), Math.abs(dy)) != 1,
           );
       }
     }
@@ -381,7 +381,7 @@ namespace qrcodegen {
         QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
       const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver];
       const rawCodewords: int = Math.floor(
-        QrCode.getNumRawDataModules(ver) / 8
+        QrCode.getNumRawDataModules(ver) / 8,
       );
       const numShortBlocks: int = numBlocks - (rawCodewords % numBlocks);
       const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
@@ -392,7 +392,7 @@ namespace qrcodegen {
       for (let i = 0, k = 0; i < numBlocks; i++) {
         const dat: Array<byte> = data.slice(
           k,
-          k + shortBlockLen - blockEccLen + (i < numShortBlocks ? 0 : 1)
+          k + shortBlockLen - blockEccLen + (i < numShortBlocks ? 0 : 1),
         );
         k += dat.length;
         const ecc: Array<byte> = QrCode.reedSolomonComputeRemainder(dat, rsDiv);
@@ -641,7 +641,7 @@ namespace qrcodegen {
     // Returns the Reed-Solomon error correction codeword for the given data and divisor polynomials.
     private static reedSolomonComputeRemainder(
       data: Readonly<Array<byte>>,
-      divisor: Readonly<Array<byte>>
+      divisor: Readonly<Array<byte>>,
     ): Array<byte> {
       const result: Array<byte> = divisor.map((_) => 0);
       for (const b of data) {
@@ -649,7 +649,7 @@ namespace qrcodegen {
         const factor: byte = b ^ result.shift()!;
         result.push(0);
         divisor.forEach(
-          (coef, i) => (result[i] ^= QrCode.reedSolomonMultiply(coef, factor))
+          (coef, i) => (result[i] ^= QrCode.reedSolomonMultiply(coef, factor)),
         );
       }
       return result;
@@ -691,7 +691,7 @@ namespace qrcodegen {
     private finderPenaltyTerminateAndCount(
       currentRunColor: boolean,
       currentRunLength: int,
-      runHistory: Array<int>
+      runHistory: Array<int>,
     ): int {
       if (currentRunColor) {
         // Terminate dark run
@@ -706,7 +706,7 @@ namespace qrcodegen {
     // Pushes the given value to the front and drops the last value. A helper function for getPenaltyScore().
     private finderPenaltyAddHistory(
       currentRunLength: int,
-      runHistory: Array<int>
+      runHistory: Array<int>,
     ): void {
       if (runHistory[0] == 0) currentRunLength += this.size; // Add light border to initial run
       runHistory.pop();
@@ -844,7 +844,7 @@ namespace qrcodegen {
     public static makeAlphanumeric(text: string): QrSegment {
       if (!QrSegment.isAlphanumeric(text))
         throw new RangeError(
-          "String contains unencodable characters in alphanumeric mode"
+          "String contains unencodable characters in alphanumeric mode",
         );
       const bb: Array<bit> = [];
       let i: int;
@@ -860,7 +860,7 @@ namespace qrcodegen {
         appendBits(
           QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)),
           6,
-          bb
+          bb,
         );
       return new QrSegment(QrSegment.Mode.ALPHANUMERIC, text.length, bb);
     }
@@ -921,7 +921,7 @@ namespace qrcodegen {
       public readonly numChars: int,
 
       // The data bits of this segment. Accessed through getData().
-      private readonly bitData: Array<bit>
+      private readonly bitData: Array<bit>,
     ) {
       if (numChars < 0) throw new RangeError("Invalid argument");
       this.bitData = bitData.slice(); // Make defensive copy
@@ -938,7 +938,7 @@ namespace qrcodegen {
     // the given version. The result is infinity if a segment has too many characters to fit its length field.
     public static getTotalBits(
       segs: Readonly<Array<QrSegment>>,
-      version: int
+      version: int,
     ): number {
       let result = 0;
       for (const seg of segs) {
@@ -1001,7 +1001,7 @@ namespace qrcodegen.QrCode {
       // In the range 0 to 3 (unsigned 2-bit integer).
       public readonly ordinal: int,
       // (Package-private) In the range 0 to 3 (unsigned 2-bit integer).
-      public readonly formatBits: int
+      public readonly formatBits: int,
     ) {}
   }
 }
@@ -1029,7 +1029,7 @@ namespace qrcodegen.QrSegment {
       // The mode indicator bits, which is a uint4 value (range 0 to 15).
       public readonly modeBits: int,
       // Number of character count bits for three different version ranges.
-      private readonly numBitsCharCount: [int, int, int]
+      private readonly numBitsCharCount: [int, int, int],
     ) {}
 
     /*-- Method --*/

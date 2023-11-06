@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useEditor, EditorContent, type Extension } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { useParams } from "next/navigation";
 import Placeholder from "@tiptap/extension-placeholder";
+import { EditorContent, useEditor, type Extension } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import { QrCode } from "lucide-react";
-
-import { api } from "@/trpc/react";
 import LinkQRModal from "@/components/modals/link-qr-modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { api } from "@/trpc/react";
 import ProfileLinkAvatar from "./avatar";
-import { useParams } from "next/navigation";
 
 const extensions = [
   StarterKit,
@@ -79,7 +78,7 @@ export default function ProfileLinkHeader() {
               disabled={saving}
               onClick={() => {
                 void navigator.clipboard.writeText(
-                  `https://openbio.app/${profileLink.link}`
+                  `https://openbio.app/${profileLink.link}`,
                 );
                 toast({
                   title: "Copied to clipboard!",

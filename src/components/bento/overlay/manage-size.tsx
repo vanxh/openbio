@@ -1,17 +1,16 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import type * as z from "zod";
-
-import { bentoSchema } from "@/types";
-import { api } from "@/trpc/react";
-import { cn } from "@/lib/utils";
 import Size2x2 from "@/components/icons/size_2x2";
-import Size4x2 from "@/components/icons/size_4x2";
 import Size2x4 from "@/components/icons/size_2x4";
+import Size4x2 from "@/components/icons/size_4x2";
 import Size4x4 from "@/components/icons/size_4x4";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { api } from "@/trpc/react";
+import { BentoSchema } from "@/types";
 
 function ResponsivePortal({ children }: { children: React.ReactNode }) {
   if (window.outerWidth > 500) {
@@ -25,7 +24,7 @@ export default function ManageSize({
   bento,
   close,
 }: {
-  bento: z.infer<typeof bentoSchema>;
+  bento: z.infer<typeof BentoSchema>;
   close: () => void;
 }) {
   const router = useRouter();
@@ -67,13 +66,13 @@ export default function ManageSize({
             ...old,
             bento: old.bento.map((b) => {
               if (b.id === bento.bento.id) {
-                return bentoSchema.parse(bento.bento);
+                return BentoSchema.parse(bento.bento);
               }
 
               return b;
             }),
           };
-        }
+        },
       );
     },
     onSuccess: () => {
@@ -93,7 +92,7 @@ export default function ManageSize({
               className={cn(
                 "inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95",
                 size === o.key &&
-                  "rounded-sm bg-secondary text-secondary-foreground"
+                  "rounded-sm bg-secondary text-secondary-foreground",
               )}
               onClick={() => {
                 void updateBento({

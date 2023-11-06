@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
-
-import { type RouterOutputs, api } from "@/trpc/server";
 import { Skeleton } from "@/components/ui/skeleton";
+import { api, type RouterOutputs } from "@/trpc/server";
 
 export function ProfileLinkCardSkeleton() {
   return (

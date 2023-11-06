@@ -1,6 +1,10 @@
+import {
+  unstable_httpBatchStreamLink,
+  type HTTPBatchLinkOptions,
+  type HTTPHeaders,
+  type TRPCLink,
+} from "@trpc/client";
 import { type AppRouter } from "@/server/api/root";
-import type { HTTPBatchLinkOptions, HTTPHeaders, TRPCLink } from "@trpc/client";
-import { unstable_httpBatchStreamLink } from "@trpc/client";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return "";

@@ -2,17 +2,15 @@
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
 import { useMemo } from "react";
+import { useParams } from "next/navigation";
 import {
-  type Layouts,
   Responsive,
   WidthProvider,
+  type Layouts,
   type ResponsiveProps,
 } from "react-grid-layout";
-
 import { api } from "@/trpc/react";
-import { useParams } from "next/navigation";
 
 export default function BentoLayout({
   children,
@@ -22,7 +20,7 @@ export default function BentoLayout({
   const { link } = useParams<{ link: string }>();
   const ResponsiveGridLayout = useMemo(
     () => WidthProvider(Responsive) as React.ComponentType<ResponsiveProps>,
-    []
+    [],
   );
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({

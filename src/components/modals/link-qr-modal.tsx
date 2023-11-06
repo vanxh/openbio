@@ -4,9 +4,13 @@ import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Copy, Download } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
-
-import { type RouterOutputs } from "@/trpc/react";
-import { QRCodeSVG, getQRAsCanvas } from "@/lib/qr";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,21 +18,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { toast } from "@/components/ui/use-toast";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/components/ui/use-toast";
+import { getQRAsCanvas, QRCodeSVG } from "@/lib/qr";
+import { type RouterOutputs } from "@/trpc/react";
 
 export default function LinkQRModal({
   children,
@@ -67,7 +66,7 @@ export default function LinkQRModal({
           imageSettings: showLogo ? qrConfig.imageSettings : undefined,
         },
         "image/png",
-        true
+        true,
       );
       (canvas as HTMLCanvasElement).toBlob((blob) => {
         const url = URL.createObjectURL(blob!);
@@ -96,7 +95,7 @@ export default function LinkQRModal({
           imageSettings: showLogo ? qrConfig.imageSettings : undefined,
         },
         "image/png",
-        true
+        true,
       );
       (canvas as HTMLCanvasElement).toBlob((blob) => {
         const item = new ClipboardItem({ "image/png": blob! });
