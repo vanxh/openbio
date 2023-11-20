@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import ProfileLinkCard from "@/components/profile-link-card";
 import { Button } from "@/components/ui/button";
@@ -6,13 +7,17 @@ import UserSettings from "@/components/user-settings";
 import { api } from "@/trpc/server";
 
 export default async function Page() {
-  const links = await api.profileLink.getAll.query();
-
   const user = await api.user.me.query();
 
   if (!user) {
+    // This is a hack to make sure the user is created after the first login
+    setInterval(() => {
+      revalidatePath("/app");
+    }, 1000);
     return null;
   }
+
+  const links = await api.profileLink.getAll.query();
 
   return (
     <div className="flex h-full w-full flex-col items-center">
