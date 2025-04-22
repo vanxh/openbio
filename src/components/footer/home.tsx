@@ -13,6 +13,10 @@ export default function HomeFooter() {
         href: "/github",
         label: "Github",
       },
+      {
+        href: "https://funart.app",
+        label: "FunArt",
+      },
     ],
     Resources: [
       {
