@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import SetupLink from "@/components/forms/setup-link";
-import HomeNavbar from "@/components/navbar/home";
+import SetupLink from '@/components/forms/setup-link';
+import HomeNavbar from '@/components/navbar/home';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export default async function Page({
   searchParams,
@@ -12,7 +12,7 @@ export default async function Page({
   const { link } = await searchParams;
 
   if (!link) {
-    return redirect("/claim-link");
+    return redirect('/claim-link');
   }
 
   const session = await auth.api.getSession({ headers: await headers() });

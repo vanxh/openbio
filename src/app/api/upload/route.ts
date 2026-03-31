@@ -1,0 +1,45 @@
+import { put, del } from "@vercel/blob";
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db, eq } from "@/server/db";
+import { link } from "@/server/db/schema";
+
+export async function POST(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const file = formData.get("file") as File;
+  const profileLinkId = formData.get("profileLinkId") as string;
+
+  if (!file || !profileLinkId) {
+    return NextResponse.json(
+      { error: "Missing file or profileLinkId" },
+      { status: 400 },
+    );
+  }
+
+  const profileLink = await db.query.link.findFirst({
+    where: (l, { eq }) => eq(l.id, profileLinkId),
+    columns: { image: true, userId: true },
+  });
+
+  if (!profileLink || profileLink.userId !== session.user.id) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (profileLink.image) {
+    try {
+      await del(profileLink.image);
+    } catch {}
+  }
+
+  const blob = await put(`avatars/${profileLinkId}/${file.name}`, file, {
+    access: "public",
+  });
+  await db.update(link).set({ image: blob.url }).where(eq(link.id, profileLinkId));
+
+  return NextResponse.json({ url: blob.url });
+}

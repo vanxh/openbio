@@ -4,11 +4,9 @@ import { useCallback, useState } from "react";
 import Image from "next/image";
 import { UploadCloud } from "lucide-react";
 import { useDropzone, type FileWithPath } from "react-dropzone";
-import { generateClientDropzoneAccept } from "uploadthing/client";
 import { toast } from "@/components/ui/use-toast";
-import { useUploadThing } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
-import { type RouterOutputs } from "@/trpc/react";
+import type { RouterOutputs } from "@/trpc/react";
 
 type Props = {
   profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
@@ -17,33 +15,41 @@ type Props = {
 export default function ProfileLinkAvatar({ profileLink }: Props) {
   const [img, setImg] = useState(profileLink.image);
 
-  const { startUpload } = useUploadThing("profileLinkImageUploader", {
-    onClientUploadComplete: (data) => {
-      if (!data?.[0]) return;
-      setImg(data[0]?.url);
-    },
-    onUploadError: (err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-      });
-      setImg(profileLink.image ?? "/openbio.png");
-    },
-  });
-
   const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
-      void startUpload(acceptedFiles, {
-        profileLinkId: profileLink.id,
-      });
-      setImg(URL.createObjectURL(acceptedFiles[0]!));
+    async (acceptedFiles: FileWithPath[]) => {
+      const file = acceptedFiles[0];
+      if (!file) return;
+
+      setImg(URL.createObjectURL(file));
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("profileLinkId", profileLink.id);
+
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json() as { url?: string; error?: string };
+        if (!res.ok || !data.url) {
+          throw new Error(data.error ?? "Upload failed");
+        }
+        setImg(data.url);
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: err instanceof Error ? err.message : "Upload failed",
+        });
+        setImg(profileLink.image ?? "/openbio.png");
+      }
     },
-    [profileLink.id, startUpload],
+    [profileLink.id, profileLink.image],
   );
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: generateClientDropzoneAccept(["image/png", "image/jpeg"]),
+    accept: { "image/png": [], "image/jpeg": [] },
   });
 
   if (!profileLink.isOwner && !profileLink.image) return null;
@@ -72,7 +78,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
       {profileLink.isOwner && !img && (
         <>
           <UploadCloud className="h-8 w-8 text-muted-foreground" />
-          <p className="text-sm font-semibold text-muted-foreground">Upload</p>
+          <p className="font-semibold text-muted-foreground text-sm">Upload</p>
         </>
       )}
 

@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signOut } from "@/lib/auth-client";
-import { LogOut } from "lucide-react";
-import OpenBio from "@/public/openbio.png";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
+import { signOut } from '@/lib/auth-client';
+import OpenBio from '@/public/openbio.png';
+import { LogOut } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AppNavbar() {
   const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
-    router.push("/");
+    router.push('/');
   };
 
   return (

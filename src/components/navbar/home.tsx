@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useSession } from "@/lib/auth-client";
-import OpenBio from "@/public/openbio.png";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
+import { useSession } from '@/lib/auth-client';
+import OpenBio from '@/public/openbio.png';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HomeNavbar() {
   const { data: session } = useSession();
@@ -22,7 +22,7 @@ export default function HomeNavbar() {
       </Link>
 
       <Link className="ml-auto" href="/app">
-        <Button>{session ? "Go to App" : "Get Started"}</Button>
+        <Button>{session ? 'Go to App' : 'Get Started'}</Button>
       </Link>
     </div>
   );
