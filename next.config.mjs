@@ -3,7 +3,6 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     remotePatterns: [
       {
@@ -14,7 +13,6 @@ const config = {
       },
     ],
   },
-  experimental: {},
   typescript: {
     ignoreBuildErrors: true,
   },
