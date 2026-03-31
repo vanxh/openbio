@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
-import Image from "next/image";
-import { UploadCloud } from "lucide-react";
-import { useDropzone, type FileWithPath } from "react-dropzone";
-import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/react";
+import { toast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
+import type { RouterOutputs } from '@/trpc/react';
+import { UploadCloud } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useState } from 'react';
+import { type FileWithPath, useDropzone } from 'react-dropzone';
 
 type Props = {
-  profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
+  profileLink: NonNullable<RouterOutputs['profileLink']['getByLink']>;
 };
 
 export default function ProfileLinkAvatar({ profileLink }: Props) {
@@ -23,33 +23,33 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
       setImg(URL.createObjectURL(file));
 
       const formData = new FormData();
-      formData.append("file", file);
-      formData.append("profileLinkId", profileLink.id);
+      formData.append('file', file);
+      formData.append('profileLinkId', profileLink.id);
 
       try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
+        const res = await fetch('/api/upload', {
+          method: 'POST',
           body: formData,
         });
-        const data = await res.json() as { url?: string; error?: string };
+        const data = (await res.json()) as { url?: string; error?: string };
         if (!res.ok || !data.url) {
-          throw new Error(data.error ?? "Upload failed");
+          throw new Error(data.error ?? 'Upload failed');
         }
         setImg(data.url);
       } catch (err) {
         toast({
-          title: "Error",
-          description: err instanceof Error ? err.message : "Upload failed",
+          title: 'Error',
+          description: err instanceof Error ? err.message : 'Upload failed',
         });
-        setImg(profileLink.image ?? "/openbio.png");
+        setImg(profileLink.image ?? '/openbio.png');
       }
     },
-    [profileLink.id, profileLink.image],
+    [profileLink.id, profileLink.image]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { "image/png": [], "image/jpeg": [] },
+    accept: { 'image/png': [], 'image/jpeg': [] },
   });
 
   if (!profileLink.isOwner && !profileLink.image) return null;
@@ -58,10 +58,10 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
     <div
       {...(profileLink.isOwner ? getRootProps() : {})}
       className={cn(
-        "flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 md:h-[150px] md:w-[150px]",
-        !profileLink.image && profileLink.isOwner && "border-dashed",
-        profileLink.isOwner && "cursor-pointer",
-        img && "border-0 border-transparent bg-transparent",
+        'flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 md:h-[150px] md:w-[150px]',
+        !profileLink.image && profileLink.isOwner && 'border-dashed',
+        profileLink.isOwner && 'cursor-pointer',
+        img && 'border-0 border-transparent bg-transparent'
       )}
     >
       {img && (
