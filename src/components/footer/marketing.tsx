@@ -1,54 +1,36 @@
-'use client';
-
-import { api } from '@/trpc/react';
-import { Eye } from 'lucide-react';
+import { Github, Twitter } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
 export default function MarketingFooter() {
-  const { link } = useParams<{ link: string }>();
-
-  const { data: profileLink } = api.profileLink.getByLink.useQuery(
-    {
-      link,
-    },
-    {
-      staleTime: Number.POSITIVE_INFINITY,
-      enabled: !!link,
-    }
-  );
-
-  const { data: views } = api.profileLink.getViews.useQuery(
-    {
-      id: profileLink?.id ?? '',
-    },
-    {
-      staleTime: Number.POSITIVE_INFINITY,
-      enabled: !!profileLink,
-    }
-  );
-
   return (
-    <footer className="bottom-0 flex w-full max-w-3xl flex-col items-center justify-center gap-y-2 md:items-start">
-      <div className="flex w-full items-center justify-between">
-        <span className="font-medium text-sm">
-          Powered by{' '}
+    <footer className="border-border/50 border-t py-8">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4">
+        <p className="text-muted-foreground text-sm">
+          Built by{' '}
           <Link
-            href="https://openbio.app"
+            href="https://twitter.com/vanxhh"
             target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:no-underline"
+            className="underline underline-offset-4 hover:text-foreground"
           >
-            OpenBio
+            @vanxh
           </Link>
-        </span>
-
-        {views !== null && (
-          <div className="flex flex-row items-center gap-x-2 text-muted-foreground">
-            <Eye size={16} />
-            <span className="text-sm">{views}</span>
-          </div>
-        )}
+        </p>
+        <div className="flex items-center gap-x-3">
+          <Link
+            href="/github"
+            target="_blank"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Github className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/twitter"
+            target="_blank"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Twitter className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </footer>
   );
