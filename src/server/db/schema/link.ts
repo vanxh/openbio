@@ -24,7 +24,7 @@ export const link = pgTable('link', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 
-  userId: uuid('user_id').notNull(),
+  userId: text('user_id').notNull(),
 });
 
 export const linkRelations = relations(link, ({ one, many }) => ({
