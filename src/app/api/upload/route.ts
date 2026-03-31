@@ -47,7 +47,9 @@ export async function POST(request: NextRequest) {
     .returning();
 
   if (updated?.link) {
-    await redis.del(`profile-link:${updated.link}`);
+    await redis.set(`profile-link:${updated.link}`, updated, {
+      ex: 30 * 60,
+    });
   }
 
   return NextResponse.json({ url: blob.url });
