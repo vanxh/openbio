@@ -10,14 +10,13 @@ import { TailwindIndicator } from '@/components/tailwind-indicator';
 import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@vercel/analytics/react';
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import LocalFont from 'next/font/local';
 import type { ReactNode } from 'react';
 
-const inter = Inter({
+const geist = Geist({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-inter',
+  variable: '--font-sans',
 });
 
 const calSans = LocalFont({
@@ -49,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${calSans.variable} font-inter`}>
+      <body className={`${geist.variable} ${calSans.variable} font-sans`}>
         <Background />
 
         <ClientProviders>{children}</ClientProviders>
