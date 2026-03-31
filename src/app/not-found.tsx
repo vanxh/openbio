@@ -1,20 +1,19 @@
-import { Button } from '@/components/ui/button';
+import { GradientButton } from '@/components/ui/gradient-button';
 import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="container mx-auto flex h-full min-h-screen w-full max-w-3xl flex-col items-center justify-center py-20 text-center">
-      <p className="font-cal text-xl md:text-2xl">404</p>
-
-      <h1 className="mt-8 font-cal text-3xl md:text-5xl">
-        This page does not exist.
-      </h1>
-
-      <Button className="mt-8">
-        <Link href="/" passHref>
-          Go to homepage
+    <div className="flex min-h-screen flex-col items-center justify-center px-4">
+      <div className="animate-fade-up text-center">
+        <span className="text-6xl">😢</span>
+        <h1 className="mt-6 font-cal text-4xl">Page not found</h1>
+        <p className="mt-2 text-muted-foreground">
+          This page doesn&apos;t exist or has been removed
+        </p>
+        <Link href="/" className="mt-8 inline-block">
+          <GradientButton>Go home</GradientButton>
         </Link>
-      </Button>
+      </div>
     </div>
   );
 }
