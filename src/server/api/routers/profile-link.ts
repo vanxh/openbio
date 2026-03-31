@@ -1,10 +1,9 @@
-import * as z from "zod";
-import { getMetadata } from "@/lib/metadata";
+import { getMetadata } from '@/lib/metadata';
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
-} from "@/server/api/trpc";
+} from '@/server/api/trpc';
 import {
   addProfileLinkBento,
   canModifyProfileLink,
@@ -13,14 +12,15 @@ import {
   deleteProfileLink,
   deleteProfileLinkBento,
   getProfileLinkByLink,
-  getProfileLinksOfUser,
   getProfileLinkViews,
+  getProfileLinksOfUser,
   isProfileLinkAvailable,
   recordLinkView,
   updateProfileLink,
   updateProfileLinkBento,
-} from "@/server/db";
-import type { LinkBento } from "@/types";
+} from '@/server/db';
+import type { LinkBento } from '@/types';
+import * as z from 'zod';
 import {
   CreateLinkBentoSchema,
   CreateLinkSchema,
@@ -31,7 +31,7 @@ import {
   LinkAvailableSchema,
   UpdateLinkBentoSchema,
   UpdateLinkSchema,
-} from "../schemas";
+} from '../schemas';
 
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
@@ -48,18 +48,18 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true, plan: true, subscriptionEndsAt: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       const canCreate = await canUserCreateProfileLink(user);
       if (!canCreate) {
         throw new Error(
-          "You can't create more profile links, upgrade your plan",
+          "You can't create more profile links, upgrade your plan"
         );
       }
 
       const isAvailable = await isProfileLinkAvailable(input.link);
       if (!isAvailable) {
-        throw new Error("This profile link is not available");
+        throw new Error('This profile link is not available');
       }
 
       const bento: LinkBento[] = [];
@@ -75,35 +75,35 @@ export const profileLinkRouter = createTRPCRouter({
         },
       };
       for (const [key, value] of Object.entries(input)) {
-        if (key !== "link" && value) {
+        if (key !== 'link' && value) {
           let url = `https://${key}.com/${value}`;
 
-          if (key === "linkedin") {
+          if (key === 'linkedin') {
             url = `https://www.${key}.com/in/${value}`;
           }
 
-          if (key === "youtube") {
-            url = `https://www.${key}.com/@${value.replace("@", "")}`;
+          if (key === 'youtube') {
+            url = `https://www.${key}.com/@${value.replace('@', '')}`;
           }
 
-          if (key === "twitch") {
+          if (key === 'twitch') {
             url = `https://www.${key}.tv/${value}`;
           }
 
-          if (key === "telegram") {
+          if (key === 'telegram') {
             url = `https://t.me/${value}`;
           }
 
           bento.push({
             id: crypto.randomUUID(),
-            type: "link",
+            type: 'link',
 
             href: url,
             clicks: 0,
 
             size: {
-              sm: "2x2",
-              md: "2x2",
+              sm: '2x2',
+              md: '2x2',
             },
 
             position,
@@ -139,7 +139,7 @@ export const profileLinkRouter = createTRPCRouter({
       columns: { id: true, plan: true, subscriptionEndsAt: true },
     });
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error('User not found');
 
     const profileLinks = await getProfileLinksOfUser(user.id);
 
@@ -168,15 +168,15 @@ export const profileLinkRouter = createTRPCRouter({
         return null;
       }
 
-      let ip = ctx.req.ip ?? ctx.req.headers.get("x-real-ip");
-      const forwardedFor = ctx.req.headers.get("x-forwarded-for");
+      let ip = ctx.req.ip ?? ctx.req.headers.get('x-real-ip');
+      const forwardedFor = ctx.req.headers.get('x-forwarded-for');
       if (!ip && forwardedFor) {
-        ip = forwardedFor.split(",").at(0) ?? "Unknown";
+        ip = forwardedFor.split(',').at(0) ?? 'Unknown';
       }
 
       await recordLinkView(profileLink.id, {
-        ip: ip ?? "Unknown",
-        userAgent: ctx.req.headers.get("user-agent") ?? "Unknown",
+        ip: ip ?? 'Unknown',
+        userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
       });
 
       return {
@@ -184,7 +184,7 @@ export const profileLinkRouter = createTRPCRouter({
         isOwner: user?.id === profileLink.userId,
         isPremium:
           user?.id === profileLink.userId &&
-          user?.plan === "pro" &&
+          user?.plan === 'pro' &&
           user?.subscriptionEndsAt &&
           user?.subscriptionEndsAt > new Date(),
       };
@@ -204,7 +204,7 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       await canModifyProfileLink({
         userId: user.id,
@@ -222,7 +222,7 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       await canModifyProfileLink({
         userId: user.id,
@@ -240,7 +240,7 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       await canModifyProfileLink({
         userId: user.id,
@@ -258,7 +258,7 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       await canModifyProfileLink({
         userId: user.id,
@@ -276,7 +276,7 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error("User not found");
+      if (!user) throw new Error('User not found');
 
       await canModifyProfileLink({
         userId: user.id,
@@ -290,7 +290,7 @@ export const profileLinkRouter = createTRPCRouter({
     .input(
       z.object({
         url: z.string(),
-      }),
+      })
     )
     .query(async ({ input }) => {
       return getMetadata(input.url);

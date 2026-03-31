@@ -1,67 +1,41 @@
-import type { NextRequest } from "next/server";
-import type {
-  SignedInAuthObject,
-  SignedOutAuthObject,
-} from "@clerk/nextjs/api";
-import { getAuth } from "@clerk/nextjs/server";
-import { initTRPC, TRPCError, type inferAsyncReturnType } from "@trpc/server";
-import superjson from "superjson";
-import { ZodError } from "zod";
-import { db } from "@/server/db";
+import { auth } from '@/lib/auth';
+import { db } from '@/server/db/db';
+import { TRPCError, initTRPC } from '@trpc/server';
+import superjson from 'superjson';
+import { ZodError } from 'zod';
 
-type CreateContextOptions = {
-  auth: SignedInAuthObject | SignedOutAuthObject | null;
-  req: NextRequest;
+export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const session = await auth.api.getSession({ headers: opts.headers });
+  return { db, session };
 };
 
-export const createInnerTRPCContext = (opts: CreateContextOptions) => {
-  return {
-    ...opts,
-    db,
-  };
-};
-
-export const createTRPCContext = (opts: { req: NextRequest }) => {
-  const auth = getAuth(opts.req);
-
-  return createInnerTRPCContext({
-    auth,
-    req: opts.req,
+const t = initTRPC
+  .context<Awaited<ReturnType<typeof createTRPCContext>>>()
+  .create({
+    transformer: superjson,
+    errorFormatter({ shape, error }) {
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          zodError:
+            error.cause instanceof ZodError ? error.cause.flatten() : null,
+        },
+      };
+    },
   });
-};
-
-export type Context = inferAsyncReturnType<typeof createTRPCContext>;
-
-const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
-  errorFormatter({ shape, error }) {
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
-      },
-    };
-  },
-});
 
 export const createTRPCRouter = t.router;
 export const mergeRouters = t.mergeRouters;
-
+export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.auth?.userId) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   return next({
-    ctx: {
-      auth: {
-        ...ctx.auth,
-        userId: ctx.auth.userId,
-      },
-    },
+    ctx: { session: ctx.session, user: ctx.session.user },
   });
 });
 

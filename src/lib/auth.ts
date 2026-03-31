@@ -1,12 +1,12 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { nextCookies } from "better-auth/next-js";
-import { db } from "@/server/db/db";
-import * as schema from "@/server/db/schema";
+import { db } from '@/server/db/db';
+import * as schema from '@/server/db/schema';
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { nextCookies } from 'better-auth/next-js';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg",
+    provider: 'pg',
     schema: {
       user: schema.user,
       session: schema.session,
@@ -37,10 +37,10 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
-      plan: { type: "string", defaultValue: "free" },
-      stripeCustomerId: { type: "string", required: false },
-      subscriptionId: { type: "string", required: false },
-      subscriptionEndsAt: { type: "date", required: false },
+      plan: { type: 'string', defaultValue: 'free' },
+      stripeCustomerId: { type: 'string', required: false },
+      subscriptionId: { type: 'string', required: false },
+      subscriptionEndsAt: { type: 'date', required: false },
     },
   },
   plugins: [nextCookies()],
