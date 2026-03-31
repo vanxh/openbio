@@ -47,7 +47,7 @@ export const AssetBentoSchema = z.object({
   id: z.string(),
   type: z.enum(['image', 'video']),
 
-  url: z.string().url(),
+  url: z.string(),
   caption: z.string().optional(),
 
   size: SizeSchema,

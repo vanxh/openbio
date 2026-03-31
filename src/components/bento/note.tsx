@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { NoteBentoSchema } from '@/types';
 import Placeholder from '@tiptap/extension-placeholder';
-import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import { useParams } from 'next/navigation';
 import type * as z from 'zod';
 
@@ -58,12 +58,10 @@ export default function NoteCard({
         isBanner ? 'px-4 py-2' : 'p-5'
       )}
     >
-      {editable && (
-        <CardOverlay bento={bento} allowedSizes={NOTE_CARD_SIZES} />
-      )}
+      {editable && <CardOverlay bento={bento} allowedSizes={NOTE_CARD_SIZES} />}
       <EditorContent
         editor={editor}
-        className="prose prose-sm dark:prose-invert max-w-none prose-p:m-0 prose-p:text-xs prose-headings:text-sm prose-headings:font-cal h-full w-full overflow-hidden"
+        className="prose prose-sm dark:prose-invert prose-p:m-0 h-full w-full max-w-none overflow-hidden prose-headings:font-cal prose-headings:text-sm prose-p:text-xs"
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import type { BentoSchema } from '@/server/db';
 import type * as z from 'zod';
+import ImageCard from './image';
 import LinkCard from './link';
 import NoteCard from './note';
 
@@ -18,5 +19,9 @@ export default function BentoCard({
     return <NoteCard bento={bento} editable={editable} />;
   }
 
-  return <div>TODO</div>;
+  if (bento.type === 'image') {
+    return <ImageCard bento={bento} editable={editable} />;
+  }
+
+  return null;
 }
