@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { GradientButton } from "@/components/ui/gradient-button";
-import { NavbarShell } from "@/components/navbar/shared";
-import { useSession } from "@/lib/auth-client";
-import Link from "next/link";
+import { NavbarShell } from '@/components/navbar/shared';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { useSession } from '@/lib/auth-client';
+import Link from 'next/link';
 
 export default function HomeNavbar() {
   const { data: session } = useSession();
@@ -11,13 +11,16 @@ export default function HomeNavbar() {
   return (
     <NavbarShell>
       {!session && (
-        <Link href="/app/sign-in" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+        <Link
+          href="/app/sign-in"
+          className="text-muted-foreground text-sm transition-colors hover:text-foreground"
+        >
           Sign in
         </Link>
       )}
-      <Link href={session ? "/app" : "/claim-link"}>
+      <Link href={session ? '/app' : '/claim-link'}>
         <GradientButton size="sm">
-          {session ? "Go to App" : "Get Started"}
+          {session ? 'Go to App' : 'Get Started'}
         </GradientButton>
       </Link>
     </NavbarShell>

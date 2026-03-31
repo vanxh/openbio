@@ -72,7 +72,7 @@ export default function Page() {
         </p>
 
         <div
-          className="mt-8 flex animate-fade-up items-center gap-x-3"
+          className="mt-8 flex w-full max-w-sm animate-fade-up flex-col items-center gap-3 sm:flex-row"
           style={{ animationDelay: '0.3s' }}
         >
           <Link href="/claim-link">
@@ -99,14 +99,14 @@ export default function Page() {
           Simple, powerful, and free
         </p>
 
-        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-3">
           {features.map((feature) => (
             <div
               key={feature.title}
               className="group rounded-2xl border border-border/50 bg-card p-6 shadow-md transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
             >
-              <div className="mb-3 inline-flex rounded-xl bg-linear-to-br from-violet-500/10 to-pink-500/10 p-2.5">
-                <feature.icon className="h-5 w-5 text-violet-600" />
+              <div className="mb-3 inline-flex rounded-xl bg-muted p-2.5">
+                <feature.icon className="h-5 w-5 text-foreground" />
               </div>
               <h3 className="font-cal text-lg">{feature.title}</h3>
               <p className="mt-1 text-muted-foreground text-sm">

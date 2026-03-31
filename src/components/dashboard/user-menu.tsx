@@ -23,7 +23,10 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" className="rounded-full outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-ring">
+        <button
+          type="button"
+          className="rounded-full outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <Avatar className="h-9 w-9 cursor-pointer transition-transform hover:scale-105">
             <AvatarImage src={session?.user?.image ?? undefined} />
             <AvatarFallback className="bg-linear-to-br from-violet-500 to-pink-500 text-sm text-white">

@@ -1,7 +1,9 @@
-export default function Page() {
+import { Loader2 } from 'lucide-react';
+
+export default function Loading() {
   return (
-    <div className="mx-auto h-full w-full max-w-3xl pt-16 pb-16">
-      <span>Loading...</span>
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   );
 }
