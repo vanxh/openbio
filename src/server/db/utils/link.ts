@@ -145,6 +145,9 @@ export const updateProfileLink = async (data: {
   id: string;
   name?: string;
   bio?: string;
+  theme?: string;
+  accentColor?: string | null;
+  darkMode?: boolean;
 }) => {
   const result = await db
     .update(link)
