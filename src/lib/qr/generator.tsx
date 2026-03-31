@@ -39,10 +39,7 @@ namespace qrcodegen {
     // This function always encodes using the binary segment mode, not any text mode. The maximum number of
     // bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
     // The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
-    static encodeBinary(
-      data: Readonly<byte[]>,
-      ecl: QrCode.Ecc
-    ): QrCode {
+    static encodeBinary(data: Readonly<byte[]>, ecl: QrCode.Ecc): QrCode {
       const seg: QrSegment = qrcodegen.QrSegment.makeBytes(data);
       return QrCode.encodeSegments([seg], ecl);
     }
@@ -1006,10 +1003,7 @@ namespace qrcodegen {
 
     // (Package-private) Calculates and returns the number of bits needed to encode the given segments at
     // the given version. The result is infinity if a segment has too many characters to fit its length field.
-    static getTotalBits(
-      segs: Readonly<QrSegment[]>,
-      version: int
-    ): number {
+    static getTotalBits(segs: Readonly<QrSegment[]>, version: int): number {
       let result = 0;
       for (const seg of segs) {
         const ccbits: int = seg.mode.numCharCountBits(version);

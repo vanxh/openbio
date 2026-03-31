@@ -280,11 +280,7 @@ function updateCanvas(
     imageSettings
   );
 
-  const finalCells = excavateIfNecessary(
-    cells,
-    image,
-    calculatedImageSettings
-  );
+  const finalCells = excavateIfNecessary(cells, image, calculatedImageSettings);
 
   drawToContext(
     ctx,
@@ -392,7 +388,11 @@ export function QRCodeSVG(props: QRPropsSVG) {
     ...otherProps
   } = props;
 
-  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  const {
+    cells: initialCells,
+    numCells,
+    margin,
+  } = prepareCells(value, level, includeMargin);
   let cells = initialCells;
 
   const calculatedImageSettings = getImageSettings(
@@ -458,7 +458,11 @@ export function getQRAsSVGDataUri(props: QRProps) {
     imageSettings,
   } = props;
 
-  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  const {
+    cells: initialCells,
+    numCells,
+    margin,
+  } = prepareCells(value, level, includeMargin);
   let cells = initialCells;
 
   const calculatedImageSettings = getImageSettings(
@@ -527,7 +531,11 @@ export async function getQRAsCanvas(
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
-  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  const {
+    cells: initialCells,
+    numCells,
+    margin,
+  } = prepareCells(value, level, includeMargin);
   let cells = initialCells;
 
   const calculatedImageSettings = getImageSettings(
