@@ -1,11 +1,9 @@
-import { type SignedInAuthObject } from "@clerk/nextjs/api";
 import * as z from "zod";
 import { getMetadata } from "@/lib/metadata";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
-  type Context,
 } from "@/server/api/trpc";
 import {
   addProfileLinkBento,
@@ -17,13 +15,12 @@ import {
   getProfileLinkByLink,
   getProfileLinksOfUser,
   getProfileLinkViews,
-  getUserByProviderId,
   isProfileLinkAvailable,
   recordLinkView,
   updateProfileLink,
   updateProfileLinkBento,
 } from "@/server/db";
-import { type LinkBento } from "@/types";
+import type { LinkBento } from "@/types";
 import {
   CreateLinkBentoSchema,
   CreateLinkSchema,
@@ -36,22 +33,6 @@ import {
   UpdateLinkSchema,
 } from "../schemas";
 
-const getUser = async (
-  ctx: Context & {
-    auth: SignedInAuthObject;
-  },
-) => {
-  const user = await getUserByProviderId(ctx.auth.userId, {
-    id: true,
-    plan: true,
-    subscriptionEndsAt: true,
-  });
-
-  if (!user) throw new Error("User not found");
-
-  return user;
-};
-
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
     .input(LinkAvailableSchema)
@@ -62,7 +43,12 @@ export const profileLinkRouter = createTRPCRouter({
   create: protectedProcedure
     .input(CreateLinkSchema)
     .mutation(async ({ input, ctx }) => {
-      const user = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true, plan: true, subscriptionEndsAt: true },
+      });
+
+      if (!user) throw new Error("User not found");
 
       const canCreate = await canUserCreateProfileLink(user);
       if (!canCreate) {
@@ -148,7 +134,13 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.input(z.undefined()).query(async ({ ctx }) => {
-    const user = await getUser(ctx);
+    const user = await ctx.db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, ctx.user.id),
+      columns: { id: true, plan: true, subscriptionEndsAt: true },
+    });
+
+    if (!user) throw new Error("User not found");
+
     const profileLinks = await getProfileLinksOfUser(user.id);
 
     return profileLinks;
@@ -157,11 +149,11 @@ export const profileLinkRouter = createTRPCRouter({
   getByLink: publicProcedure
     .input(GetByLinkSchema)
     .query(async ({ input, ctx }) => {
-      const authedUserId = ctx.auth?.userId;
+      const authedUserId = ctx.user?.id;
 
       const user = authedUserId
         ? await ctx.db.query.user.findFirst({
-            where: (user, { eq }) => eq(user.providerId, authedUserId),
+            where: (u, { eq }) => eq(u.id, authedUserId),
             columns: {
               id: true,
               plan: true,
@@ -207,9 +199,15 @@ export const profileLinkRouter = createTRPCRouter({
   update: protectedProcedure
     .input(UpdateLinkSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id: userId } = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
       await canModifyProfileLink({
-        userId,
+        userId: user.id,
         linkId: input.id,
       });
 
@@ -219,9 +217,15 @@ export const profileLinkRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(DeleteLinkSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id: userId } = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
       await canModifyProfileLink({
-        userId,
+        userId: user.id,
         link: input.link,
       });
 
@@ -231,9 +235,15 @@ export const profileLinkRouter = createTRPCRouter({
   createBento: protectedProcedure
     .input(CreateLinkBentoSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id: userId } = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
       await canModifyProfileLink({
-        userId,
+        userId: user.id,
         link: input.link,
       });
 
@@ -243,9 +253,15 @@ export const profileLinkRouter = createTRPCRouter({
   deleteBento: protectedProcedure
     .input(DeleteLinkBentoSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id: userId } = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
       await canModifyProfileLink({
-        userId,
+        userId: user.id,
         link: input.link,
       });
 
@@ -255,9 +271,15 @@ export const profileLinkRouter = createTRPCRouter({
   updateBento: protectedProcedure
     .input(UpdateLinkBentoSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id: userId } = await getUser(ctx);
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { id: true },
+      });
+
+      if (!user) throw new Error("User not found");
+
       await canModifyProfileLink({
-        userId,
+        userId: user.id,
         link: input.link,
       });
 
