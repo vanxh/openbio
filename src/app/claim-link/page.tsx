@@ -16,13 +16,13 @@ export default async function Page() {
             <Image src={OpenBioLogo} alt="OpenBio" width={48} height={48} />
           </Link>
           <h1 className="mt-4 font-cal text-3xl">Claim your page</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-muted-foreground text-sm">
             Pick a username for your OpenBio page
           </p>
         </div>
         <ClaimLinkForm />
         {!session && (
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-muted-foreground text-sm">
             Already have an account?{' '}
             <Link
               href="/app/sign-in"

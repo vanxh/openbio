@@ -72,7 +72,7 @@ export default function Page() {
         </p>
 
         <div
-          className="mt-8 flex w-full max-w-sm animate-fade-up flex-col items-center gap-3 sm:flex-row"
+          className="mt-8 flex animate-fade-up items-center gap-3"
           style={{ animationDelay: '0.3s' }}
         >
           <Link href="/claim-link">

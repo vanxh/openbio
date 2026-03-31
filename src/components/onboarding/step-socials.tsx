@@ -8,14 +8,13 @@ import {
   Instagram,
   Linkedin,
   Twitch,
-  X,
   Youtube,
 } from 'lucide-react';
 import { BiLogoTelegram } from 'react-icons/bi';
-import { BsDiscord } from 'react-icons/bs';
+import { BsDiscord, BsTwitterX } from 'react-icons/bs';
 
 const socials = [
-  { key: 'twitter', name: 'X', icon: X, placeholder: 'username' },
+  { key: 'twitter', name: 'X', icon: BsTwitterX, placeholder: 'username' },
   { key: 'github', name: 'GitHub', icon: Github, placeholder: 'username' },
   {
     key: 'linkedin',
