@@ -1,29 +1,25 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { useSession } from '@/lib/auth-client';
-import OpenBio from '@/public/openbio.png';
-import Image from 'next/image';
-import Link from 'next/link';
+import { GradientButton } from "@/components/ui/gradient-button";
+import { NavbarShell } from "@/components/navbar/shared";
+import { useSession } from "@/lib/auth-client";
+import Link from "next/link";
 
 export default function HomeNavbar() {
   const { data: session } = useSession();
 
   return (
-    <div className="container absolute top-6 flex md:top-10">
-      <Link className="mr-auto" href="/">
-        <Image
-          src={OpenBio}
-          alt="OpenBio"
-          width={50}
-          height={50}
-          loading="eager"
-        />
+    <NavbarShell>
+      {!session && (
+        <Link href="/app/sign-in" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+          Sign in
+        </Link>
+      )}
+      <Link href={session ? "/app" : "/claim-link"}>
+        <GradientButton size="sm">
+          {session ? "Go to App" : "Get Started"}
+        </GradientButton>
       </Link>
-
-      <Link className="ml-auto" href="/app">
-        <Button>{session ? 'Go to App' : 'Get Started'}</Button>
-      </Link>
-    </div>
+    </NavbarShell>
   );
 }
