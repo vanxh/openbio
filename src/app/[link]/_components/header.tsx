@@ -35,7 +35,9 @@ export default function ProfileLinkHeader() {
     api.profileLink.update.useMutation();
 
   useEffect(() => {
-    if (!profileLink?.isOwner) { return; }
+    if (!profileLink?.isOwner) {
+      return;
+    }
 
     const save = () => {
       startSaving(async () => {
@@ -51,6 +53,7 @@ export default function ProfileLinkHeader() {
   }, [name, bio, updateProfileLink, profileLink]);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions,
     content: profileLink?.bio,
     editorProps: {
@@ -65,7 +68,9 @@ export default function ProfileLinkHeader() {
     },
   });
 
-  if (!profileLink) { return null; }
+  if (!profileLink) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -77,14 +82,15 @@ export default function ProfileLinkHeader() {
             <Button
               disabled={saving}
               onClick={() => {
-                navigator.clipboard.writeText(
-                  `https://openbio.app/${profileLink.link}`
-                ).then(() => {
-                  toast({
-                    title: 'Copied to clipboard!',
-                    description: 'Copied profile link to clipboard!',
-                  });
-                }).catch(() => undefined);
+                navigator.clipboard
+                  .writeText(`https://openbio.app/${profileLink.link}`)
+                  .then(() => {
+                    toast({
+                      title: 'Copied to clipboard!',
+                      description: 'Copied profile link to clipboard!',
+                    });
+                  })
+                  .catch(() => undefined);
               }}
             >
               {saving ? 'Saving...' : 'Share'}

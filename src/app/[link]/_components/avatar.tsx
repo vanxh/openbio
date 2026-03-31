@@ -18,7 +18,9 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[]) => {
       const file = acceptedFiles[0];
-      if (!file) { return; }
+      if (!file) {
+        return;
+      }
 
       setImg(URL.createObjectURL(file));
 
@@ -52,7 +54,9 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
     accept: { 'image/png': [], 'image/jpeg': [] },
   });
 
-  if (!profileLink.isOwner && !profileLink.image) { return null; }
+  if (!profileLink.isOwner && !profileLink.image) {
+    return null;
+  }
 
   return (
     <div

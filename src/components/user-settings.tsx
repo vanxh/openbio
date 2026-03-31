@@ -17,7 +17,6 @@ export default async function UserSettings({
 
   return (
     <div className="flex w-full flex-col gap-y-6">
-      <h1 className="font-cal text-3xl md:text-5xl">Settings</h1>
 
       <div className="flex flex-col gap-y-6 rounded-lg border border-border bg-background px-4 py-4 md:px-6 md:py-6">
         <div className="space-y-2">
