@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/lib/auth-client";
 import OpenBio from "@/public/openbio.png";
 import { Button } from "@/components/ui/button";
 
 export default function HomeNavbar() {
-  const { isSignedIn } = useUser();
+  const { data: session } = useSession();
 
   return (
     <div className="container absolute top-6 flex md:top-10">
@@ -22,7 +22,7 @@ export default function HomeNavbar() {
       </Link>
 
       <Link className="ml-auto" href="/app">
-        <Button>{isSignedIn ? "Go to App" : "Get Started"}</Button>
+        <Button>{session ? "Go to App" : "Get Started"}</Button>
       </Link>
     </div>
   );

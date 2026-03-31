@@ -1,18 +1,19 @@
-import { currentUser } from "@clerk/nextjs";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { PricingCards } from "@/components/pricing";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type RouterOutputs } from "@/trpc/server";
+import type { RouterOutputs } from "@/trpc/server";
 
 export default async function UserSettings({
   user,
 }: {
   user: NonNullable<RouterOutputs["user"]["me"]>;
 }) {
-  const clerk = await currentUser();
+  const session = await auth.api.getSession({ headers: await headers() });
 
   return (
     <div className="flex w-full flex-col gap-y-6">
@@ -23,10 +24,9 @@ export default async function UserSettings({
           <Label>Your Avatar</Label>
 
           <Avatar>
-            <AvatarImage src={clerk?.imageUrl} />
+            <AvatarImage src={session?.user?.image ?? undefined} />
             <AvatarFallback className="uppercase">
-              {user.firstName?.charAt(0)}
-              {user.lastName?.split("").pop()}
+              {user.name?.charAt(0)}
             </AvatarFallback>
           </Avatar>
         </div>
@@ -40,11 +40,7 @@ export default async function UserSettings({
         <div className="space-y-2">
           <Label>Your Name</Label>
 
-          <Input
-            value={user.firstName + " " + user.lastName}
-            readOnly
-            className="w-max"
-          />
+          <Input value={user.name} readOnly className="w-max" />
         </div>
 
         <div className="flex flex-col space-y-2">

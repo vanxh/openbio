@@ -1,24 +1,23 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import SetupLink from "@/components/forms/setup-link";
 import HomeNavbar from "@/components/navbar/home";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: {
-    link: string;
-  };
+  searchParams: Promise<{ link: string }>;
 }) {
-  const { link } = searchParams;
+  const { link } = await searchParams;
 
   if (!link) {
     return redirect("/claim-link");
   }
 
-  const user = await currentUser();
+  const session = await auth.api.getSession({ headers: await headers() });
 
-  if (!user) {
+  if (!session) {
     return redirect(`/app/sign-up?redirectUrl=/create-link?link=${link}`);
   }
 
