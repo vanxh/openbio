@@ -10,8 +10,10 @@ import type * as z from 'zod';
 
 export default function CardOverlay({
   bento,
+  allowedSizes,
 }: {
   bento: z.infer<typeof BentoSchema>;
+  allowedSizes?: readonly string[];
 }) {
   const [active, setActive] = useState(false);
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
@@ -54,7 +56,11 @@ export default function CardOverlay({
         <fieldset onMouseEnter={show} onMouseLeave={hide} className="contents">
           <DeleteButton bento={bento} />
           <DragHandle />
-          <ManageSize bento={bento} close={() => setActive(false)} />
+          <ManageSize
+            bento={bento}
+            close={() => setActive(false)}
+            allowedSizes={allowedSizes}
+          />
         </fieldset>
       )}
     </div>

@@ -2,14 +2,14 @@
 
 import Size2x2 from '@/components/icons/size-2x2';
 import Size2x4 from '@/components/icons/size-2x4';
+import Size4x1 from '@/components/icons/size-4x1';
 import Size4x2 from '@/components/icons/size-4x2';
 import Size4x4 from '@/components/icons/size-4x4';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { BentoSchema } from '@/types';
-import { useParams, useRouter } from 'next/navigation';
-import type { ReactNode } from 'react';
+import { useParams } from 'next/navigation';
+import type { ComponentType, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type * as z from 'zod';
 
@@ -21,67 +21,53 @@ function ResponsivePortal({ children }: { children: ReactNode }) {
   return createPortal(children, document.body);
 }
 
+const ALL_SIZE_OPTIONS: { key: string; icon: ComponentType }[] = [
+  { key: '2x2', icon: Size2x2 },
+  { key: '4x1', icon: Size4x1 },
+  { key: '4x2', icon: Size4x2 },
+  { key: '2x4', icon: Size2x4 },
+  { key: '4x4', icon: Size4x4 },
+];
+
 export default function ManageSize({
   bento,
   close,
+  allowedSizes,
 }: {
-  bento: z.infer<typeof BentoSchema>;
+  bento: z.infer<typeof import('@/types').BentoSchema>;
   close: () => void;
+  allowedSizes?: readonly string[];
 }) {
-  const router = useRouter();
   const { link } = useParams<{ link: string }>();
 
   const size = window.outerWidth < 500 ? bento.size.sm : bento.size.md;
 
-  const sizeOptions = [
-    {
-      key: '2x2',
-      icon: Size2x2,
-    },
-    {
-      key: '4x2',
-      icon: Size4x2,
-    },
-    {
-      key: '2x4',
-      icon: Size2x4,
-    },
-    {
-      key: '4x4',
-      icon: Size4x4,
-    },
-  ];
+  const sizeOptions = allowedSizes
+    ? ALL_SIZE_OPTIONS.filter((o) => allowedSizes.includes(o.key))
+    : ALL_SIZE_OPTIONS;
 
   const queryClient = api.useContext();
 
   const { mutateAsync: updateBento } = api.profileLink.updateBento.useMutation({
-    onMutate: (bento) => {
-      queryClient.profileLink.getByLink.setData(
-        {
-          link,
-        },
-        (old) => {
-          if (!old) {
-            return old;
-          }
-
-          return {
-            ...old,
-            bento: old.bento.map((b) => {
-              if (b.id === bento.bento.id) {
-                return BentoSchema.parse(bento.bento);
-              }
-
-              return b;
-            }),
-          };
+    onMutate: (input) => {
+      queryClient.profileLink.getByLink.setData({ link }, (old) => {
+        if (!old) {
+          return old;
         }
-      );
+
+        return {
+          ...old,
+          bento: old.bento.map((b) => {
+            if (b.id === input.bento.id) {
+              return { ...b, size: input.bento.size ?? b.size };
+            }
+            return b;
+          }),
+        };
+      });
     },
     onSuccess: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
-      router.refresh();
-      close();
     },
   });
 

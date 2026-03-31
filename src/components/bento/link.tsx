@@ -15,34 +15,128 @@ import type * as z from 'zod';
 type Metadata = Awaited<ReturnType<typeof getMetadata>>;
 type BentoData = z.infer<typeof LinkBentoSchema>;
 
-const getIcon = (url: string, metadata?: Metadata) => {
-  const hostname = new URL(url).hostname;
+// Sizes that have proper layouts for link cards
+export const LINK_CARD_SIZES = ['2x2', '4x1', '4x2'] as const;
 
+type PlatformInfo = {
+  icon: React.ReactNode;
+  color: string;
+  bg: string;
+  action: { label: string; className: string };
+};
+
+const PLATFORM_MAP: Record<string, PlatformInfo> = {
+  twitter: {
+    icon: <BsTwitterX size={20} className="text-foreground" />,
+    color: '#000000',
+    bg: 'bg-foreground/5',
+    action: {
+      label: 'Follow',
+      className:
+        'rounded-full bg-foreground text-background hover:bg-foreground/90',
+    },
+  },
+  linkedin: {
+    icon: <Linkedin size={24} className="text-[#0A66C2]" />,
+    color: '#0A66C2',
+    bg: 'bg-[#0A66C2]/5',
+    action: {
+      label: 'Connect',
+      className: 'rounded-full bg-[#0A66C2] text-white hover:bg-[#004182]',
+    },
+  },
+  github: {
+    icon: <Github size={24} className="text-gray-800" />,
+    color: '#333333',
+    bg: 'bg-gray-500/5',
+    action: {
+      label: 'Follow',
+      className: 'rounded-full',
+    },
+  },
+  instagram: {
+    icon: <Instagram size={24} className="text-[#F56040]" />,
+    color: '#F56040',
+    bg: 'bg-[#F56040]/5',
+    action: {
+      label: 'Follow',
+      className:
+        'rounded-full bg-foreground text-background hover:bg-foreground/90',
+    },
+  },
+  twitch: {
+    icon: <Twitch size={24} className="text-[#9146FF]" />,
+    color: '#9146FF',
+    bg: 'bg-[#9146FF]/5',
+    action: {
+      label: 'Follow',
+      className: 'rounded-full bg-[#9146FF] text-white hover:bg-[#7c3aed]',
+    },
+  },
+  telegram: {
+    icon: <BiLogoTelegram size={24} className="text-[#0088CC]" />,
+    color: '#0088CC',
+    bg: 'bg-[#0088CC]/5',
+    action: {
+      label: 'Message',
+      className: 'rounded-full',
+    },
+  },
+  discord: {
+    icon: <BsDiscord size={24} className="text-[#5A65EA]" />,
+    color: '#5A65EA',
+    bg: 'bg-[#5A65EA]/5',
+    action: {
+      label: 'Join',
+      className: 'rounded-full bg-[#5A65EA] text-white hover:bg-[#4752c4]',
+    },
+  },
+  youtube: {
+    icon: <Youtube size={24} className="text-[#FF0000]" />,
+    color: '#FF0000',
+    bg: 'bg-[#FF0000]/5',
+    action: {
+      label: 'Subscribe',
+      className: 'rounded-full bg-[#FF0000] text-white hover:bg-[#cc0000]',
+    },
+  },
+};
+
+function getPlatform(url: string): PlatformInfo | null | undefined {
+  const hostname = new URL(url).hostname;
   if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return <BsTwitterX size={20} className="text-foreground" />;
+    return PLATFORM_MAP.twitter;
   }
   if (hostname.includes('linkedin.com')) {
-    return <Linkedin size={24} className="text-blue-600" />;
+    return PLATFORM_MAP.linkedin;
   }
   if (hostname.includes('github.com')) {
-    return <Github size={24} className="text-gray-600" />;
+    return PLATFORM_MAP.github;
   }
   if (hostname.includes('instagram.com')) {
-    return <Instagram size={24} className="text-[#F56040]" />;
+    return PLATFORM_MAP.instagram;
   }
   if (hostname.includes('twitch.tv')) {
-    return <Twitch size={24} className="text-purple-600" />;
+    return PLATFORM_MAP.twitch;
   }
   if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
-    return <BiLogoTelegram size={24} className="text-[#0088CC]" />;
+    return PLATFORM_MAP.telegram;
   }
   if (hostname.includes('discord.com')) {
-    return <BsDiscord size={24} className="text-[#5A65EA]" />;
+    return PLATFORM_MAP.discord;
   }
   if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return <Youtube size={24} className="text-[#FF0000]" />;
+    return PLATFORM_MAP.youtube;
   }
+  return null;
+}
 
+function getIcon(url: string, metadata?: Metadata) {
+  const platform = getPlatform(url);
+  if (platform) {
+    return platform.icon;
+  }
+  const hostname = new URL(url).hostname;
   return (
     <Image
       src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`}
@@ -52,38 +146,52 @@ const getIcon = (url: string, metadata?: Metadata) => {
       className="rounded-md"
     />
   );
-};
+}
 
-const getTitle = (url: string, metadata?: Metadata) => {
+function getLargeIcon(url: string) {
+  const hostname = new URL(url).hostname;
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+    return <BsTwitterX size={32} className="text-foreground" />;
+  }
+  if (hostname.includes('linkedin.com')) {
+    return <Linkedin size={36} className="text-[#0A66C2]" />;
+  }
+  if (hostname.includes('github.com')) {
+    return <Github size={36} className="text-gray-800" />;
+  }
+  if (hostname.includes('instagram.com')) {
+    return <Instagram size={36} className="text-[#F56040]" />;
+  }
+  if (hostname.includes('twitch.tv')) {
+    return <Twitch size={36} className="text-[#9146FF]" />;
+  }
+  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
+    return <BiLogoTelegram size={36} className="text-[#0088CC]" />;
+  }
+  if (hostname.includes('discord.com')) {
+    return <BsDiscord size={36} className="text-[#5A65EA]" />;
+  }
+  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+    return <Youtube size={36} className="text-[#FF0000]" />;
+  }
+  return null;
+}
+
+function getTitle(url: string, metadata?: Metadata) {
   const urlObj = new URL(url);
-  const hostname = urlObj.hostname;
   const pathSegments = urlObj.pathname.split('/');
-  const knownHostnames = [
-    'twitter.com',
-    'x.com',
-    'linkedin.com',
-    'github.com',
-    'instagram.com',
-    'twitch.tv',
-    't.me',
-    'telegram.com',
-    'discord.com',
-    'youtube.com',
-    'youtu.be',
-  ];
   let userHandle = pathSegments.pop();
   if (!userHandle) {
     userHandle = pathSegments.pop();
   }
 
-  if (knownHostnames.some((knownHost) => hostname.includes(knownHost))) {
+  if (getPlatform(url)) {
     return userHandle?.startsWith('@') ? userHandle : `@${userHandle}`;
   }
-
   return metadata?.title;
-};
+}
 
-const getDescription = (url: string, metadata?: Metadata) => {
+function getDescription(url: string, metadata?: Metadata) {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
   const pathSegments = urlObj.pathname.split('/');
@@ -116,95 +224,47 @@ const getDescription = (url: string, metadata?: Metadata) => {
   if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
     return `youtube.com/${userHandle}`;
   }
-  if (hostname.includes('twitch.tv')) {
-    return `twitch.tv/${userHandle}`;
-  }
-
   return metadata?.description ?? null;
-};
+}
 
-const getAction = (url: string) => {
-  const hostname = new URL(url).hostname;
+function getAction(url: string) {
+  const platform = getPlatform(url);
+  if (!platform) {
+    return null;
+  }
+  return (
+    <Button size="sm" className={platform.action.className}>
+      {platform.action.label}
+    </Button>
+  );
+}
 
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-foreground text-background hover:bg-foreground/90"
-      >
-        Follow
-      </Button>
-    );
+function ActionButton({
+  url,
+  variant = 'default',
+}: {
+  url: string;
+  variant?: 'default' | 'outline';
+}) {
+  const platform = getPlatform(url);
+  if (!platform) {
+    return null;
   }
-  if (hostname.includes('github.com')) {
-    return (
-      <Button size="sm" variant="outline" className="rounded-full font-medium">
-        Follow
-      </Button>
-    );
-  }
-  if (hostname.includes('linkedin.com')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-[#0A66C2] text-white hover:bg-[#004182]"
-      >
-        Connect
-      </Button>
-    );
-  }
-  if (hostname.includes('instagram.com')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-foreground text-background hover:bg-foreground/90"
-      >
-        Follow
-      </Button>
-    );
-  }
-  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
-    return (
-      <Button size="sm" variant="outline" className="rounded-full font-medium">
-        Message
-      </Button>
-    );
-  }
-  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-[#FF0000] text-white hover:bg-[#cc0000]"
-      >
-        Subscribe
-      </Button>
-    );
-  }
-  if (hostname.includes('twitch.tv')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-[#9146FF] text-white hover:bg-[#7c3aed]"
-      >
-        Follow
-      </Button>
-    );
-  }
-  if (hostname.includes('discord.com')) {
-    return (
-      <Button
-        size="sm"
-        className="rounded-full bg-[#5A65EA] text-white hover:bg-[#4752c4]"
-      >
-        Join
-      </Button>
-    );
-  }
+  return (
+    <Button
+      size="sm"
+      variant={variant}
+      className={
+        variant === 'outline' ? 'rounded-full' : platform.action.className
+      }
+    >
+      {platform.action.label}
+    </Button>
+  );
+}
 
-  return null;
-};
+// --- Layout Components ---
 
-// Shared wrapper props
 function CardWrapper({
   bento,
   editable,
@@ -230,48 +290,72 @@ function CardWrapper({
         className
       )}
     >
-      {editable && <CardOverlay bento={bento} />}
+      {editable && <CardOverlay bento={bento} allowedSizes={LINK_CARD_SIZES} />}
       {children}
     </Comp>
   );
 }
 
-// Icon badge used across layouts
 function IconBadge({
   href,
   metadata,
   size = 'md',
-}: { href: string; metadata?: Metadata; size?: 'sm' | 'md' }) {
+}: {
+  href: string;
+  metadata?: Metadata;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   return (
     <div
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50',
-        size === 'sm' ? 'h-8 w-8 rounded-lg' : 'h-10 w-10'
+        'inline-flex shrink-0 items-center justify-center border border-border/60 bg-muted/50',
+        size === 'sm' && 'h-8 w-8 rounded-lg',
+        size === 'md' && 'h-10 w-10 rounded-xl',
+        size === 'lg' && 'h-14 w-14 rounded-2xl'
       )}
     >
-      {getIcon(href, metadata)}
+      {size === 'lg'
+        ? (getLargeIcon(href) ?? getIcon(href, metadata))
+        : getIcon(href, metadata)}
     </div>
   );
 }
 
-// Card info block (title + description + action)
-function CardInfo({
-  href,
+// 2x2: Compact card
+function CompactLayout({
+  bento,
+  editable,
+  metadata,
   title,
   description,
-}: { href: string; title?: string | null; description?: string | null }) {
+}: {
+  bento: BentoData;
+  editable?: boolean;
+  metadata?: Metadata;
+  title?: string | null;
+  description?: string | null;
+}) {
   return (
-    <div className="mt-auto space-y-1">
-      {title && <p className="font-cal text-sm leading-tight">{title}</p>}
-      {description && (
-        <p className="truncate text-muted-foreground text-xs">{description}</p>
-      )}
-      <div className="pt-1">{getAction(href)}</div>
-    </div>
+    <CardWrapper
+      bento={bento}
+      editable={editable}
+      className="flex flex-col p-5"
+    >
+      <IconBadge href={bento.href ?? ''} metadata={metadata} />
+      <div className="mt-auto space-y-1">
+        {title && <p className="font-cal text-sm leading-tight">{title}</p>}
+        {description && (
+          <p className="truncate text-muted-foreground text-xs">
+            {description}
+          </p>
+        )}
+        <div className="pt-1">{getAction(bento.href ?? '')}</div>
+      </div>
+    </CardWrapper>
   );
 }
 
-// Banner (4x1): horizontal icon + title + action
+// 4x1: Banner — horizontal icon + title + action
 function BannerLayout({
   bento,
   editable,
@@ -296,119 +380,89 @@ function BannerLayout({
   );
 }
 
-// Wide (4x2) with OG image on right
-function WideImageLayout({
+// 4x2: Wide — social cards get branded accent, generic links get OG image
+function WideLayout({
   bento,
   editable,
   metadata,
   title,
   description,
-  ogImage,
 }: {
   bento: BentoData;
   editable?: boolean;
   metadata?: Metadata;
   title?: string | null;
   description?: string | null;
-  ogImage: string;
 }) {
+  const href = bento.href ?? '';
+  const platform = getPlatform(href);
+  const ogImage = metadata?.image;
+
+  // Generic link with OG image: image on the right
+  if (!platform && ogImage) {
+    return (
+      <CardWrapper
+        bento={bento}
+        editable={editable}
+        className="flex overflow-hidden"
+      >
+        <div className="flex flex-1 flex-col justify-between p-5">
+          <IconBadge href={href} metadata={metadata} />
+          <div className="mt-auto space-y-1">
+            {title && <p className="font-cal text-sm leading-tight">{title}</p>}
+            {description && (
+              <p className="line-clamp-2 text-muted-foreground text-xs">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="relative w-2/5 shrink-0">
+          <Image
+            src={ogImage}
+            alt={title ?? href}
+            fill
+            className="object-cover"
+          />
+        </div>
+      </CardWrapper>
+    );
+  }
+
+  // Social card or generic without OG: branded wide layout
   return (
     <CardWrapper
       bento={bento}
       editable={editable}
       className="flex overflow-hidden"
     >
-      <div className="flex flex-1 flex-col justify-between p-5">
-        <IconBadge href={bento.href ?? ''} metadata={metadata} />
-        <CardInfo
-          href={bento.href ?? ''}
-          title={title}
-          description={description}
-        />
+      {/* Branded icon area */}
+      <div
+        className={cn(
+          'flex w-35 shrink-0 items-center justify-center',
+          platform?.bg ?? 'bg-muted/50'
+        )}
+      >
+        <IconBadge href={href} metadata={metadata} size="lg" />
       </div>
-      <div className="relative w-2/5 shrink-0">
-        <Image
-          src={ogImage}
-          alt={title ?? bento.href ?? ''}
-          fill
-          className="object-cover"
-        />
+
+      {/* Content area */}
+      <div className="flex flex-1 flex-col justify-center gap-y-1 p-5">
+        {title && <p className="font-cal text-base leading-tight">{title}</p>}
+        {description && (
+          <p className="truncate text-muted-foreground text-xs">
+            {description}
+          </p>
+        )}
+        <div className="pt-2">
+          <ActionButton url={href} />
+        </div>
       </div>
     </CardWrapper>
   );
 }
 
-// Tall (2x4, 4x4) with OG image on top
-function TallImageLayout({
-  bento,
-  editable,
-  metadata,
-  title,
-  description,
-  ogImage,
-}: {
-  bento: BentoData;
-  editable?: boolean;
-  metadata?: Metadata;
-  title?: string | null;
-  description?: string | null;
-  ogImage: string;
-}) {
-  return (
-    <CardWrapper
-      bento={bento}
-      editable={editable}
-      className="flex flex-col overflow-hidden"
-    >
-      <div className="relative h-2/5 w-full shrink-0">
-        <Image
-          src={ogImage}
-          alt={title ?? bento.href ?? ''}
-          fill
-          className="object-cover"
-        />
-      </div>
-      <div className="flex flex-1 flex-col p-5">
-        <IconBadge href={bento.href ?? ''} metadata={metadata} />
-        <CardInfo
-          href={bento.href ?? ''}
-          title={title}
-          description={description}
-        />
-      </div>
-    </CardWrapper>
-  );
-}
-
-// Default compact layout (2x2 or large without OG image)
-function CompactLayout({
-  bento,
-  editable,
-  metadata,
-  title,
-  description,
-}: {
-  bento: BentoData;
-  editable?: boolean;
-  metadata?: Metadata;
-  title?: string | null;
-  description?: string | null;
-}) {
-  return (
-    <CardWrapper
-      bento={bento}
-      editable={editable}
-      className="flex flex-col p-5"
-    >
-      <IconBadge href={bento.href ?? ''} metadata={metadata} />
-      <CardInfo
-        href={bento.href ?? ''}
-        title={title}
-        description={description}
-      />
-    </CardWrapper>
-  );
-}
+// --- Main Component ---
 
 export default function LinkCard({
   bento,
@@ -427,7 +481,6 @@ export default function LinkCard({
 
   const title = getTitle(bento.href, metadata ?? undefined);
   const description = getDescription(bento.href, metadata ?? undefined);
-  const ogImage = metadata?.image;
   const mdSize = bento.size.md ?? '2x2';
 
   if (mdSize === '4x1') {
@@ -441,28 +494,14 @@ export default function LinkCard({
     );
   }
 
-  if (mdSize === '4x2' && ogImage) {
+  if (mdSize === '4x2') {
     return (
-      <WideImageLayout
+      <WideLayout
         bento={bento}
         editable={editable}
         metadata={metadata ?? undefined}
         title={title}
         description={description}
-        ogImage={ogImage}
-      />
-    );
-  }
-
-  if ((mdSize === '2x4' || mdSize === '4x4') && ogImage) {
-    return (
-      <TallImageLayout
-        bento={bento}
-        editable={editable}
-        metadata={metadata ?? undefined}
-        title={title}
-        description={description}
-        ogImage={ogImage}
       />
     );
   }

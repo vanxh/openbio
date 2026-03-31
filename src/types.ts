@@ -12,8 +12,8 @@ export const PositionSchema = z
     z.enum(['sm', 'md']),
     z
       .object({
-        x: z.number().int().min(0).default(0),
-        y: z.number().int().min(0).default(0),
+        x: z.number().min(0).default(0),
+        y: z.number().min(0).default(0),
       })
       .default({ x: 0, y: 0 })
   )
