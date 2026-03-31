@@ -1,28 +1,32 @@
 import ClaimLinkForm from '@/components/forms/claim-link';
-import AppNavbar from '@/components/navbar/app';
-import { Button } from '@/components/ui/button';
+import OpenBioLogo from '@/public/openbio.png';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Page() {
   return (
-    <div className="container mx-auto flex min-h-screen w-full flex-col items-center justify-center">
-      <AppNavbar />
-
-      <h1 className="font-cal text-3xl md:text-5xl">
-        Claim your unique profile page
-      </h1>
-      <p className="mt-4 text-muted-foreground">
-        It is free and takes less than 2 minutes. You can then add your
-        information, links, and more.
-      </p>
-
-      <ClaimLinkForm className="mt-12" />
-
-      <Link href="/app/sign-in" className="mt-12 self-start md:self-auto">
-        <Button variant="link" className="px-0">
-          or sign in
-        </Button>
-      </Link>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 shadow-lg">
+        <div className="mb-8 flex flex-col items-center">
+          <Link href="/">
+            <Image src={OpenBioLogo} alt="OpenBio" width={48} height={48} />
+          </Link>
+          <h1 className="mt-4 font-cal text-3xl">Claim your page</h1>
+          <p className="mt-1 text-muted-foreground text-sm">
+            Pick a username for your OpenBio page
+          </p>
+        </div>
+        <ClaimLinkForm />
+        <p className="mt-6 text-center text-muted-foreground text-sm">
+          Already have an account?{' '}
+          <Link
+            href="/app/sign-in"
+            className="font-medium text-foreground underline underline-offset-4 hover:text-violet-600"
+          >
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
