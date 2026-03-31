@@ -34,8 +34,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full min-w-100 max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 shadow-lg">
+    <div className="w-full max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 shadow-lg">
         <div className="mb-8 flex flex-col items-center">
           <Link href="/">
             <Image src={OpenBioLogo} alt="OpenBio" width={48} height={48} />
@@ -174,6 +173,5 @@ export default function SignUpPage() {
           </Link>
         </p>
       </div>
-    </div>
   );
 }
