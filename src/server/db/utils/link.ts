@@ -1,9 +1,9 @@
-import { kv } from "@vercel/kv";
-import type * as z from "zod";
-import { ValidLinkSchema, type BentoSchema, type LinkBento } from "@/types";
-import { eq, isUserPremium, sql, type InferSelectModel } from "..";
-import { db } from "../db";
-import { link } from "../schema";
+import { redis } from '@/lib/redis';
+import { type BentoSchema, type LinkBento, ValidLinkSchema } from '@/types';
+import type * as z from 'zod';
+import { type InferSelectModel, eq, isUserPremium, sql } from '..';
+import { db } from '../db';
+import { link } from '../schema';
 
 type SelectProfileLinkColumns = {
   id?: boolean | undefined;
@@ -19,10 +19,10 @@ type SelectProfileLinkColumns = {
 
 export const getProfileLinkByLink = async (
   inputLink: string,
-  columns?: SelectProfileLinkColumns,
+  columns?: SelectProfileLinkColumns
 ) => {
-  const cached = await kv.get<InferSelectModel<typeof link> | null>(
-    `profile-link:${inputLink}`,
+  const cached = await redis.get<InferSelectModel<typeof link> | null>(
+    `profile-link:${inputLink}`
   );
 
   if (cached) {
@@ -35,7 +35,7 @@ export const getProfileLinkByLink = async (
   });
 
   if (result) {
-    await kv.set(`profile-link:${inputLink}`, result, {
+    await redis.set(`profile-link:${inputLink}`, result, {
       ex: 30 * 60,
     });
   }
@@ -45,7 +45,7 @@ export const getProfileLinkByLink = async (
 
 export const getProfileLinkById = async (
   id: string,
-  columns?: SelectProfileLinkColumns,
+  columns?: SelectProfileLinkColumns
 ) => {
   const result = await db.query.link.findFirst({
     where: (_link, { eq }) => eq(_link.id, id),
@@ -88,7 +88,7 @@ export const canUserCreateProfileLink = async ({
   subscriptionEndsAt,
 }: {
   id: string;
-  plan: "free" | "pro";
+  plan: 'free' | 'pro';
   subscriptionEndsAt?: Date | null;
 }) => {
   const nProfileLinks = await getProfileLinksCountOfUser(id);
@@ -109,11 +109,11 @@ export const createProfileLink = async (data: {
 }) => {
   const result = await db.insert(link).values(data).returning().execute();
 
-  await kv.set(`profile-link:${data.link}`, result[0], {
+  await redis.set(`profile-link:${data.link}`, result[0], {
     ex: 30 * 60,
   });
 
-  return result[0]!;
+  return result[0];
 };
 
 export const canModifyProfileLink = async ({
@@ -125,11 +125,12 @@ export const canModifyProfileLink = async ({
   linkId?: string;
   link?: string;
 }) => {
-  const profileLink = linkId
-    ? await getProfileLinkById(linkId)
-    : link
-    ? await getProfileLinkByLink(link)
-    : null;
+  let profileLink: InferSelectModel<typeof link> | undefined | null = null;
+  if (linkId) {
+    profileLink = await getProfileLinkById(linkId);
+  } else if (link) {
+    profileLink = await getProfileLinkByLink(link);
+  }
 
   const canModify = profileLink?.userId === userId;
 
@@ -152,22 +153,22 @@ export const updateProfileLink = async (data: {
     .returning()
     .execute();
 
-  await kv.set(`profile-link:${result[0]!.link}`, result[0], {
+  await redis.set(`profile-link:${result[0]?.link}`, result[0], {
     ex: 30 * 60,
   });
 
-  return result[0]!;
+  return result[0];
 };
 
 export const deleteProfileLink = async (inputLink: string) => {
   await db.delete(link).where(eq(link.link, inputLink)).execute();
 
-  await kv.del(`profile-link:${inputLink}`);
+  await redis.del(`profile-link:${inputLink}`);
 };
 
 export const addProfileLinkBento = async (
   inputLink: string,
-  bento: z.infer<typeof BentoSchema>,
+  bento: z.infer<typeof BentoSchema>
 ) => {
   const profileLink = await getProfileLinkByLink(inputLink);
 
@@ -180,16 +181,16 @@ export const addProfileLinkBento = async (
     .returning()
     .execute();
 
-  await kv.set(`profile-link:${result[0]!.link}`, result[0], {
+  await redis.set(`profile-link:${result[0]?.link}`, result[0], {
     ex: 30 * 60,
   });
 
-  return result[0]!.bento;
+  return result[0]?.bento;
 };
 
 export const deleteProfileLinkBento = async (
   inputLink: string,
-  bentoId: string,
+  bentoId: string
 ) => {
   const profileLink = await getProfileLinkByLink(inputLink);
 
@@ -202,14 +203,14 @@ export const deleteProfileLinkBento = async (
     .returning()
     .execute();
 
-  await kv.set(`profile-link:${result[0]!.link}`, result[0], {
+  await redis.set(`profile-link:${result[0]?.link}`, result[0], {
     ex: 30 * 60,
   });
 };
 
 export const updateProfileLinkBento = async (
   inputLink: string,
-  bento: z.infer<typeof BentoSchema>,
+  bento: z.infer<typeof BentoSchema>
 ) => {
   const profileLink = await getProfileLinkByLink(inputLink);
 
@@ -217,14 +218,14 @@ export const updateProfileLinkBento = async (
     .update(link)
     .set({
       bento: (profileLink?.bento ?? []).map((b) =>
-        b.id === bento.id ? bento : b,
+        b.id === bento.id ? bento : b
       ),
     })
     .where(eq(link.link, inputLink))
     .returning()
     .execute();
 
-  await kv.set(`profile-link:${result[0]!.link}`, result[0], {
+  await redis.set(`profile-link:${result[0]?.link}`, result[0], {
     ex: 30 * 60,
   });
 };

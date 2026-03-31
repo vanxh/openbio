@@ -1,10 +1,10 @@
-import { kv } from "@vercel/kv";
-import { eq, sql } from "..";
-import { db } from "../db";
-import { linkView } from "../schema";
+import { redis } from '@/lib/redis';
+import { eq, sql } from '..';
+import { db } from '../db';
+import { linkView } from '../schema';
 
 export const getProfileLinkViews = async (linkId: string) => {
-  const cached = await kv.get<number | null>(`profile-link-views:${linkId}`);
+  const cached = await redis.get<number | null>(`profile-link-views:${linkId}`);
 
   if (cached) {
     return cached;
@@ -17,7 +17,7 @@ export const getProfileLinkViews = async (linkId: string) => {
     .from(linkView)
     .where(eq(linkView.linkId, linkId));
 
-  await kv.set(`profile-link-views:${linkId}`, views[0]?.count ?? 0, {
+  await redis.set(`profile-link-views:${linkId}`, views[0]?.count ?? 0, {
     ex: 30 * 60,
   });
 
@@ -32,14 +32,14 @@ export const recordLinkView = async (
   }: {
     ip: string;
     userAgent: string;
-  },
+  }
 ) => {
   const exists = await db.query.linkView.findFirst({
     where: (linkView, { eq, and, sql }) =>
       and(
-        eq(linkView.ip, ip ?? "Unknown"),
+        eq(linkView.ip, ip ?? 'Unknown'),
         eq(linkView.linkId, linkId),
-        sql`created_at > now() - interval '1 hour'`,
+        sql`created_at > now() - interval '1 hour'`
       ),
     columns: {
       id: true,
