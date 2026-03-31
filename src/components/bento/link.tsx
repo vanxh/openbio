@@ -6,11 +6,11 @@ import type { getMetadata } from '@/lib/metadata';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { LinkBentoSchema } from '@/types';
-import { Github, Instagram, Linkedin, Twitch, Twitter } from 'lucide-react';
+import { Github, Instagram, Linkedin, Twitch, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BiLogoTelegram } from 'react-icons/bi';
-import { BsDiscord } from 'react-icons/bs';
+import { BsDiscord, BsTwitterX } from 'react-icons/bs';
 import type * as z from 'zod';
 
 const getIcon = (
@@ -21,7 +21,7 @@ const getIcon = (
   const hostname = urlObj.hostname;
 
   if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return <Twitter size={24} className="text-blue-400" />;
+    return <BsTwitterX size={20} className="text-foreground" />;
   }
 
   if (hostname.includes('linkedin.com')) {
@@ -46,6 +46,10 @@ const getIcon = (
 
   if (hostname.includes('discord.com')) {
     return <BsDiscord size={24} className="text-[#5A65EA]" />;
+  }
+
+  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+    return <Youtube size={24} className="text-[#FF0000]" />;
   }
 
   return (

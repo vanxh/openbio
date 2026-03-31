@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { redis } from '@/lib/redis';
 import { db, eq } from '@/server/db';
 import { link } from '@/server/db/schema';
 import { del, put } from '@vercel/blob';
@@ -39,10 +40,15 @@ export async function POST(request: NextRequest) {
   const blob = await put(`avatars/${profileLinkId}/${file.name}`, file, {
     access: 'public',
   });
-  await db
+  const [updated] = await db
     .update(link)
     .set({ image: blob.url })
-    .where(eq(link.id, profileLinkId));
+    .where(eq(link.id, profileLinkId))
+    .returning();
+
+  if (updated?.link) {
+    await redis.del(`profile-link:${updated.link}`);
+  }
 
   return NextResponse.json({ url: blob.url });
 }

@@ -36,6 +36,8 @@ export default function Page() {
     try {
       await createLink({
         link,
+        name: name || undefined,
+        bio: bio || undefined,
         twitter: socials.twitter || undefined,
         github: socials.github || undefined,
         linkedin: socials.linkedin || undefined,

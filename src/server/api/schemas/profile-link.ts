@@ -7,6 +7,8 @@ export const LinkAvailableSchema = z.object({
 
 export const CreateLinkSchema = z.object({
   link: ValidLinkSchema,
+  name: z.string().optional(),
+  bio: z.string().optional(),
   twitter: z.string().optional(),
   github: z.string().optional(),
   linkedin: z.string().optional(),

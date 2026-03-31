@@ -61,6 +61,7 @@
       "devDependencies": {
         "@biomejs/biome": "^1.9.0",
         "@tailwindcss/postcss": "^4.2.2",
+        "@types/html-escaper": "^3.0.4",
         "@types/node": "^22.0.0",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
@@ -566,6 +567,8 @@
     "@trpc/tanstack-react-query": ["@trpc/tanstack-react-query@11.16.0", "", { "peerDependencies": { "@tanstack/react-query": "^5.80.3", "@trpc/client": "11.16.0", "@trpc/server": "11.16.0", "react": ">=18.2.0", "typescript": ">=5.7.2" }, "bin": { "intent": "bin/intent.js" } }, "sha512-kfNYJ5NCk67tmRCO/QWCycJmRamuEKmZf1HRG8yCBl8aTJdTwVq7l6AffFIMab3Q+NmQzwP8XXkAEK/EelKYOA=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.27.0", "", { "dependencies": { "fast-glob": "^3.3.3", "minimatch": "^10.0.1", "path-browserify": "^1.0.1" } }, "sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ=="],
+
+    "@types/html-escaper": ["@types/html-escaper@3.0.4", "", {}, "sha512-UKSaMPMXXKnq1jDj74seVikfdq5pWvoXcIgOUbwYzHuAEGiv8/juom1i/MsWBF8boFSI0uHQCSZauzr5OYnnJA=="],
 
     "@types/linkify-it": ["@types/linkify-it@5.0.0", "", {}, "sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q=="],
 
