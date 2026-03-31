@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import { useMemo } from "react";
-import { useParams } from "next/navigation";
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+import { api } from '@/trpc/react';
+import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
 import {
-  Responsive,
-  WidthProvider,
   type Layouts,
+  Responsive,
   type ResponsiveProps,
-} from "react-grid-layout";
-import { api } from "@/trpc/react";
+  WidthProvider,
+} from 'react-grid-layout';
 
 export default function BentoLayout({
   children,
@@ -20,7 +20,7 @@ export default function BentoLayout({
   const { link } = useParams<{ link: string }>();
   const ResponsiveGridLayout = useMemo(
     () => WidthProvider(Responsive) as React.ComponentType<ResponsiveProps>,
-    [],
+    []
   );
 
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
@@ -37,19 +37,19 @@ export default function BentoLayout({
         x: b.position.sm?.x ?? 0,
         y: b.position.sm?.y ?? 0,
         w: {
-          "4x1": 2,
-          "2x2": 1,
-          "2x4": 1,
-          "4x2": 2,
-          "4x4": 2,
-        }[b.size.sm ?? "2x2"],
+          '4x1': 2,
+          '2x2': 1,
+          '2x4': 1,
+          '4x2': 2,
+          '4x4': 2,
+        }[b.size.sm ?? '2x2'],
         h: {
-          "4x1": 0.5,
-          "2x2": 1,
-          "2x4": 2,
-          "4x2": 1,
-          "4x4": 2,
-        }[b.size.sm ?? "2x2"],
+          '4x1': 0.5,
+          '2x2': 1,
+          '2x4': 2,
+          '4x2': 1,
+          '4x4': 2,
+        }[b.size.sm ?? '2x2'],
       })),
     ],
     md: [
@@ -58,19 +58,19 @@ export default function BentoLayout({
         x: b.position.md?.x ?? 0,
         y: b.position.md?.y ?? 0,
         w: {
-          "4x1": 2,
-          "2x2": 1,
-          "2x4": 1,
-          "4x2": 2,
-          "4x4": 2,
-        }[b.size.md ?? "2x2"],
+          '4x1': 2,
+          '2x2': 1,
+          '2x4': 1,
+          '4x2': 2,
+          '4x4': 2,
+        }[b.size.md ?? '2x2'],
         h: {
-          "4x1": 0.5,
-          "2x2": 1,
-          "2x4": 2,
-          "4x2": 1,
-          "4x4": 2,
-        }[b.size.md ?? "2x2"],
+          '4x1': 0.5,
+          '2x2': 1,
+          '2x4': 2,
+          '4x2': 1,
+          '4x4': 2,
+        }[b.size.md ?? '2x2'],
       })),
     ],
   };
@@ -140,8 +140,8 @@ export default function BentoLayout({
       margin={[24, 24]}
       containerPadding={[0, 0]}
       draggableHandle={
-        typeof window !== "undefined" && window.outerWidth < 500
-          ? ".drag-handle"
+        typeof window !== 'undefined' && window.outerWidth < 500
+          ? '.drag-handle'
           : undefined
       }
       isResizable={false}

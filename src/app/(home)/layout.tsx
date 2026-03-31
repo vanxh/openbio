@@ -1,5 +1,5 @@
-import HomeFooter from "@/components/footer/home";
-import HomeNavbar from "@/components/navbar/home";
+import HomeFooter from '@/components/footer/home';
+import HomeNavbar from '@/components/navbar/home';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

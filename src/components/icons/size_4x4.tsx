@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Size4x4() {
   return (
     <svg

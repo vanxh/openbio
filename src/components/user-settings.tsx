@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { auth } from '@/lib/auth';
-import type { RouterOutputs } from '@/trpc/server';
+import type { RouterOutputs } from '@/trpc/react';
 import { headers } from 'next/headers';
 
 export default async function UserSettings({

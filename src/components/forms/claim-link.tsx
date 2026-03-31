@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check, Loader, X } from "lucide-react";
-import { claimLink } from "@/app/actions/claim-link";
-import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/use-debounce";
-import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
+import { claimLink } from '@/app/actions/claim-link';
+import { Button } from '@/components/ui/button';
+import { useDebounce } from '@/hooks/use-debounce';
+import { cn } from '@/lib/utils';
+import { api } from '@/trpc/react';
+import { Check, Loader, X } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ClaimLinkForm({ className }: { className?: string }) {
-  const [link, setLink] = useState("");
+  const [link, setLink] = useState('');
 
   const debouncedLink = useDebounce(link, 500);
 
@@ -20,20 +20,20 @@ export default function ClaimLinkForm({ className }: { className?: string }) {
       },
       {
         enabled: !!debouncedLink,
-        staleTime: Infinity,
-      },
+        staleTime: Number.POSITIVE_INFINITY,
+      }
     );
 
   return (
     <form
-      className={cn("w-full space-y-4 md:w-[300px]", className)}
+      className={cn('w-full space-y-4 md:w-[300px]', className)}
       action={() => {
         if (!debouncedLink || isFetching || !available) return;
         void claimLink(link);
       }}
     >
       <div className="flex h-9 w-full items-center gap-x-1 rounded-md border border-input px-3 py-1 text-sm shadow-sm">
-        <span className="text-sm text-muted-foreground">openbio.app/</span>
+        <span className="text-muted-foreground text-sm">openbio.app/</span>
         <input
           className="bg-transparent outline-none placeholder:text-muted-foreground"
           autoFocus

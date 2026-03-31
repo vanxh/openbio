@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Check, HelpCircle, Loader, X } from "lucide-react";
-import Confetti from "react-dom-confetti";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { getStripe } from "@/lib/stripe/client";
-import { PLANS } from "@/lib/stripe/plans";
-import { api, type RouterOutputs } from "@/trpc/react";
+} from '@/components/ui/tooltip';
+import { getStripe } from '@/lib/stripe/client';
+import { PLANS } from '@/lib/stripe/plans';
+import { type RouterOutputs, api } from '@/trpc/react';
+import { Check, HelpCircle, Loader, X } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import Confetti from 'react-dom-confetti';
 
-type Billing = "monthly" | "annually";
+type Billing = 'monthly' | 'annually';
 
 export const PricingCards = ({
   billing,
   user,
 }: {
   billing: Billing;
-  user?: RouterOutputs["user"]["me"];
+  user?: RouterOutputs['user']['me'];
 }) => {
   const [isPending, startTransition] = useTransition();
 
@@ -38,13 +38,13 @@ export const PricingCards = ({
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
       switch (plan) {
-        case "free":
+        case 'free':
           const billingPortal = await getBillingPortalUrl();
 
           void redirect(billingPortal);
           break;
 
-        case "pro":
+        case 'pro':
           const session = await getCheckoutSession({
             billing,
           });
@@ -76,11 +76,11 @@ export const PricingCards = ({
           <p className="mt-3 font-cal text-6xl">
             $
             {plan.price[billing as keyof typeof plan.price]?.amount /
-              (billing === "annually" ? 12 : 1)}
+              (billing === 'annually' ? 12 : 1)}
           </p>
 
           <p className="mt-2 text-muted-foreground">
-            per month{billing === "annually" && <>, billed annually</>}
+            per month{billing === 'annually' && <>, billed annually</>}
           </p>
 
           <div className="mt-4 flex w-full flex-col gap-2 text-left">
@@ -133,15 +133,15 @@ export const PricingCards = ({
                 <Loader className="mr-2 inline-block animate-spin" size={16} />
               )}
               {user.plan.toLowerCase() === plan.name.toLowerCase()
-                ? "Current plan"
-                : plan.name.toLowerCase() === "free"
-                ? "Downgrade"
-                : "Upgrade"}
+                ? 'Current plan'
+                : plan.name.toLowerCase() === 'free'
+                  ? 'Downgrade'
+                  : 'Upgrade'}
             </Button>
           )}
 
           {plan.footer && (
-            <p className="mt-4 text-xs text-muted-foreground">{plan.footer}</p>
+            <p className="mt-4 text-muted-foreground text-xs">{plan.footer}</p>
           )}
         </div>
       ))}
@@ -150,7 +150,7 @@ export const PricingCards = ({
 };
 
 export default function Pricing() {
-  const [billing, setBilling] = useState<Billing>("monthly");
+  const [billing, setBilling] = useState<Billing>('monthly');
 
   return (
     <div className="flex w-full flex-col">
@@ -171,7 +171,7 @@ export default function Pricing() {
         className="mt-8 flex w-full flex-col items-center"
       >
         <Confetti
-          active={billing === "annually"}
+          active={billing === 'annually'}
           config={{ elementCount: 250, spread: 100 }}
         />
         <TabsList className="w-max">

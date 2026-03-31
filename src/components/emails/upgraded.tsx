@@ -8,9 +8,8 @@ export default function UpgradedEmail() {
       Thank you for upgrading to OpenBio.app Pro! I really appreciate your
       support.
       <br />
-      <br />
-      I hope you&apos;re enjoying the extra features. If you have any feedback
-      or suggestions, please let me know.
+      <br />I hope you&apos;re enjoying the extra features. If you have any
+      feedback or suggestions, please let me know.
       <br />
       <br />
       Thank you,
@@ -18,7 +17,7 @@ export default function UpgradedEmail() {
       <br />
       <a href="/twitter">Vanxh</a>
       <br />
-      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{" "}
+      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{' '}
       <a href="/github">GitHub</a>
     </div>
   );

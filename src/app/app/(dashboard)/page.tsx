@@ -1,23 +1,23 @@
-import { revalidatePath } from "next/cache";
-import Link from "next/link";
-import ProfileLinkCard from "@/components/profile-link-card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import UserSettings from "@/components/user-settings";
-import { api } from "@/trpc/server";
+import ProfileLinkCard from '@/components/profile-link-card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import UserSettings from '@/components/user-settings';
+import { api } from '@/trpc/server';
+import { revalidatePath } from 'next/cache';
+import Link from 'next/link';
 
 export default async function Page() {
-  const user = await api.user.me.query();
+  const user = await api.user.me();
 
   if (!user) {
     // This is a hack to make sure the user is created after the first login
     setInterval(() => {
-      revalidatePath("/app");
+      revalidatePath('/app');
     }, 1000);
     return null;
   }
 
-  const links = await api.profileLink.getAll.query();
+  const links = await api.profileLink.getAll();
 
   return (
     <div className="flex h-full w-full flex-col items-center">
@@ -45,7 +45,7 @@ export default async function Page() {
 
             {!links.length && (
               <div className="flex w-full flex-col items-center justify-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   You don&apos;t have any links yet.
                 </p>
 

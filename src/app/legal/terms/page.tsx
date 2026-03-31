@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function Page() {
   return (
@@ -107,7 +107,7 @@ export default function Page() {
       <h2>How To Contact Us</h2>
 
       <p>
-        If you have any questions about these Terms, You can contact us:{" "}
+        If you have any questions about these Terms, You can contact us:{' '}
         <Link href="mailto:vanxh@openbio.app">vanxh@openbio.app</Link>
       </p>
     </div>

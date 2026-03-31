@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import styles from "./background.module.css";
+import styles from './background.module.css';
 
 export default function Background() {
   return (

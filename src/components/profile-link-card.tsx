@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { Eye } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api, type RouterOutputs } from "@/trpc/server";
+import { Skeleton } from '@/components/ui/skeleton';
+import type { RouterOutputs } from '@/trpc/react';
+import { api } from '@/trpc/server';
+import { Eye } from 'lucide-react';
+import Link from 'next/link';
 
 export function ProfileLinkCardSkeleton() {
   return (
@@ -10,7 +11,7 @@ export function ProfileLinkCardSkeleton() {
         <Skeleton className="h-6 w-36" />
       </span>
 
-      <span className="mt-2 text-sm text-muted-foreground">
+      <span className="mt-2 text-muted-foreground text-sm">
         <Skeleton className="h-4 w-24" />
       </span>
 
@@ -29,11 +30,9 @@ export function ProfileLinkCardSkeleton() {
 export default async function ProfileLinkCard({
   link,
 }: {
-  link: NonNullable<RouterOutputs["profileLink"]["getAll"][0]>;
+  link: NonNullable<RouterOutputs['profileLink']['getAll'][0]>;
 }) {
-  const views = await api.profileLink.getViews.query({
-    id: link.id,
-  });
+  const views = await api.profileLink.getViews({ id: link.id });
 
   return (
     <Link
@@ -43,7 +42,7 @@ export default async function ProfileLinkCard({
       <div className="flex items-center justify-between">
         <span className="font-cal text-lg">{link.name}</span>
       </div>
-      <span className="text-sm text-muted-foreground">
+      <span className="text-muted-foreground text-sm">
         openbio.app/{link.link}
       </span>
 
@@ -51,7 +50,7 @@ export default async function ProfileLinkCard({
         <span className="inline-flex items-center gap-x-2">
           <Eye size={16} />
           <span className="text-xs">
-            {views || "0"} {views === 1 ? "view" : "views"}
+            {views || '0'} {views === 1 ? 'view' : 'views'}
           </span>
         </span>
       </div>

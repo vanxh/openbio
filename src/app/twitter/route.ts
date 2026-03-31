@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
 export function GET() {
-  redirect("https://twitter.com/Vanxhh");
+  redirect('https://twitter.com/Vanxhh');
 }

@@ -1,27 +1,27 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import {
   defaultMetadata,
   ogMetadata,
   twitterMetadata,
-} from "@/app/shared-metadata";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/trpc/server";
-import ActionBar from "./_components/action-bar";
-import Bento from "./_components/bento";
-import ProfileLinkHeader from "./_components/header";
+} from '@/app/shared-metadata';
+import { Skeleton } from '@/components/ui/skeleton';
+import { api } from '@/trpc/server';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import ActionBar from './_components/action-bar';
+import Bento from './_components/bento';
+import ProfileLinkHeader from './_components/header';
 
 type Props = {
-  params: {
+  params: Promise<{
     link: string;
-  };
+  }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { link } = params;
+  const { link } = await params;
 
-  const profileLink = await api.profileLink.getByLink.query({ link });
+  const profileLink = await api.profileLink.getByLink({ link });
 
   const title = profileLink?.name ?? defaultMetadata.title;
   const description =
@@ -48,8 +48,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const { link } = params;
-  const profileLink = await api.profileLink.getByLink.query({ link });
+  const { link } = await params;
+  const profileLink = await api.profileLink.getByLink({ link });
 
   if (!profileLink) {
     notFound();

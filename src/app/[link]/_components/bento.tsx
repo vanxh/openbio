@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import BentoCard from "@/components/bento/card";
-import { api } from "@/trpc/react";
-import BentoLayout from "./bento-layout";
+import BentoCard from '@/components/bento/card';
+import { api } from '@/trpc/react';
+import { useParams } from 'next/navigation';
+import BentoLayout from './bento-layout';
 
 export default function Bento() {
   const { link } = useParams<{ link: string }>();

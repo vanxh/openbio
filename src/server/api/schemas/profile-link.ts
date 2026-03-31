@@ -1,5 +1,5 @@
-import * as z from "zod";
-import { BentoSchema, ValidLinkSchema } from "@/types";
+import { BentoSchema, ValidLinkSchema } from '@/types';
+import * as z from 'zod';
 
 export const LinkAvailableSchema = z.object({
   link: z.string().toLowerCase(),

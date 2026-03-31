@@ -1,30 +1,30 @@
-import { relations } from "drizzle-orm";
-import { json, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import type * as z from "zod";
-import { BentoSchema, PositionSchema, SizeSchema } from "@/types";
-import { linkView } from "./link-view";
-import { user } from "./user";
+import { BentoSchema, PositionSchema, SizeSchema } from '@/types';
+import { relations } from 'drizzle-orm';
+import { json, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import type * as z from 'zod';
+import { linkView } from './link-view';
+import { user } from './user';
 
 export { SizeSchema, PositionSchema, BentoSchema };
 
-export const link = pgTable("link", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const link = pgTable('link', {
+  id: uuid('id').primaryKey().defaultRandom(),
 
-  link: text("link").unique().notNull(),
+  link: text('link').unique().notNull(),
 
-  image: text("image"),
-  name: text("name").notNull(),
-  bio: text("bio"),
+  image: text('image'),
+  name: text('name').notNull(),
+  bio: text('bio'),
 
-  bento: json("bento")
+  bento: json('bento')
     .$type<z.infer<typeof BentoSchema>[]>()
     .default([])
     .notNull(),
 
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 
-  userId: uuid("user_id").notNull(),
+  userId: uuid('user_id').notNull(),
 });
 
 export const linkRelations = relations(link, ({ one, many }) => ({

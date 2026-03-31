@@ -12,12 +12,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import React, { useEffect, useRef, useState, type CSSProperties } from "react";
-import NextImage from "next/image";
-import { escape } from "html-escaper";
-import qrcodegen from "./generator";
+import { escape } from 'html-escaper';
+import NextImage from 'next/image';
+import type React from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import qrcodegen from './generator';
 
-type Modules = ReturnType<qrcodegen.QrCode["getModules"]>;
+type Modules = ReturnType<qrcodegen.QrCode['getModules']>;
 type Excavation = { x: number; y: number; w: number; h: number };
 
 const ERROR_LEVEL_MAP: Record<string, qrcodegen.QrCode.Ecc> = {
@@ -51,9 +52,9 @@ type QRPropsCanvas = QRProps & React.CanvasHTMLAttributes<HTMLCanvasElement>;
 type QRPropsSVG = QRProps & React.SVGProps<SVGSVGElement>;
 
 const DEFAULT_SIZE = 128;
-const DEFAULT_LEVEL = "L";
-const DEFAULT_BGCOLOR = "#FFFFFF";
-const DEFAULT_FGCOLOR = "#000000";
+const DEFAULT_LEVEL = 'L';
+const DEFAULT_BGCOLOR = '#FFFFFF';
+const DEFAULT_FGCOLOR = '#000000';
 const DEFAULT_INCLUDEMARGIN = false;
 
 const MARGIN_SIZE = 4;
@@ -66,14 +67,14 @@ const DEFAULT_IMG_SCALE = 0.1;
 
 function generatePath(modules: Modules, margin = 0): string {
   const ops: Array<string> = [];
-  modules.forEach(function (row, y) {
+  modules.forEach((row, y) => {
     let start: number | null = null;
-    row.forEach(function (cell, x) {
+    row.forEach((cell, x) => {
       if (!cell && start !== null) {
         // M0 0h7v1H0z injects the space with the move and drops the comma,
         // saving a char per operation
         ops.push(
-          `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`,
+          `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`
         );
         start = null;
         return;
@@ -94,7 +95,7 @@ function generatePath(modules: Modules, margin = 0): string {
           ops.push(
             `M${start + margin},${y + margin} h${x + 1 - start}v1H${
               start + margin
-            }z`,
+            }z`
           );
         }
         return;
@@ -105,7 +106,7 @@ function generatePath(modules: Modules, margin = 0): string {
       }
     });
   });
-  return ops.join("");
+  return ops.join('');
 }
 
 // We could just do this in generatePath, except that we want to support
@@ -128,7 +129,7 @@ function getImageSettings(
   cells: Modules,
   size: number,
   includeMargin: boolean,
-  imageSettings?: ImageSettings,
+  imageSettings?: ImageSettings
 ): null | {
   x: number;
   y: number;
@@ -171,7 +172,7 @@ function getImageSettings(
 // supported, but Edge doesn't actually support the path (string) type
 // argument. Luckily it also doesn't support the addPath() method. We can
 // treat that as the same thing.
-const SUPPORTS_PATH2D = (function () {
+const SUPPORTS_PATH2D = (() => {
   try {
     new Path2D().addPath(new Path2D());
   } catch (e) {
@@ -208,14 +209,14 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
     if (_canvas.current != null) {
       const canvas = _canvas.current;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) {
         return;
       }
 
       let cells = qrcodegen.QrCode.encodeText(
         value,
-        ERROR_LEVEL_MAP[level],
+        ERROR_LEVEL_MAP[level]
       ).getModules();
 
       const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -224,7 +225,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
         cells,
         size,
         includeMargin,
-        imageSettings,
+        imageSettings
       );
 
       const image = _image.current;
@@ -235,10 +236,8 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
         image.naturalHeight !== 0 &&
         image.naturalWidth !== 0;
 
-      if (haveImageToRender) {
-        if (calculatedImageSettings.excavation != null) {
-          cells = excavateModules(cells, calculatedImageSettings.excavation);
-        }
+      if (haveImageToRender && calculatedImageSettings.excavation != null) {
+        cells = excavateModules(cells, calculatedImageSettings.excavation);
       }
 
       // We're going to scale this so that the number of drawable units
@@ -259,8 +258,8 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
         // $FlowFixMe: Path2D c'tor doesn't support args yet.
         ctx.fill(new Path2D(generatePath(cells, margin)));
       } else {
-        cells.forEach(function (row, rdx) {
-          row.forEach(function (cell, cdx) {
+        cells.forEach((row, rdx) => {
+          row.forEach((cell, cdx) => {
             if (cell) {
               ctx.fillRect(cdx + margin, rdx + margin, 1, 1);
             }
@@ -274,7 +273,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
           calculatedImageSettings.x + margin,
           calculatedImageSettings.y + margin,
           calculatedImageSettings.w,
-          calculatedImageSettings.h,
+          calculatedImageSettings.h
         );
       }
     }
@@ -294,7 +293,7 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
         alt="QR code"
         src={imgSrc}
         key={imgSrc}
-        style={{ display: "none" }}
+        style={{ display: 'none' }}
         onLoad={() => {
           setIsImageLoaded(true);
         }}
@@ -332,7 +331,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level],
+    ERROR_LEVEL_MAP[level]
   ).getModules();
 
   const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -341,7 +340,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
     cells,
     size,
     includeMargin,
-    imageSettings,
+    imageSettings
   );
 
   let image = null;
@@ -401,7 +400,7 @@ export function getQRAsSVGDataUri(props: QRProps) {
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level],
+    ERROR_LEVEL_MAP[level]
   ).getModules();
 
   const margin = includeMargin ? MARGIN_SIZE : 0;
@@ -410,10 +409,10 @@ export function getQRAsSVGDataUri(props: QRProps) {
     cells,
     size,
     includeMargin,
-    imageSettings,
+    imageSettings
   );
 
-  let image = "";
+  let image = '';
   if (imageSettings != null && calculatedImageSettings != null) {
     if (calculatedImageSettings.excavation != null)
       cells = excavateModules(cells, calculatedImageSettings.excavation);
@@ -424,7 +423,7 @@ export function getQRAsSVGDataUri(props: QRProps) {
       `x="${calculatedImageSettings.x + margin}"`,
       `y="${calculatedImageSettings.y + margin}"`,
       'preserveAspectRatio="none"></image>',
-    ].join(" ");
+    ].join(' ');
   }
   const fgPath = generatePath(cells, margin);
 
@@ -433,8 +432,8 @@ export function getQRAsSVGDataUri(props: QRProps) {
     `<path fill="${bgColor}" d="M0,0 h${numCells}v${numCells}H0z" shapeRendering="crispEdges"></path>`,
     `<path fill="${fgColor}" d="${fgPath}" shapeRendering="crispEdges"></path>`,
     image,
-    "</svg>",
-  ].join("");
+    '</svg>',
+  ].join('');
 
   return `data:image/svg+xml,${encodeURIComponent(svgData)}`;
 }
@@ -449,14 +448,14 @@ function waitUntilImageLoaded(img: HTMLImageElement, src: string) {
     img.onload = onFinish;
     img.onerror = onFinish;
     img.src = src;
-    img.loading = "eager";
+    img.loading = 'eager';
   });
 }
 
 export async function getQRAsCanvas(
   props: QRProps,
   type: string,
-  getCanvas?: boolean,
+  getCanvas?: boolean
 ): Promise<HTMLCanvasElement | string> {
   const {
     value,
@@ -468,12 +467,12 @@ export async function getQRAsCanvas(
     imageSettings,
   } = props;
 
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
   let cells = qrcodegen.QrCode.encodeText(
     value,
-    ERROR_LEVEL_MAP[level],
+    ERROR_LEVEL_MAP[level]
   ).getModules();
   const margin = includeMargin ? MARGIN_SIZE : 0;
   const numCells = cells.length + margin * 2;
@@ -481,11 +480,11 @@ export async function getQRAsCanvas(
     cells,
     size,
     includeMargin,
-    imageSettings,
+    imageSettings
   );
 
   const image = new Image();
-  image.crossOrigin = "anonymous";
+  image.crossOrigin = 'anonymous';
   if (calculatedImageSettings) {
     await waitUntilImageLoaded(image, imageSettings.src);
     if (calculatedImageSettings.excavation != null) {
@@ -507,8 +506,8 @@ export async function getQRAsCanvas(
     // $FlowFixMe: Path2D c'tor doesn't support args yet.
     ctx.fill(new Path2D(generatePath(cells, margin)));
   } else {
-    cells.forEach(function (row, rdx) {
-      row.forEach(function (cell, cdx) {
+    cells.forEach((row, rdx) => {
+      row.forEach((cell, cdx) => {
         if (cell) {
           ctx.fillRect(cdx + margin, rdx + margin, 1, 1);
         }
@@ -528,7 +527,7 @@ export async function getQRAsCanvas(
       calculatedImageSettings.x + margin,
       calculatedImageSettings.y + margin,
       calculatedImageSettings.w,
-      calculatedImageSettings.h,
+      calculatedImageSettings.h
     );
   }
 

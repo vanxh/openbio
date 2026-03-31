@@ -15,7 +15,7 @@ export default function CancelledEmail() {
       <br />
       <a href="/twitter">Vanxh</a>
       <br />
-      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{" "}
+      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{' '}
       <a href="/github">GitHub</a>
     </div>
   );

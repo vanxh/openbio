@@ -1,77 +1,77 @@
 // "use server";
 
-import Image from "next/image";
-import Link from "next/link";
-import { Github, Instagram, Linkedin, Twitch, Twitter } from "lucide-react";
-import { BiLogoTelegram } from "react-icons/bi";
-import { BsDiscord } from "react-icons/bs";
-import type * as z from "zod";
-import CardOverlay from "@/components/bento/overlay";
-import { Button } from "@/components/ui/button";
-import { type getMetadata } from "@/lib/metadata";
-import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
-import { type LinkBentoSchema } from "@/types";
+import CardOverlay from '@/components/bento/overlay';
+import { Button } from '@/components/ui/button';
+import type { getMetadata } from '@/lib/metadata';
+import { cn } from '@/lib/utils';
+import { api } from '@/trpc/react';
+import type { LinkBentoSchema } from '@/types';
+import { Github, Instagram, Linkedin, Twitch, Twitter } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { BiLogoTelegram } from 'react-icons/bi';
+import { BsDiscord } from 'react-icons/bs';
+import type * as z from 'zod';
 
 const getBackgroundColor = (url: string) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
 
-  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
-    return "bg-[#F6FAFE]";
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+    return 'bg-[#F6FAFE]';
   }
 
-  if (hostname.includes("linkedin.com")) {
-    return "bg-[#F1F6F9]";
+  if (hostname.includes('linkedin.com')) {
+    return 'bg-[#F1F6F9]';
   }
 
-  if (hostname.includes("instagram.com")) {
-    return "bg-[#FDEEEF]";
+  if (hostname.includes('instagram.com')) {
+    return 'bg-[#FDEEEF]';
   }
 
-  if (hostname.includes("discord.com")) {
-    return "bg-[#E9EBF5]";
+  if (hostname.includes('discord.com')) {
+    return 'bg-[#E9EBF5]';
   }
 
-  if (hostname.includes("telegram.com") || hostname.includes("t.me")) {
-    return "bg-[#E8F1FF]";
+  if (hostname.includes('telegram.com') || hostname.includes('t.me')) {
+    return 'bg-[#E8F1FF]';
   }
 
-  return "bg-background";
+  return 'bg-background';
 };
 
 const getIcon = (
   url: string,
-  metadata?: Awaited<ReturnType<typeof getMetadata>>,
+  metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
 
-  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
     return <Twitter size={24} className="text-blue-400" />;
   }
 
-  if (hostname.includes("linkedin.com")) {
+  if (hostname.includes('linkedin.com')) {
     return <Linkedin size={24} className="text-blue-600" />;
   }
 
-  if (hostname.includes("github.com")) {
+  if (hostname.includes('github.com')) {
     return <Github size={24} className="text-gray-600" />;
   }
 
-  if (hostname.includes("instagram.com")) {
+  if (hostname.includes('instagram.com')) {
     return <Instagram size={24} className="text-[#F56040]" />;
   }
 
-  if (hostname.includes("twitch.tv")) {
+  if (hostname.includes('twitch.tv')) {
     return <Twitch size={24} className="text-purple-600" />;
   }
 
-  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
     return <BiLogoTelegram size={24} className="text-[#0088CC]" />;
   }
 
-  if (hostname.includes("discord.com")) {
+  if (hostname.includes('discord.com')) {
     return <BsDiscord size={24} className="text-[#5A65EA]" />;
   }
 
@@ -88,21 +88,21 @@ const getIcon = (
 
 const getTitle = (
   url: string,
-  metadata?: Awaited<ReturnType<typeof getMetadata>>,
+  metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
-  const pathSegments = urlObj.pathname.split("/");
+  const pathSegments = urlObj.pathname.split('/');
   const knownHostnames = [
-    "twitter.com",
-    "x.com",
-    "linkedin.com",
-    "github.com",
-    "instagram.com",
-    "twitch.tv",
-    "t.me",
-    "telegram.com",
-    "discord.com",
+    'twitter.com',
+    'x.com',
+    'linkedin.com',
+    'github.com',
+    'instagram.com',
+    'twitch.tv',
+    't.me',
+    'telegram.com',
+    'discord.com',
   ];
   let userHandle = pathSegments.pop();
 
@@ -119,42 +119,42 @@ const getTitle = (
 
 const getDescription = (
   url: string,
-  _metadata?: Awaited<ReturnType<typeof getMetadata>>,
+  _metadata?: Awaited<ReturnType<typeof getMetadata>>
 ) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
-  const pathSegments = urlObj.pathname.split("/");
+  const pathSegments = urlObj.pathname.split('/');
   let userHandle = pathSegments.pop();
 
   if (!userHandle) {
     userHandle = pathSegments.pop();
   }
 
-  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
     return `x.com/${userHandle}`;
   }
 
-  if (hostname.includes("linkedin.com")) {
+  if (hostname.includes('linkedin.com')) {
     return `linkedin.com/in/${userHandle}`;
   }
 
-  if (hostname.includes("github.com")) {
+  if (hostname.includes('github.com')) {
     return `github.com/${userHandle}`;
   }
 
-  if (hostname.includes("instagram.com")) {
+  if (hostname.includes('instagram.com')) {
     return `instagr.am/${userHandle}`;
   }
 
-  if (hostname.includes("twitch.tv")) {
+  if (hostname.includes('twitch.tv')) {
     return `twitch.tv/${userHandle}`;
   }
 
-  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
     return `t.me/${userHandle}`;
   }
 
-  if (hostname.includes("discord.com")) {
+  if (hostname.includes('discord.com')) {
     return null;
   }
 
@@ -165,7 +165,7 @@ const getAction = (url: string) => {
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
 
-  if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
     return (
       <Button
         size="sm"
@@ -176,7 +176,7 @@ const getAction = (url: string) => {
     );
   }
 
-  if (hostname.includes("github.com")) {
+  if (hostname.includes('github.com')) {
     return (
       <Button
         size="sm"
@@ -187,7 +187,7 @@ const getAction = (url: string) => {
     );
   }
 
-  if (hostname.includes("linkedin.com")) {
+  if (hostname.includes('linkedin.com')) {
     return (
       <Button
         size="sm"
@@ -198,7 +198,7 @@ const getAction = (url: string) => {
     );
   }
 
-  if (hostname.includes("instagram.com")) {
+  if (hostname.includes('instagram.com')) {
     return (
       <Button size="sm" className="bg-blue-500 text-white hover:bg-blue-600">
         Follow
@@ -206,7 +206,7 @@ const getAction = (url: string) => {
     );
   }
 
-  if (hostname.includes("t.me") || hostname.includes("telegram.com")) {
+  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
     return (
       <Button
         size="sm"
@@ -236,7 +236,7 @@ export default function LinkCard({
   const title = getTitle(bento.href, metadata ?? null);
   const description = getDescription(bento.href, metadata ?? null);
 
-  const Wrapper = editable ? "div" : Link;
+  const Wrapper = editable ? 'div' : Link;
 
   return (
     <Wrapper
@@ -244,25 +244,25 @@ export default function LinkCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-md border border-border p-5",
+        'group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-md border border-border p-5',
         getBackgroundColor(bento.href),
         editable
-          ? "transition-transform duration-200 ease-in-out md:cursor-move"
-          : "cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95",
+          ? 'transition-transform duration-200 ease-in-out md:cursor-move'
+          : 'cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95'
       )}
     >
       {editable && <CardOverlay bento={bento} />}
 
-      <div className={cn("flex items-center gap-x-4")}>
+      <div className={cn('flex items-center gap-x-4')}>
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background">
           {getIcon(bento.href, metadata)}
         </div>
 
         <p
           className={cn(
-            "mt-2 font-cal text-sm",
-            bento.size.sm === "4x1" ? "" : "hidden",
-            bento.size.md === "4x1" ? "" : "hidden",
+            'mt-2 font-cal text-sm',
+            bento.size.sm === '4x1' ? '' : 'hidden',
+            bento.size.md === '4x1' ? '' : 'hidden'
           )}
         >
           {title}
@@ -271,9 +271,9 @@ export default function LinkCard({
 
       <p
         className={cn(
-          "mt-2 font-cal text-sm",
-          bento.size.sm === "4x1" ? "hidden" : "",
-          bento.size.md === "4x1" ? "hidden" : "",
+          'mt-2 font-cal text-sm',
+          bento.size.sm === '4x1' ? 'hidden' : '',
+          bento.size.md === '4x1' ? 'hidden' : ''
         )}
       >
         {title}
@@ -282,9 +282,9 @@ export default function LinkCard({
       {description && (
         <p
           className={cn(
-            "truncate text-xs",
-            bento.size.sm === "4x1" ? "hidden" : "",
-            bento.size.md === "4x1" ? "hidden" : "",
+            'truncate text-xs',
+            bento.size.sm === '4x1' ? 'hidden' : '',
+            bento.size.md === '4x1' ? 'hidden' : ''
           )}
         >
           {description}

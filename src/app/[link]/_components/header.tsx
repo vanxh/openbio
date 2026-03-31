@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
-import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor, type Extension } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { QrCode } from "lucide-react";
-import LinkQRModal from "@/components/modals/link-qr-modal";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { api } from "@/trpc/react";
-import ProfileLinkAvatar from "./avatar";
+import LinkQRModal from '@/components/modals/link-qr-modal';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
+import { api } from '@/trpc/react';
+import Placeholder from '@tiptap/extension-placeholder';
+import { EditorContent, type Extension, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { QrCode } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
+import ProfileLinkAvatar from './avatar';
 
 const extensions = [
   StarterKit,
   Placeholder.configure({
-    placeholder: "Tell us about yourself!",
+    placeholder: 'Tell us about yourself!',
     showOnlyWhenEditable: true,
   }),
 ] as Extension[];
@@ -56,7 +56,7 @@ export default function ProfileLinkHeader() {
     editorProps: {
       attributes: {
         class:
-          "focus:outline-none dark:prose-invert prose-p:text-foreground prose-headings:font-cal mx-auto lg:prose-lg lg:prose-p:m-0",
+          'focus:outline-none dark:prose-invert prose-p:text-foreground prose-headings:font-cal mx-auto lg:prose-lg lg:prose-p:m-0',
       },
     },
     editable: profileLink?.isOwner,
@@ -78,15 +78,15 @@ export default function ProfileLinkHeader() {
               disabled={saving}
               onClick={() => {
                 void navigator.clipboard.writeText(
-                  `https://openbio.app/${profileLink.link}`,
+                  `https://openbio.app/${profileLink.link}`
                 );
                 toast({
-                  title: "Copied to clipboard!",
-                  description: "Copied profile link to clipboard!",
+                  title: 'Copied to clipboard!',
+                  description: 'Copied profile link to clipboard!',
                 });
               }}
             >
-              {saving ? "Saving..." : "Share"}
+              {saving ? 'Saving...' : 'Share'}
             </Button>
 
             <LinkQRModal profileLink={profileLink}>
@@ -99,7 +99,7 @@ export default function ProfileLinkHeader() {
       </div>
 
       <input
-        className="bg-transparent font-cal text-3xl font-bold text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
+        className="bg-transparent font-bold font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
         defaultValue={profileLink.name}
         onChange={(e) => setName(e.target.value)}
         readOnly={!profileLink.isOwner}

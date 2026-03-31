@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import type { ReactElement } from "react";
-import { Resend } from "resend";
-import { env } from "@/env.mjs";
+import { env } from '@/env.mjs';
+import type { ReactElement } from 'react';
+import { Resend } from 'resend';
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -15,7 +15,7 @@ export interface Email {
 
 export const sendEmail = (email: Email) => {
   return resend.emails.send({
-    from: "Vanxh <hello@vanxh.dev>",
+    from: 'Vanxh <hello@vanxh.dev>',
     ...email,
   });
 };

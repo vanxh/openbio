@@ -149,7 +149,7 @@ export const profileLinkRouter = createTRPCRouter({
   getByLink: publicProcedure
     .input(GetByLinkSchema)
     .query(async ({ input, ctx }) => {
-      const authedUserId = ctx.user?.id;
+      const authedUserId = ctx.session?.user?.id;
 
       const user = authedUserId
         ? await ctx.db.query.user.findFirst({

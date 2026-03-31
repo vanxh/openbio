@@ -1,4 +1,4 @@
-await import("./src/env.mjs");
+await import('./src/env.mjs');
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -6,10 +6,10 @@ const config = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "**",
-        port: "",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '/**',
       },
     ],
   },

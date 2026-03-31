@@ -1,5 +1,20 @@
 {
   "permissions": {
-    "allow": ["Bash(git commit:*)", "Bash(bunx husky:*)", "Bash(git rm:*)"]
+    "allow": [
+      "Bash(git commit:*)",
+      "Bash(bunx husky:*)",
+      "Bash(git rm:*)",
+      "Bash(bun run dev)",
+      "Bash(bun run build)",
+      "Bash(bun run lint*)",
+      "Bash(bun run format)",
+      "Bash(bun run typecheck)",
+      "Bash(bun run db:*)",
+      "Bash(bun install*)",
+      "Bash(bun add*)",
+      "Bash(bun remove*)",
+      "Bash(bunx*)"
+    ],
+    "additionalDirectories": ["/Users/vanxh/Developer/codes/openbio/.claude"]
   }
 }

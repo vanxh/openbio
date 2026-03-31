@@ -1,40 +1,40 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { useParams } from "next/navigation";
-import { Copy, Download } from "lucide-react";
-import { HexColorPicker } from "react-colorful";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
-import { getQRAsCanvas, QRCodeSVG } from "@/lib/qr";
-import { type RouterOutputs } from "@/trpc/react";
+} from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { toast } from '@/components/ui/use-toast';
+import { QRCodeSVG, getQRAsCanvas } from '@/lib/qr';
+import type { RouterOutputs } from '@/trpc/react';
+import { Copy, Download } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useRef, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 
 export default function LinkQRModal({
   children,
   profileLink,
 }: {
   children: React.ReactNode;
-  profileLink: NonNullable<RouterOutputs["profileLink"]["getByLink"]>;
+  profileLink: NonNullable<RouterOutputs['profileLink']['getByLink']>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -45,15 +45,15 @@ export default function LinkQRModal({
   const [qrConfig, setQRCode] = useState({
     value: `https://openbio.app/${link}`,
     size: 128,
-    bgColor: "#ffffff",
-    fgColor: "#000000",
-    level: "Q",
+    bgColor: '#ffffff',
+    fgColor: '#000000',
+    level: 'Q',
     includeMargin: false,
     imageSettings: {
       height: 32,
       width: 32,
       // TODO: support custom logo
-      src: "https://openbio.app/openbio.png",
+      src: 'https://openbio.app/openbio.png',
       excavate: true,
     },
   });
@@ -65,8 +65,8 @@ export default function LinkQRModal({
           ...qrConfig,
           imageSettings: showLogo ? qrConfig.imageSettings : undefined,
         },
-        "image/png",
-        true,
+        'image/png',
+        true
       );
       (canvas as HTMLCanvasElement).toBlob((blob) => {
         const url = URL.createObjectURL(blob!);
@@ -78,8 +78,8 @@ export default function LinkQRModal({
         URL.revokeObjectURL(url);
 
         toast({
-          title: "Downloaded!",
-          description: "The QR code has been downloaded.",
+          title: 'Downloaded!',
+          description: 'The QR code has been downloaded.',
         });
       });
     } catch (e) {
@@ -94,15 +94,15 @@ export default function LinkQRModal({
           ...qrConfig,
           imageSettings: showLogo ? qrConfig.imageSettings : undefined,
         },
-        "image/png",
-        true,
+        'image/png',
+        true
       );
       (canvas as HTMLCanvasElement).toBlob((blob) => {
-        const item = new ClipboardItem({ "image/png": blob! });
+        const item = new ClipboardItem({ 'image/png': blob! });
         void navigator.clipboard.write([item]);
         toast({
-          title: "Copied to clipboard!",
-          description: "The QR code has been copied to your clipboard.",
+          title: 'Copied to clipboard!',
+          description: 'The QR code has been copied to your clipboard.',
         });
       });
     } catch (e) {
@@ -180,8 +180,8 @@ export default function LinkQRModal({
                             setQRCode((prev) => ({
                               ...prev,
                               fgColor: `#${e.target.value
-                                .replace("#", "")
-                                .replace(/[^0-9a-fA-F]/g, "")
+                                .replace('#', '')
+                                .replace(/[^0-9a-fA-F]/g, '')
                                 .slice(0, 6)}`,
                             }))
                           }

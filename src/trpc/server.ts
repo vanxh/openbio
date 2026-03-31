@@ -1,32 +1,22 @@
-"use server";
+'use server';
 
-import { headers } from "next/headers";
-import { loggerLink } from "@trpc/client";
-import { experimental_createTRPCNextAppDirServer } from "@trpc/next/app-dir/server";
-import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
-import superjson from "superjson";
-import { env } from "@/env.mjs";
-import { type AppRouter } from "@/server/api/root";
-import { endingLink } from "@/trpc/shared";
+import { appRouter } from '@/server/api/root';
+import { createCallerFactory, createTRPCContext } from '@/server/api/trpc';
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import { headers } from 'next/headers';
+import type { NextRequest } from 'next/server';
 
-export const api = experimental_createTRPCNextAppDirServer<AppRouter>({
-  config() {
-    return {
-      transformer: superjson,
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
-        }),
-        endingLink({
-          headers: Object.fromEntries(headers().entries()),
-        }),
-      ],
-    };
-  },
+export type RouterInputs = inferRouterInputs<typeof appRouter>;
+export type RouterOutputs = inferRouterOutputs<typeof appRouter>;
+
+const createCaller = createCallerFactory(appRouter);
+
+export const api = createCaller(async () => {
+  const h = await headers();
+  return createTRPCContext({
+    req: {
+      headers: h,
+      ip: h.get('x-real-ip') ?? undefined,
+    } as unknown as NextRequest,
+  });
 });
-
-export type RouterInputs = inferRouterInputs<AppRouter>;
-
-export type RouterOutputs = inferRouterOutputs<AppRouter>;

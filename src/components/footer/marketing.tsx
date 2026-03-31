@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Eye } from "lucide-react";
-import { api } from "@/trpc/react";
+import { api } from '@/trpc/react';
+import { Eye } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 export default function MarketingFooter() {
   const { link } = useParams<{ link: string }>();
@@ -13,26 +13,26 @@ export default function MarketingFooter() {
       link,
     },
     {
-      staleTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
       enabled: !!link,
-    },
+    }
   );
 
   const { data: views } = api.profileLink.getViews.useQuery(
     {
-      id: profileLink?.id ?? "",
+      id: profileLink?.id ?? '',
     },
     {
-      staleTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
       enabled: !!profileLink,
-    },
+    }
   );
 
   return (
     <footer className="bottom-0 flex w-full max-w-3xl flex-col items-center justify-center gap-y-2 md:items-start">
       <div className="flex w-full items-center justify-between">
-        <span className="text-sm font-medium">
-          Powered by{" "}
+        <span className="font-medium text-sm">
+          Powered by{' '}
           <Link
             href="https://openbio.app"
             target="_blank"

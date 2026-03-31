@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { api } from "@/trpc/react";
-import { LinkBentoSchema } from "@/types";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { api } from '@/trpc/react';
+import { LinkBentoSchema } from '@/types';
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function CreateLinkBentoModal({
   children,
@@ -24,7 +24,7 @@ export default function CreateLinkBentoModal({
   const router = useRouter();
   const { link } = useParams<{ link: string }>();
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
 
   const queryClient = api.useContext();
 
@@ -41,7 +41,7 @@ export default function CreateLinkBentoModal({
             ...old,
             bento: [...old.bento, LinkBentoSchema.parse(bento.bento)],
           };
-        },
+        }
       );
     },
     onSuccess: () => {
@@ -69,7 +69,7 @@ export default function CreateLinkBentoModal({
               link,
               bento: {
                 id: crypto.randomUUID(),
-                type: "link",
+                type: 'link',
                 href: input,
               },
             });

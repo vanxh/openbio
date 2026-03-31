@@ -1,6 +1,16 @@
-"use client";
+'use client';
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+import { toast } from '@/components/ui/use-toast';
+import { useZodForm } from '@/hooks/use-zod-form';
+import { api } from '@/trpc/react';
 import {
   AtSign,
   Github,
@@ -9,21 +19,11 @@ import {
   Twitch,
   Twitter,
   Youtube,
-} from "lucide-react";
-import { BiLogoTelegram } from "react-icons/bi";
-import { BsDiscord } from "react-icons/bs";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { toast } from "@/components/ui/use-toast";
-import { useZodForm } from "@/hooks/use-zod-form";
-import { api } from "@/trpc/react";
+} from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { BiLogoTelegram } from 'react-icons/bi';
+import { BsDiscord } from 'react-icons/bs';
+import * as z from 'zod';
 
 const setupLinkSchema = z.object({
   twitter: z.string().optional(),
@@ -38,60 +38,60 @@ const setupLinkSchema = z.object({
 
 const socials = [
   {
-    name: "Twitter",
+    name: 'Twitter',
     icon: Twitter,
-    placeholder: "vanxhh",
-    key: "twitter",
+    placeholder: 'vanxhh',
+    key: 'twitter',
   },
   {
-    name: "Github",
+    name: 'Github',
     icon: Github,
-    placeholder: "vanxh",
-    key: "github",
+    placeholder: 'vanxh',
+    key: 'github',
   },
   {
-    name: "Linkedin",
+    name: 'Linkedin',
     icon: Linkedin,
-    placeholder: "vanxhh",
-    key: "linkedin",
+    placeholder: 'vanxhh',
+    key: 'linkedin',
   },
   {
-    name: "Instagram",
+    name: 'Instagram',
     icon: Instagram,
-    placeholder: "vanxh.dev",
-    key: "instagram",
+    placeholder: 'vanxh.dev',
+    key: 'instagram',
   },
   {
-    name: "Telegram",
+    name: 'Telegram',
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     icon: BiLogoTelegram,
-    placeholder: "vanxhh",
-    key: "telegram",
+    placeholder: 'vanxhh',
+    key: 'telegram',
   },
   {
-    name: "Discord",
+    name: 'Discord',
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     icon: BsDiscord,
-    placeholder: "vanxh",
-    key: "discord",
+    placeholder: 'vanxh',
+    key: 'discord',
   },
   {
-    name: "Youtube",
+    name: 'Youtube',
     icon: Youtube,
-    placeholder: "username",
-    key: "youtube",
+    placeholder: 'username',
+    key: 'youtube',
   },
   {
-    name: "Twitch",
+    name: 'Twitch',
     icon: Twitch,
-    placeholder: "username",
-    key: "twitch",
+    placeholder: 'username',
+    key: 'twitch',
   },
 ];
 
 export default function SetupLink() {
   const searchParams = useSearchParams();
-  const link = searchParams.get("link")!;
+  const link = searchParams.get('link')!;
 
   const router = useRouter();
 
@@ -101,7 +101,7 @@ export default function SetupLink() {
     },
     onError: (e) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: e.message,
       });
     },

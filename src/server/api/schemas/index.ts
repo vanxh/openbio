@@ -1,1 +1,1 @@
-export * from "./profile-link";
+export * from './profile-link';

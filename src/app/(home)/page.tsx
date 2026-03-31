@@ -1,9 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronRight, Github } from "lucide-react";
-import OpenBio from "@/public/openbio.png";
-import Pricing from "@/components/pricing";
-import { Button } from "@/components/ui/button";
+import Pricing from '@/components/pricing';
+import { Button } from '@/components/ui/button';
+import OpenBio from '@/public/openbio.png';
+import { ChevronRight, Github } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Page() {
   return (

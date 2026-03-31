@@ -6,9 +6,8 @@ export default function WelcomeEmail() {
       <br />
       <br />
       Welcome to OpenBio.app! Thank you for signing up.
-      <br />
-      I hope you will enjoy OpenBio.app and that it will help you to build a
-      better link in bio.
+      <br />I hope you will enjoy OpenBio.app and that it will help you to build
+      a better link in bio.
       <br />
       <br />
       If you have any questions about setting up your link in bio, please feel
@@ -20,7 +19,7 @@ export default function WelcomeEmail() {
       <br />
       <a href="/twitter">Vanxh</a>
       <br />
-      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{" "}
+      <br />⭐ Star <a href="https://openbio.app">OpenBio</a> on{' '}
       <a href="/github">GitHub</a>
     </div>
   );

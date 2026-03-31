@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useParams, useRouter } from "next/navigation";
-import { Trash } from "lucide-react";
-import type * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { type BentoSchema } from "@/server/db";
-import { api } from "@/trpc/react";
+import { Button } from '@/components/ui/button';
+import type { BentoSchema } from '@/server/db';
+import { api } from '@/trpc/react';
+import { Trash } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import type * as z from 'zod';
 
 export default function DeleteButton({
   bento,
@@ -30,7 +30,7 @@ export default function DeleteButton({
             ...old,
             bento: old.bento.filter((b) => b.id !== bento.id),
           };
-        },
+        }
       );
     },
     onSuccess: () => {
@@ -43,7 +43,7 @@ export default function DeleteButton({
     <Button
       size="icon"
       variant="secondary"
-      className="absolute left-0 top-0 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
+      className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-20 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
       onClick={() => {
         void deleteBento({
           link,
