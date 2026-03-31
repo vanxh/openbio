@@ -1,6 +1,6 @@
-import ProfileLinkCard from '@/components/profile-link-card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EmptyState } from '@/components/dashboard/empty-state';
+import { DashboardLinkCard } from '@/components/dashboard/link-card';
+import { GradientButton } from '@/components/ui/gradient-button';
 import UserSettings from '@/components/user-settings';
 import { api } from '@/trpc/server';
 import { revalidatePath } from 'next/cache';
@@ -20,47 +20,32 @@ export default async function Page() {
   const links = await api.profileLink.getAll();
 
   return (
-    <div className="flex h-full w-full flex-col items-center">
-      <Tabs defaultValue="links" className="flex w-full flex-col items-center">
-        <TabsList className="w-max">
-          <TabsTrigger value="links">OpenBio Links</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
+    <div className="flex w-full flex-col gap-y-12">
+      {/* Pages section */}
+      <section className="flex flex-col gap-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="font-cal text-3xl">Your pages</h1>
+          <Link href="/claim-link">
+            <GradientButton>Create new</GradientButton>
+          </Link>
+        </div>
 
-        <TabsContent value="links" className="mt-4 w-full">
-          <div className="flex flex-col gap-y-8">
-            <div className="flex w-full items-center justify-between">
-              <h1 className="font-cal text-3xl md:text-5xl">My Links</h1>
-
-              <Link href="/claim-link" passHref>
-                <Button>Create Link</Button>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2 lg:grid-cols-3">
-              {links.map((link) => (
-                <ProfileLinkCard key={link.id} link={link} />
-              ))}
-            </div>
-
-            {!links.length && (
-              <div className="flex w-full flex-col items-center justify-center">
-                <p className="text-muted-foreground text-sm">
-                  You don&apos;t have any links yet.
-                </p>
-
-                <Button className="mt-4" asChild>
-                  <Link href="/claim-link">Create Link</Link>
-                </Button>
-              </div>
-            )}
+        {links.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {links.map((link) => (
+              <DashboardLinkCard key={link.id} link={link} />
+            ))}
           </div>
-        </TabsContent>
+        )}
+      </section>
 
-        <TabsContent value="settings" className="mt-4 w-full">
-          <UserSettings user={user} />
-        </TabsContent>
-      </Tabs>
+      {/* Settings section */}
+      <section className="flex flex-col gap-y-6">
+        <h2 className="font-cal text-2xl">Settings</h2>
+        <UserSettings user={user} />
+      </section>
     </div>
   );
 }
