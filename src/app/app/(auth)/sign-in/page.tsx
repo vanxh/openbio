@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { signIn } from "@/lib/auth-client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { signIn } from '@/lib/auth-client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
     const result = await signIn.email({ email, password });
     if (result.error) {
-      setError(result.error.message ?? "Something went wrong");
+      setError(result.error.message ?? 'Something went wrong');
       setLoading(false);
       return;
     }
-    router.push("/app");
+    router.push('/app');
   };
 
   return (
@@ -69,12 +69,12 @@ export default function SignInPage() {
           )}
 
           <Button type="submit" disabled={loading} className="mt-2 w-full">
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-muted-foreground text-sm">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account?{' '}
           <Link
             href="/app/sign-up"
             className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
