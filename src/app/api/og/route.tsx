@@ -3,12 +3,14 @@ import { ImageResponse } from 'next/og';
 export const runtime = 'edge';
 
 export async function GET(req: Request) {
-  const calSans = await fetch(
-    new URL('../../../../public/fonts/CalSans-SemiBold.ttf', import.meta.url)
-  ).then((res) => res.arrayBuffer());
-  const inter = await fetch(
-    new URL('../../../../public/fonts/Inter-Regular.ttf', import.meta.url)
-  ).then((res) => res.arrayBuffer());
+  const [calSans, inter] = await Promise.all([
+    fetch('https://openbio.app/fonts/CalSans-SemiBold.ttf').then((res) =>
+      res.arrayBuffer()
+    ),
+    fetch('https://openbio.app/fonts/Inter-Regular.ttf').then((res) =>
+      res.arrayBuffer()
+    ),
+  ]);
 
   const { searchParams } = new URL(req.url);
 
