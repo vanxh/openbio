@@ -1,10 +1,8 @@
 {
-  "version": "5",
-  "dialect": "pg",
-  "id": "4da35f4f-52b9-4a4b-84cc-6926f5884556",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "user": {
+    "public.user": {
       "name": "user",
       "schema": "",
       "columns": {
@@ -87,22 +85,31 @@
       "uniqueConstraints": {
         "user_provider_id_unique": {
           "name": "user_provider_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["provider_id"]
+          "columns": [
+            "provider_id"
+          ],
+          "nullsNotDistinct": false
         },
         "user_email_unique": {
           "name": "user_email_unique",
-          "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false
         },
         "user_stripe_customer_id_unique": {
           "name": "user_stripe_customer_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["stripe_customer_id"]
+          "columns": [
+            "stripe_customer_id"
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "link": {
+    "public.link": {
       "name": "link",
       "schema": "",
       "columns": {
@@ -171,12 +178,17 @@
       "uniqueConstraints": {
         "link_link_unique": {
           "name": "link_link_unique",
-          "nullsNotDistinct": false,
-          "columns": ["link"]
+          "columns": [
+            "link"
+          ],
+          "nullsNotDistinct": false
         }
-      }
+      },
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     },
-    "link_view": {
+    "public.link_view": {
       "name": "link_view",
       "schema": "",
       "columns": {
@@ -223,7 +235,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false,
+      "checkConstraints": {}
     }
   },
   "enums": {},
@@ -232,5 +247,11 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "4da35f4f-52b9-4a4b-84cc-6926f5884556",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "sequences": {},
+  "policies": {},
+  "views": {},
+  "roles": {}
 }
