@@ -12,7 +12,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { escape } from 'html-escaper';
+import { escape as htmlEscape } from 'html-escaper';
 import NextImage from 'next/image';
 import type React from 'react';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
@@ -66,47 +66,50 @@ const MARGIN_SIZE = 4;
 const DEFAULT_IMG_SCALE = 0.1;
 
 function generatePath(modules: Modules, margin = 0): string {
-  const ops: Array<string> = [];
-  modules.forEach((row, y) => {
-    let start: number | null = null;
-    row.forEach((cell, x) => {
-      if (!cell && start !== null) {
-        // M0 0h7v1H0z injects the space with the move and drops the comma,
-        // saving a char per operation
-        ops.push(
-          `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`
-        );
-        start = null;
-        return;
-      }
-
-      // end of row, clean up or skip
-      if (x === row.length - 1) {
-        if (!cell) {
-          // We would have closed the op above already so this can only mean
-          // 2+ light modules in a row.
-          return;
-        }
-        if (start === null) {
-          // Just a single dark module.
-          ops.push(`M${x + margin},${y + margin} h1v1H${x + margin}z`);
-        } else {
-          // Otherwise finish the current line.
-          ops.push(
-            `M${start + margin},${y + margin} h${x + 1 - start}v1H${
-              start + margin
-            }z`
-          );
-        }
-        return;
-      }
-
-      if (cell && start === null) {
-        start = x;
-      }
-    });
-  });
+  const ops: string[] = [];
+  for (let y = 0; y < modules.length; y++) {
+    const row = modules[y];
+    ops.push(...generateRowPath(row, y, margin));
+  }
   return ops.join('');
+}
+
+function generateRowPath(row: boolean[], y: number, margin: number): string[] {
+  const ops: string[] = [];
+  let start: number | null = null;
+  for (let x = 0; x < row.length; x++) {
+    const cell = row[x];
+    if (!cell && start !== null) {
+      ops.push(
+        `M${start + margin} ${y + margin}h${x - start}v1H${start + margin}z`
+      );
+      start = null;
+      continue;
+    }
+
+    if (x === row.length - 1 && cell) {
+      ops.push(generateLastCellOp(x, y, margin, start));
+    }
+
+    if (cell && start === null) {
+      start = x;
+    }
+  }
+  return ops;
+}
+
+function generateLastCellOp(
+  x: number,
+  y: number,
+  margin: number,
+  start: number | null
+): string {
+  if (start === null) {
+    return `M${x + margin},${y + margin} h1v1H${x + margin}z`;
+  }
+  return `M${start + margin},${y + margin} h${x + 1 - start}v1H${
+    start + margin
+  }z`;
 }
 
 // We could just do this in generatePath, except that we want to support
@@ -155,7 +158,7 @@ function getImageSettings(
       ? cells.length / 2 - h / 2
       : imageSettings.y * scale;
 
-  let excavation = null;
+  let excavation: Excavation | null = null;
   if (imageSettings.excavate) {
     const floorX = Math.floor(x);
     const floorY = Math.floor(y);
@@ -175,7 +178,7 @@ function getImageSettings(
 const SUPPORTS_PATH2D = (() => {
   try {
     new Path2D().addPath(new Path2D());
-  } catch (e) {
+  } catch (_e) {
     return false;
   }
   return true;
@@ -197,96 +200,33 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
   const _canvas = useRef<HTMLCanvasElement>(null);
   const _image = useRef<HTMLImageElement>(null);
 
-  // We're just using this state to trigger rerenders when images load. We
-  // Don't actually read the value anywhere. A smarter use of useEffect would
-  // depend on this value.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isImgLoaded, setIsImageLoaded] = useState(false);
+  // We're just using this state to trigger rerenders when images load.
+  const [_isImgLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     // Always update the canvas. It's cheap enough and we want to be correct
     // with the current state.
-    if (_canvas.current != null) {
-      const canvas = _canvas.current;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        return;
-      }
-
-      let cells = qrcodegen.QrCode.encodeText(
-        value,
-        ERROR_LEVEL_MAP[level]
-      ).getModules();
-
-      const margin = includeMargin ? MARGIN_SIZE : 0;
-      const numCells = cells.length + margin * 2;
-      const calculatedImageSettings = getImageSettings(
-        cells,
-        size,
-        includeMargin,
-        imageSettings
-      );
-
-      const image = _image.current;
-      const haveImageToRender =
-        calculatedImageSettings != null &&
-        image !== null &&
-        image.complete &&
-        image.naturalHeight !== 0 &&
-        image.naturalWidth !== 0;
-
-      if (haveImageToRender && calculatedImageSettings.excavation != null) {
-        cells = excavateModules(cells, calculatedImageSettings.excavation);
-      }
-
-      // We're going to scale this so that the number of drawable units
-      // matches the number of cells. This avoids rounding issues, but does
-      // result in some potentially unwanted single pixel issues between
-      // blocks, only in environments that don't support Path2D.
-      const pixelRatio = window.devicePixelRatio || 1;
-      canvas.height = canvas.width = size * pixelRatio;
-      const scale = (size / numCells) * pixelRatio;
-      ctx.scale(scale, scale);
-
-      // Draw solid background, only paint dark modules.
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, numCells, numCells);
-
-      ctx.fillStyle = fgColor;
-      if (SUPPORTS_PATH2D) {
-        // $FlowFixMe: Path2D c'tor doesn't support args yet.
-        ctx.fill(new Path2D(generatePath(cells, margin)));
-      } else {
-        cells.forEach((row, rdx) => {
-          row.forEach((cell, cdx) => {
-            if (cell) {
-              ctx.fillRect(cdx + margin, rdx + margin, 1, 1);
-            }
-          });
-        });
-      }
-
-      if (haveImageToRender) {
-        ctx.drawImage(
-          image,
-          calculatedImageSettings.x + margin,
-          calculatedImageSettings.y + margin,
-          calculatedImageSettings.w,
-          calculatedImageSettings.h
-        );
-      }
-    }
+    updateCanvas(
+      _canvas.current,
+      _image.current,
+      value,
+      level,
+      size,
+      includeMargin,
+      imageSettings,
+      bgColor,
+      fgColor
+    );
   });
 
   // Ensure we mark image loaded as false here so we trigger updating the
   // canvas in our other effect.
   useEffect(() => {
     setIsImageLoaded(false);
-  }, [imgSrc]);
+  }, []);
 
   const canvasStyle = { height: size, width: size, ...style };
-  let img = null;
+  let img: React.ReactElement | null = null;
   if (imgSrc != null) {
     img = (
       <NextImage
@@ -317,6 +257,129 @@ export function QRCodeCanvas(props: QRPropsCanvas) {
   );
 }
 
+function updateCanvas(
+  canvas: HTMLCanvasElement | null,
+  image: HTMLImageElement | null,
+  value: string,
+  level: string,
+  size: number,
+  includeMargin: boolean,
+  imageSettings: ImageSettings | undefined,
+  bgColor: string,
+  fgColor: string
+) {
+  if (canvas == null) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const { cells, numCells, margin } = prepareCells(value, level, includeMargin);
+  const calculatedImageSettings = getImageSettings(
+    cells,
+    size,
+    includeMargin,
+    imageSettings
+  );
+
+  const finalCells = excavateIfNecessary(
+    cells,
+    image,
+    calculatedImageSettings
+  );
+
+  drawToContext(
+    ctx,
+    finalCells,
+    numCells,
+    margin,
+    size,
+    bgColor,
+    fgColor,
+    image,
+    calculatedImageSettings
+  );
+}
+
+function prepareCells(value: string, level: string, includeMargin: boolean) {
+  const cells = qrcodegen.QrCode.encodeText(
+    value,
+    ERROR_LEVEL_MAP[level]
+  ).getModules();
+  const margin = includeMargin ? MARGIN_SIZE : 0;
+  const numCells = cells.length + margin * 2;
+  return { cells, numCells, margin };
+}
+
+function excavateIfNecessary(
+  cells: Modules,
+  image: HTMLImageElement | null,
+  calculatedImageSettings: ReturnType<typeof getImageSettings>
+) {
+  const haveImageToRender =
+    calculatedImageSettings != null &&
+    image !== null &&
+    image.complete &&
+    image.naturalHeight !== 0 &&
+    image.naturalWidth !== 0;
+
+  if (haveImageToRender && calculatedImageSettings.excavation != null) {
+    return excavateModules(cells, calculatedImageSettings.excavation);
+  }
+  return cells;
+}
+
+function drawToContext(
+  ctx: CanvasRenderingContext2D,
+  cells: Modules,
+  numCells: number,
+  margin: number,
+  size: number,
+  bgColor: string,
+  fgColor: string,
+  image: HTMLImageElement | null,
+  calculatedImageSettings: ReturnType<typeof getImageSettings>
+) {
+  const pixelRatio = window.devicePixelRatio || 1;
+  const canvas = ctx.canvas;
+  canvas.height = canvas.width = size * pixelRatio;
+  const scale = (size / numCells) * pixelRatio;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, numCells, numCells);
+
+  ctx.fillStyle = fgColor;
+  if (SUPPORTS_PATH2D) {
+    ctx.fill(new Path2D(generatePath(cells, margin)));
+  } else {
+    drawCellsManually(ctx, cells, margin);
+  }
+
+  if (calculatedImageSettings && image && image.complete) {
+    ctx.drawImage(
+      image,
+      calculatedImageSettings.x + margin,
+      calculatedImageSettings.y + margin,
+      calculatedImageSettings.w,
+      calculatedImageSettings.h
+    );
+  }
+}
+
+function drawCellsManually(
+  ctx: CanvasRenderingContext2D,
+  cells: Modules,
+  margin: number
+) {
+  for (let rdx = 0; rdx < cells.length; rdx++) {
+    const row = cells[rdx];
+    for (let cdx = 0; cdx < row.length; cdx++) {
+      if (row[cdx]) {
+        ctx.fillRect(cdx + margin, rdx + margin, 1, 1);
+      }
+    }
+  }
+}
+
 export function QRCodeSVG(props: QRPropsSVG) {
   const {
     value,
@@ -329,13 +392,9 @@ export function QRCodeSVG(props: QRPropsSVG) {
     ...otherProps
   } = props;
 
-  let cells = qrcodegen.QrCode.encodeText(
-    value,
-    ERROR_LEVEL_MAP[level]
-  ).getModules();
+  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  let cells = initialCells;
 
-  const margin = includeMargin ? MARGIN_SIZE : 0;
-  const numCells = cells.length + margin * 2;
   const calculatedImageSettings = getImageSettings(
     cells,
     size,
@@ -343,7 +402,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
     imageSettings
   );
 
-  let image = null;
+  let image: React.ReactElement | null = null;
   if (imageSettings != null && calculatedImageSettings != null) {
     if (calculatedImageSettings.excavation != null) {
       cells = excavateModules(cells, calculatedImageSettings.excavation);
@@ -376,6 +435,7 @@ export function QRCodeSVG(props: QRPropsSVG) {
       viewBox={`0 0 ${numCells} ${numCells}`}
       {...otherProps}
     >
+      <title>QR Code</title>
       <path
         fill={bgColor}
         d={`M0,0 h${numCells}v${numCells}H0z`}
@@ -398,13 +458,9 @@ export function getQRAsSVGDataUri(props: QRProps) {
     imageSettings,
   } = props;
 
-  let cells = qrcodegen.QrCode.encodeText(
-    value,
-    ERROR_LEVEL_MAP[level]
-  ).getModules();
+  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  let cells = initialCells;
 
-  const margin = includeMargin ? MARGIN_SIZE : 0;
-  const numCells = cells.length + margin * 2;
   const calculatedImageSettings = getImageSettings(
     cells,
     size,
@@ -414,10 +470,11 @@ export function getQRAsSVGDataUri(props: QRProps) {
 
   let image = '';
   if (imageSettings != null && calculatedImageSettings != null) {
-    if (calculatedImageSettings.excavation != null)
+    if (calculatedImageSettings.excavation != null) {
       cells = excavateModules(cells, calculatedImageSettings.excavation);
+    }
     image = [
-      `<image href="${escape(imageSettings.src)}"`,
+      `<image href="${htmlEscape(imageSettings.src)}"`,
       `height="${calculatedImageSettings.h}"`,
       `width="${calculatedImageSettings.w}"`,
       `x="${calculatedImageSettings.x + margin}"`,
@@ -470,12 +527,9 @@ export async function getQRAsCanvas(
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
-  let cells = qrcodegen.QrCode.encodeText(
-    value,
-    ERROR_LEVEL_MAP[level]
-  ).getModules();
-  const margin = includeMargin ? MARGIN_SIZE : 0;
-  const numCells = cells.length + margin * 2;
+  const { cells: initialCells, numCells, margin } = prepareCells(value, level, includeMargin);
+  let cells = initialCells;
+
   const calculatedImageSettings = getImageSettings(
     cells,
     size,
@@ -506,13 +560,7 @@ export async function getQRAsCanvas(
     // $FlowFixMe: Path2D c'tor doesn't support args yet.
     ctx.fill(new Path2D(generatePath(cells, margin)));
   } else {
-    cells.forEach((row, rdx) => {
-      row.forEach((cell, cdx) => {
-        if (cell) {
-          ctx.fillRect(cdx + margin, rdx + margin, 1, 1);
-        }
-      });
-    });
+    drawCellsManually(ctx, cells, margin);
   }
 
   const haveImageToRender =
@@ -531,7 +579,9 @@ export async function getQRAsCanvas(
     );
   }
 
-  if (getCanvas) return canvas;
+  if (getCanvas) {
+    return canvas;
+  }
 
   const url = canvas.toDataURL(type, 1.0);
   canvas.remove();

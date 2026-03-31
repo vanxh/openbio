@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
 export default function HomeFooter() {
   const footerLinks = {
@@ -62,7 +63,7 @@ const FooterLink = ({
   children,
 }: {
   href: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   const isExternal = href.startsWith('http');
 

@@ -20,7 +20,6 @@
 }
 
 .content {
-  height: fit-content;
   z-index: 3;
   width: 100%;
   max-width: 640px;
@@ -35,8 +34,6 @@
     radial-gradient(at 33% 50%, hsla(220, 100%, 70%, 1) 0px, transparent 50%),
     radial-gradient(at 79% 53%, hsla(340, 100%, 70%, 1) 0px, transparent 50%);
   position: absolute;
-  content: "";
-  width: 100%;
   height: 100%;
   filter: blur(100px) saturate(150%);
   top: 80px;

@@ -19,12 +19,14 @@ export default function DeleteButton({
 
   const { mutateAsync: deleteBento } = api.profileLink.deleteBento.useMutation({
     onMutate: () => {
-      void queryClient.profileLink.getByLink.setData(
+      queryClient.profileLink.getByLink.setData(
         {
           link,
         },
         (old) => {
-          if (!old) return old;
+          if (!old) {
+            return old;
+          }
 
           return {
             ...old,
@@ -34,8 +36,8 @@ export default function DeleteButton({
       );
     },
     onSuccess: () => {
-      void queryClient.profileLink.getByLink.invalidate({ link });
-      void router.refresh();
+      queryClient.profileLink.getByLink.invalidate({ link });
+      router.refresh();
     },
   });
 
@@ -45,7 +47,7 @@ export default function DeleteButton({
       variant="secondary"
       className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-20 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
       onClick={() => {
-        void deleteBento({
+        deleteBento({
           link,
           id: bento.id,
         });

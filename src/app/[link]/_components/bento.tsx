@@ -12,7 +12,9 @@ export default function Bento() {
     link,
   });
 
-  if (!profileLink) return null;
+  if (!profileLink) {
+    return null;
+  }
 
   return (
     <BentoLayout>

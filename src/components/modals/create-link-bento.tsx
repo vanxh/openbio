@@ -12,12 +12,12 @@ import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
 import { LinkBentoSchema } from '@/types';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 export default function CreateLinkBentoModal({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -30,12 +30,14 @@ export default function CreateLinkBentoModal({
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
     onMutate: (bento) => {
-      void queryClient.profileLink.getByLink.setData(
+      queryClient.profileLink.getByLink.setData(
         {
           link,
         },
         (old) => {
-          if (!old) return old;
+          if (!old) {
+            return old;
+          }
 
           return {
             ...old,
@@ -45,8 +47,8 @@ export default function CreateLinkBentoModal({
       );
     },
     onSuccess: () => {
-      void queryClient.profileLink.getByLink.invalidate({ link });
-      void router.refresh();
+      queryClient.profileLink.getByLink.invalidate({ link });
+      router.refresh();
       setOpen(false);
     },
   });
@@ -65,7 +67,7 @@ export default function CreateLinkBentoModal({
           onSubmit={(e) => {
             e.preventDefault();
 
-            void createBento({
+            createBento({
               link,
               bento: {
                 id: crypto.randomUUID(),

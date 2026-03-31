@@ -37,7 +37,7 @@ export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
     .input(LinkAvailableSchema)
     .query(async ({ input }) => {
-      return isProfileLinkAvailable(input.link);
+      return await isProfileLinkAvailable(input.link);
     }),
 
   create: protectedProcedure
@@ -48,7 +48,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true, plan: true, subscriptionEndsAt: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       const canCreate = await canUserCreateProfileLink(user);
       if (!canCreate) {
@@ -62,65 +64,7 @@ export const profileLinkRouter = createTRPCRouter({
         throw new Error('This profile link is not available');
       }
 
-      const bento: LinkBento[] = [];
-
-      let position = {
-        sm: {
-          x: 0,
-          y: 0,
-        },
-        md: {
-          x: 0,
-          y: 0,
-        },
-      };
-      for (const [key, value] of Object.entries(input)) {
-        if (key !== 'link' && value) {
-          let url = `https://${key}.com/${value}`;
-
-          if (key === 'linkedin') {
-            url = `https://www.${key}.com/in/${value}`;
-          }
-
-          if (key === 'youtube') {
-            url = `https://www.${key}.com/@${value.replace('@', '')}`;
-          }
-
-          if (key === 'twitch') {
-            url = `https://www.${key}.tv/${value}`;
-          }
-
-          if (key === 'telegram') {
-            url = `https://t.me/${value}`;
-          }
-
-          bento.push({
-            id: crypto.randomUUID(),
-            type: 'link',
-
-            href: url,
-            clicks: 0,
-
-            size: {
-              sm: '2x2',
-              md: '2x2',
-            },
-
-            position,
-          });
-
-          position = {
-            sm: {
-              x: position.sm.x % 2 === 0 ? position.sm.x + 1 : 0,
-              y: position.sm.x % 2 === 0 ? position.sm.y + 1 : position.sm.y,
-            },
-            md: {
-              x: position.md.x % 4 === 0 ? position.md.x + 1 : 0,
-              y: position.md.x % 4 === 0 ? position.md.y + 1 : position.md.y,
-            },
-          };
-        }
-      }
+      const bento = generateInitialBento(input);
 
       const profileLink = await createProfileLink({
         link: input.link,
@@ -139,7 +83,9 @@ export const profileLinkRouter = createTRPCRouter({
       columns: { id: true, plan: true, subscriptionEndsAt: true },
     });
 
-    if (!user) throw new Error('User not found');
+    if (!user) {
+      throw new Error('User not found');
+    }
 
     const profileLinks = await getProfileLinksOfUser(user.id);
 
@@ -168,7 +114,7 @@ export const profileLinkRouter = createTRPCRouter({
         return null;
       }
 
-      let ip = ctx.req.ip ?? ctx.req.headers.get('x-real-ip');
+      let ip = ctx.req.headers.get('x-real-ip');
       const forwardedFor = ctx.req.headers.get('x-forwarded-for');
       if (!ip && forwardedFor) {
         ip = forwardedFor.split(',').at(0) ?? 'Unknown';
@@ -193,7 +139,7 @@ export const profileLinkRouter = createTRPCRouter({
   getViews: publicProcedure
     .input(GetLinkViewsSchema)
     .query(async ({ input }) => {
-      return getProfileLinkViews(input.id);
+      return await getProfileLinkViews(input.id);
     }),
 
   update: protectedProcedure
@@ -204,7 +150,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       await canModifyProfileLink({
         userId: user.id,
@@ -222,7 +170,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       await canModifyProfileLink({
         userId: user.id,
@@ -240,7 +190,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       await canModifyProfileLink({
         userId: user.id,
@@ -258,7 +210,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       await canModifyProfileLink({
         userId: user.id,
@@ -276,7 +230,9 @@ export const profileLinkRouter = createTRPCRouter({
         columns: { id: true },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       await canModifyProfileLink({
         userId: user.id,
@@ -293,6 +249,62 @@ export const profileLinkRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      return getMetadata(input.url);
+      return await getMetadata(input.url);
     }),
 });
+
+function generateInitialBento(input: z.infer<typeof CreateLinkSchema>) {
+  const bento: LinkBento[] = [];
+  let position = { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } };
+
+  for (const [key, value] of Object.entries(input)) {
+    if (key === 'link' || !value) {
+      continue;
+    }
+
+    const url = getSocialUrl(key, value);
+    bento.push({
+      id: crypto.randomUUID(),
+      type: 'link',
+      href: url,
+      clicks: 0,
+      size: { sm: '2x2', md: '2x2' },
+      position,
+    });
+
+    position = getNextPosition(position);
+  }
+  return bento;
+}
+
+function getSocialUrl(key: string, value: string) {
+  if (key === 'linkedin') {
+    return `https://www.linkedin.com/in/${value}`;
+  }
+  if (key === 'youtube') {
+    return `https://www.youtube.com/@${value.replace('@', '')}`;
+  }
+  if (key === 'twitch') {
+    return `https://www.twitch.tv/${value}`;
+  }
+  if (key === 'telegram') {
+    return `https://t.me/${value}`;
+  }
+  return `https://${key}.com/${value}`;
+}
+
+function getNextPosition(pos: {
+  sm: { x: number; y: number };
+  md: { x: number; y: number };
+}) {
+  return {
+    sm: {
+      x: pos.sm.x % 2 === 0 ? pos.sm.x + 1 : 0,
+      y: pos.sm.x % 2 === 0 ? pos.sm.y + 1 : pos.sm.y,
+    },
+    md: {
+      x: pos.md.x % 4 === 0 ? pos.md.x + 1 : 0,
+      y: pos.md.x % 4 === 0 ? pos.md.y + 1 : pos.md.y,
+    },
+  };
+}

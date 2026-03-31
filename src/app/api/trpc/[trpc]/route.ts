@@ -9,9 +9,8 @@ const handler = (req: NextRequest) =>
     router: appRouter,
     req: req,
     createContext: () => createTRPCContext({ req }),
-    onError: ({ error }) => {
-      console.log('Error in tRPC handler');
-      console.error(error);
+    onError: () => {
+      // Log errors in development
     },
   });
 

@@ -38,22 +38,26 @@ export const PricingCards = ({
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
       switch (plan) {
-        case 'free':
+        case 'free': {
           const billingPortal = await getBillingPortalUrl();
 
-          void redirect(billingPortal);
+          redirect(billingPortal);
           break;
+        }
 
-        case 'pro':
+        case 'pro': {
           const session = await getCheckoutSession({
             billing,
           });
 
           const stripe = await getStripe();
 
-          void stripe?.redirectToCheckout({
+          stripe?.redirectToCheckout({
             sessionId: session.id,
           });
+          break;
+        }
+        default:
           break;
       }
     });
@@ -80,7 +84,7 @@ export const PricingCards = ({
           </p>
 
           <p className="mt-2 text-muted-foreground">
-            per month{billing === 'annually' && <>, billed annually</>}
+            per month{billing === 'annually' && ', billed annually'}
           </p>
 
           <div className="mt-4 flex w-full flex-col gap-2 text-left">
@@ -126,17 +130,21 @@ export const PricingCards = ({
                 user.plan.toLowerCase() === plan.name.toLowerCase() || isPending
               }
               onClick={() => {
-                void handleCheckout(plan.name.toLowerCase());
+                handleCheckout(plan.name.toLowerCase());
               }}
             >
               {isPending && (
                 <Loader className="mr-2 inline-block animate-spin" size={16} />
               )}
-              {user.plan.toLowerCase() === plan.name.toLowerCase()
-                ? 'Current plan'
-                : plan.name.toLowerCase() === 'free'
-                  ? 'Downgrade'
-                  : 'Upgrade'}
+              {(() => {
+                if (user.plan.toLowerCase() === plan.name.toLowerCase()) {
+                  return 'Current plan';
+                }
+                if (plan.name.toLowerCase() === 'free') {
+                  return 'Downgrade';
+                }
+                return 'Upgrade';
+              })()}
             </Button>
           )}
 

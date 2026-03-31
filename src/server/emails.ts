@@ -14,7 +14,7 @@ export interface Email {
 }
 
 export const sendEmail = async (email: Email) => {
-  return resend.emails.send({
+  return await resend.emails.send({
     from: 'Vanxh <hello@vanxh.dev>',
     ...email,
   });

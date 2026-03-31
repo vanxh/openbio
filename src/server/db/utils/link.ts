@@ -119,7 +119,7 @@ export const createProfileLink = async (data: {
 export const canModifyProfileLink = async ({
   userId,
   linkId,
-  link,
+  link: linkSlug,
 }: {
   userId: string;
   linkId?: string;
@@ -128,8 +128,8 @@ export const canModifyProfileLink = async ({
   let profileLink: InferSelectModel<typeof link> | undefined | null = null;
   if (linkId) {
     profileLink = await getProfileLinkById(linkId);
-  } else if (link) {
-    profileLink = await getProfileLinkByLink(link);
+  } else if (linkSlug) {
+    profileLink = await getProfileLinkByLink(linkSlug);
   }
 
   const canModify = profileLink?.userId === userId;

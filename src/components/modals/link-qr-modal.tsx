@@ -23,22 +23,25 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/use-toast';
 import { QRCodeSVG, getQRAsCanvas } from '@/lib/qr';
-import type { RouterOutputs } from '@/trpc/react';
 import { Copy, Download } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import type React from 'react';
 import { useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
 export default function LinkQRModal({
   children,
   profileLink,
+  linkSlug,
 }: {
   children: React.ReactNode;
-  profileLink: NonNullable<RouterOutputs['profileLink']['getByLink']>;
+  profileLink: Record<string, unknown> & { isPremium?: boolean | null };
+  linkSlug?: string;
 }) {
   const [open, setOpen] = useState(false);
 
-  const { link } = useParams<{ link: string }>();
+  const params = useParams<{ link: string }>();
+  const link = linkSlug ?? params.link;
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
   const [showLogo, setShowLogo] = useState(true);
@@ -59,55 +62,53 @@ export default function LinkQRModal({
   });
 
   const downloadQR = async () => {
-    try {
-      const canvas = await getQRAsCanvas(
-        {
-          ...qrConfig,
-          imageSettings: showLogo ? qrConfig.imageSettings : undefined,
-        },
-        'image/png',
-        true
-      );
-      (canvas as HTMLCanvasElement).toBlob((blob) => {
-        const url = URL.createObjectURL(blob!);
+    const canvas = await getQRAsCanvas(
+      {
+        ...qrConfig,
+        imageSettings: showLogo ? qrConfig.imageSettings : undefined,
+      },
+      'image/png',
+      true
+    );
+    (canvas as HTMLCanvasElement).toBlob((blob) => {
+      if (!blob || !downloadRef.current) {
+        return;
+      }
+      const url = URL.createObjectURL(blob);
 
-        downloadRef.current!.href = url;
-        downloadRef.current!.download = `openbio-${link}.png`;
-        downloadRef.current!.click();
+      downloadRef.current.href = url;
+      downloadRef.current.download = `openbio-${link}.png`;
+      downloadRef.current.click();
 
-        URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
 
-        toast({
-          title: 'Downloaded!',
-          description: 'The QR code has been downloaded.',
-        });
+      toast({
+        title: 'Downloaded!',
+        description: 'The QR code has been downloaded.',
       });
-    } catch (e) {
-      throw e;
-    }
+    });
   };
 
   const copyToClipboard = async () => {
-    try {
-      const canvas = await getQRAsCanvas(
-        {
-          ...qrConfig,
-          imageSettings: showLogo ? qrConfig.imageSettings : undefined,
-        },
-        'image/png',
-        true
-      );
-      (canvas as HTMLCanvasElement).toBlob((blob) => {
-        const item = new ClipboardItem({ 'image/png': blob! });
-        void navigator.clipboard.write([item]);
-        toast({
-          title: 'Copied to clipboard!',
-          description: 'The QR code has been copied to your clipboard.',
-        });
+    const canvas = await getQRAsCanvas(
+      {
+        ...qrConfig,
+        imageSettings: showLogo ? qrConfig.imageSettings : undefined,
+      },
+      'image/png',
+      true
+    );
+    (canvas as HTMLCanvasElement).toBlob((blob) => {
+      if (!blob) {
+        return;
+      }
+      const item = new ClipboardItem({ 'image/png': blob });
+      navigator.clipboard.write([item]);
+      toast({
+        title: 'Copied to clipboard!',
+        description: 'The QR code has been copied to your clipboard.',
       });
-    } catch (e) {
-      throw e;
-    }
+    });
   };
 
   return (
@@ -195,18 +196,30 @@ export default function LinkQRModal({
           </Accordion>
 
           <div className="flex w-full gap-x-4">
-            <Button className="w-full" onClick={() => void copyToClipboard()}>
+            <Button
+              className="w-full"
+              onClick={() => {
+                copyToClipboard();
+              }}
+            >
               <Copy className="mr-2" size={16} />
               Copy
             </Button>
 
-            <Button className="w-full" onClick={() => void downloadQR()}>
+            <Button
+              className="w-full"
+              onClick={() => {
+                downloadQR();
+              }}
+            >
               <Download className="mr-2" size={16} />
               Download
             </Button>
           </div>
         </div>
 
+        {/* biome-ignore lint/a11y/useAnchorContent: hidden download trigger */}
+        {/* biome-ignore lint/a11y/useValidAnchor: programmatic download */}
         <a
           className="hidden"
           download={`openbio-${link}.svg`}

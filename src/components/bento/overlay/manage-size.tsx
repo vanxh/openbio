@@ -1,18 +1,19 @@
 'use client';
 
-import Size2x2 from '@/components/icons/size_2x2';
-import Size2x4 from '@/components/icons/size_2x4';
-import Size4x2 from '@/components/icons/size_4x2';
-import Size4x4 from '@/components/icons/size_4x4';
+import Size2x2 from '@/components/icons/size-2x2';
+import Size2x4 from '@/components/icons/size-2x4';
+import Size4x2 from '@/components/icons/size-4x2';
+import Size4x4 from '@/components/icons/size-4x4';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { BentoSchema } from '@/types';
 import { useParams, useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type * as z from 'zod';
 
-function ResponsivePortal({ children }: { children: React.ReactNode }) {
+function ResponsivePortal({ children }: { children: ReactNode }) {
   if (window.outerWidth > 500) {
     return children;
   }
@@ -55,12 +56,14 @@ export default function ManageSize({
 
   const { mutateAsync: updateBento } = api.profileLink.updateBento.useMutation({
     onMutate: (bento) => {
-      void queryClient.profileLink.getByLink.setData(
+      queryClient.profileLink.getByLink.setData(
         {
           link,
         },
         (old) => {
-          if (!old) return old;
+          if (!old) {
+            return old;
+          }
 
           return {
             ...old,
@@ -76,8 +79,8 @@ export default function ManageSize({
       );
     },
     onSuccess: () => {
-      void queryClient.profileLink.getByLink.invalidate({ link });
-      void router.refresh();
+      queryClient.profileLink.getByLink.invalidate({ link });
+      router.refresh();
       close();
     },
   });
@@ -88,6 +91,7 @@ export default function ManageSize({
         <div className="flex items-center gap-x-4 rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:gap-x-0 md:px-2 md:py-2">
           {sizeOptions.map((o) => (
             <button
+              type="button"
               key={o.key}
               className={cn(
                 'inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95',
@@ -95,7 +99,7 @@ export default function ManageSize({
                   'rounded-sm bg-secondary text-secondary-foreground'
               )}
               onClick={() => {
-                void updateBento({
+                updateBento({
                   link,
                   bento: {
                     ...bento,
@@ -112,6 +116,7 @@ export default function ManageSize({
           ))}
 
           <Button
+            type="button"
             variant="secondary"
             onClick={close}
             className="ml-auto md:hidden"

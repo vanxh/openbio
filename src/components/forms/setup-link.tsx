@@ -91,13 +91,13 @@ const socials = [
 
 export default function SetupLink() {
   const searchParams = useSearchParams();
-  const link = searchParams.get('link')!;
+  const link = searchParams.get('link') ?? '';
 
   const router = useRouter();
 
   const { mutateAsync: createLink } = api.profileLink.create.useMutation({
     onSuccess: () => {
-      void router.push(`/${link}`);
+      router.push(`/${link}`);
     },
     onError: (e) => {
       toast({
@@ -112,7 +112,7 @@ export default function SetupLink() {
   });
 
   const onSubmit = form.handleSubmit((data) => {
-    void createLink({
+    createLink({
       link,
       ...data,
     });

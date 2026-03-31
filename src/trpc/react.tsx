@@ -20,8 +20,12 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 function getBaseUrl() {
-  if (typeof window !== 'undefined') return '';
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (typeof window !== 'undefined') {
+    return '';
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
   return 'http://localhost:3000';
 }
 
@@ -34,8 +38,12 @@ function makeQueryClient() {
 
 let browserQueryClient: QueryClient | undefined;
 function getQueryClient() {
-  if (typeof window === 'undefined') return makeQueryClient();
-  if (!browserQueryClient) browserQueryClient = makeQueryClient();
+  if (typeof window === 'undefined') {
+    return makeQueryClient();
+  }
+  if (!browserQueryClient) {
+    browserQueryClient = makeQueryClient();
+  }
   return browserQueryClient;
 }
 

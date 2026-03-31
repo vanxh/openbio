@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
   if (profileLink.image) {
     try {
       await del(profileLink.image);
-    } catch {}
+    } catch {
+      // Ignore errors when deleting
+    }
   }
 
   const blob = await put(`avatars/${profileLinkId}/${file.name}`, file, {

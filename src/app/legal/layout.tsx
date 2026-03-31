@@ -6,6 +6,7 @@ import {
 import HomeFooter from '@/components/footer/home';
 import HomeNavbar from '@/components/navbar/home';
 import type { Metadata } from 'next';
+import type React from 'react';
 
 export const metadata: Metadata = {
   ...defaultMetadata,
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <section className="container mx-auto flex h-full w-full flex-col items-center justify-center gap-y-6 pt-24 pb-4 md:pb-8">
+    <section className="container mx-auto flex h-full w-full flex-col items-center justify-center gap-y-6 px-4 pt-24 pb-4 md:pb-8">
       <HomeNavbar />
 
       <div className="w-full max-w-3xl rounded-lg border border-border bg-background px-3 py-4 md:px-6 md:py-8">

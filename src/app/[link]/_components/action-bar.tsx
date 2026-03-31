@@ -12,12 +12,13 @@ export default function ActionBar() {
     <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:bottom-10">
       <div className="mx-auto flex w-max items-center gap-x-4 rounded-lg bg-background/80 px-3 py-3 backdrop-blur-xl backdrop-saturate-[20]">
         <CreateLinkBentoModal>
-          <button className={btnClass}>
+          <button type="button" className={btnClass}>
             <Link size={14} />
           </button>
         </CreateLinkBentoModal>
 
         <button
+          type="button"
           className={cn(btnClass, 'opacity-50 active:scale-100')}
           disabled
         >
@@ -25,6 +26,7 @@ export default function ActionBar() {
         </button>
 
         <button
+          type="button"
           className={cn(btnClass, 'opacity-50 active:scale-100')}
           disabled
         >
@@ -32,6 +34,7 @@ export default function ActionBar() {
         </button>
 
         <button
+          type="button"
           className={cn(btnClass, 'opacity-50 active:scale-100')}
           disabled
         >

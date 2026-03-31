@@ -1,11 +1,10 @@
-import { BentoSchema, PositionSchema, SizeSchema } from '@/types';
+import type { BentoSchema } from '@/types';
+export { PositionSchema, SizeSchema, BentoSchema } from '@/types';
 import { relations } from 'drizzle-orm';
 import { json, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type * as z from 'zod';
 import { linkView } from './link-view';
 import { user } from './user';
-
-export { SizeSchema, PositionSchema, BentoSchema };
 
 export const link = pgTable('link', {
   id: uuid('id').primaryKey().defaultRandom(),
