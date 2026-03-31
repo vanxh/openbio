@@ -2,9 +2,22 @@
 
 import CreateLinkBentoModal from '@/components/modals/create-link-bento';
 import { cn } from '@/lib/utils';
-import { Link, Rocket } from 'lucide-react';
+import { api } from '@/trpc/react';
+import { ImagePlus, Link, Palette, Type } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function ActionBar() {
+  const router = useRouter();
+  const { link } = useParams<{ link: string }>();
+  const queryClient = api.useContext();
+
+  const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
+    onSuccess: () => {
+      queryClient.profileLink.getByLink.invalidate({ link });
+      router.refresh();
+    },
+  });
+
   const btnClass =
     'inline-flex items-center bg-background justify-center rounded-md border border-border p-2 transition-transform duration-200 ease-in-out active:scale-95';
 
@@ -19,10 +32,28 @@ export default function ActionBar() {
 
         <button
           type="button"
-          className={cn(btnClass, 'opacity-50 active:scale-100')}
-          disabled
+          className={btnClass}
+          onClick={() => {
+            createBento({
+              link,
+              bento: { id: crypto.randomUUID(), type: 'note', text: '' },
+            });
+          }}
         >
-          <Rocket size={14} />
+          <Type size={14} />
+        </button>
+
+        <button
+          type="button"
+          className={btnClass}
+          onClick={() => {
+            createBento({
+              link,
+              bento: { id: crypto.randomUUID(), type: 'image', url: '' },
+            });
+          }}
+        >
+          <ImagePlus size={14} />
         </button>
 
         <button
@@ -30,15 +61,7 @@ export default function ActionBar() {
           className={cn(btnClass, 'opacity-50 active:scale-100')}
           disabled
         >
-          <Rocket size={14} />
-        </button>
-
-        <button
-          type="button"
-          className={cn(btnClass, 'opacity-50 active:scale-100')}
-          disabled
-        >
-          <Rocket size={14} />
+          <Palette size={14} />
         </button>
       </div>
     </div>
