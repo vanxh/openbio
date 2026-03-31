@@ -44,11 +44,13 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: var(--font-inter, "Inter"), sans-serif;
   --font-cal: var(--font-calsans, "Cal Sans"), sans-serif;
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.99 0.005 80);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -124,4 +126,20 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
