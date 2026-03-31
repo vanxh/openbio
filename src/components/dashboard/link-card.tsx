@@ -2,7 +2,7 @@
 
 import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
-import type { RouterOutputs } from '@/trpc/react';
+import { type RouterOutputs, api } from '@/trpc/react';
 import { ExternalLink, Eye, QrCode, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +10,8 @@ import Link from 'next/link';
 type ProfileLink = NonNullable<RouterOutputs['profileLink']['getAll']>[number];
 
 export function DashboardLinkCard({ link }: { link: ProfileLink }) {
+  const { data: views } = api.profileLink.getViews.useQuery({ id: link.id });
+
   return (
     <div className="group rounded-2xl border border-border/50 bg-card shadow-md transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
       <div className="flex h-24 items-center justify-center rounded-t-2xl bg-muted">
@@ -35,7 +37,7 @@ export function DashboardLinkCard({ link }: { link: ProfileLink }) {
         <div className="mt-3 flex items-center gap-x-3 text-muted-foreground text-xs">
           <span className="flex items-center gap-x-1">
             <Eye className="h-3.5 w-3.5" />
-            Views
+            {views ?? 0} Views
           </span>
         </div>
       </div>
