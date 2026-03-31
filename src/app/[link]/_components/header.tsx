@@ -35,7 +35,7 @@ export default function ProfileLinkHeader() {
     api.profileLink.update.useMutation();
 
   useEffect(() => {
-    if (!profileLink?.isOwner) return;
+    if (!profileLink?.isOwner) { return; }
 
     const save = () => {
       startSaving(async () => {
@@ -47,8 +47,8 @@ export default function ProfileLinkHeader() {
       });
     };
 
-    void save();
-  }, [name, bio, startSaving, updateProfileLink, profileLink]);
+    save();
+  }, [name, bio, updateProfileLink, profileLink]);
 
   const editor = useEditor({
     extensions,
@@ -65,7 +65,7 @@ export default function ProfileLinkHeader() {
     },
   });
 
-  if (!profileLink) return null;
+  if (!profileLink) { return null; }
 
   return (
     <div className="flex flex-col gap-y-4">
@@ -77,13 +77,14 @@ export default function ProfileLinkHeader() {
             <Button
               disabled={saving}
               onClick={() => {
-                void navigator.clipboard.writeText(
+                navigator.clipboard.writeText(
                   `https://openbio.app/${profileLink.link}`
-                );
-                toast({
-                  title: 'Copied to clipboard!',
-                  description: 'Copied profile link to clipboard!',
-                });
+                ).then(() => {
+                  toast({
+                    title: 'Copied to clipboard!',
+                    description: 'Copied profile link to clipboard!',
+                  });
+                }).catch(() => undefined);
               }}
             >
               {saving ? 'Saving...' : 'Share'}
@@ -99,7 +100,7 @@ export default function ProfileLinkHeader() {
       </div>
 
       <input
-        className="bg-transparent font-bold font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
+        className="bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
         defaultValue={profileLink.name}
         onChange={(e) => setName(e.target.value)}
         readOnly={!profileLink.isOwner}

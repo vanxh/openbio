@@ -18,7 +18,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[]) => {
       const file = acceptedFiles[0];
-      if (!file) return;
+      if (!file) { return; }
 
       setImg(URL.createObjectURL(file));
 
@@ -52,13 +52,13 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
     accept: { 'image/png': [], 'image/jpeg': [] },
   });
 
-  if (!profileLink.isOwner && !profileLink.image) return null;
+  if (!profileLink.isOwner && !profileLink.image) { return null; }
 
   return (
     <div
       {...(profileLink.isOwner ? getRootProps() : {})}
       className={cn(
-        'flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 md:h-[150px] md:w-[150px]',
+        'flex h-[100px] w-[100px] flex-col items-center justify-center gap-y-1 rounded-full border border-border bg-background/50 shadow-lg ring-4 ring-background md:h-[150px] md:w-[150px]',
         !profileLink.image && profileLink.isOwner && 'border-dashed',
         profileLink.isOwner && 'cursor-pointer',
         img && 'border-0 border-transparent bg-transparent'

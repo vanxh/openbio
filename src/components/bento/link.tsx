@@ -13,33 +13,6 @@ import { BiLogoTelegram } from 'react-icons/bi';
 import { BsDiscord } from 'react-icons/bs';
 import type * as z from 'zod';
 
-const getBackgroundColor = (url: string) => {
-  const urlObj = new URL(url);
-  const hostname = urlObj.hostname;
-
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return 'bg-[#F6FAFE]';
-  }
-
-  if (hostname.includes('linkedin.com')) {
-    return 'bg-[#F1F6F9]';
-  }
-
-  if (hostname.includes('instagram.com')) {
-    return 'bg-[#FDEEEF]';
-  }
-
-  if (hostname.includes('discord.com')) {
-    return 'bg-[#E9EBF5]';
-  }
-
-  if (hostname.includes('telegram.com') || hostname.includes('t.me')) {
-    return 'bg-[#E8F1FF]';
-  }
-
-  return 'bg-background';
-};
-
 const getIcon = (
   url: string,
   metadata?: Awaited<ReturnType<typeof getMetadata>>
@@ -227,11 +200,13 @@ export default function LinkCard({
   bento: z.infer<typeof LinkBentoSchema>;
   editable?: boolean;
 }) {
-  if (!bento.href) return null;
-
   const [metadata] = api.profileLink.getMetadataOfURL.useSuspenseQuery({
-    url: bento.href,
+    url: bento.href ?? '',
   });
+
+  if (!bento.href) {
+    return null;
+  }
 
   const title = getTitle(bento.href, metadata ?? null);
   const description = getDescription(bento.href, metadata ?? null);
@@ -244,11 +219,10 @@ export default function LinkCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-md border border-border p-5',
-        getBackgroundColor(bento.href),
+        'group relative z-0 row-span-2 flex h-full w-full select-none flex-col rounded-2xl border border-border/50 bg-card p-5 shadow-md',
         editable
           ? 'transition-transform duration-200 ease-in-out md:cursor-move'
-          : 'cursor-pointer transition-all duration-200 ease-in-out hover:bg-opacity-80 active:scale-95'
+          : 'cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg'
       )}
     >
       {editable && <CardOverlay bento={bento} />}

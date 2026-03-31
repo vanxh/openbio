@@ -6,6 +6,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/trpc/server';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import ActionBar from './_components/action-bar';
@@ -73,6 +74,15 @@ export default async function Page({ params }: Props) {
         </Suspense>
 
         {profileLink.isOwner && <ActionBar />}
+
+        <footer className="py-8 text-center">
+          <Link
+            href="/"
+            className="text-muted-foreground text-xs transition-colors hover:text-foreground"
+          >
+            Made with OpenBio
+          </Link>
+        </footer>
       </div>
     </div>
   );
