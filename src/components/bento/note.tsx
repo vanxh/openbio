@@ -227,7 +227,7 @@ export default function NoteCard({
         )}
 
         {hasContent ? (
-          <NoteContent html={bento.text} />
+          <NoteContent key={bento.text} html={bento.text} />
         ) : (
           <p className="text-muted-foreground text-xs">
             {editable ? 'Empty note' : ''}
@@ -251,7 +251,10 @@ export default function NoteCard({
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent
+          className="sm:max-w-lg"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="font-cal">Edit Note</DialogTitle>
           </DialogHeader>
