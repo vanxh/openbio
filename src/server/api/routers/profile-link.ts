@@ -12,11 +12,17 @@ import {
   createProfileLink,
   deleteProfileLink,
   deleteProfileLinkBento,
+  getClicksOverTime,
   getProfileLinkById,
   getProfileLinkByLink,
   getProfileLinkViews,
   getProfileLinksOfUser,
+  getTopCards,
+  getTopReferrers,
+  getTotalClicks,
+  getViewsOverTime,
   isProfileLinkAvailable,
+  recordLinkClick,
   recordLinkView,
   updateProfileLink,
   updateProfileLinkBento,
@@ -125,6 +131,7 @@ export const profileLinkRouter = createTRPCRouter({
       await recordLinkView(profileLink.id, {
         ip: ip ?? 'Unknown',
         userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
+        referrer: ctx.req.headers.get('referer') ?? undefined,
       });
 
       return {
@@ -142,6 +149,69 @@ export const profileLinkRouter = createTRPCRouter({
     .input(GetLinkViewsSchema)
     .query(async ({ input }) => {
       return await getProfileLinkViews(input.id);
+    }),
+
+  trackClick: publicProcedure
+    .input(
+      z.object({
+        linkId: z.string(),
+        bentoId: z.string(),
+        href: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      let ip = ctx.req.headers.get('x-real-ip');
+      const forwardedFor = ctx.req.headers.get('x-forwarded-for');
+      if (!ip && forwardedFor) {
+        ip = forwardedFor.split(',').at(0) ?? 'Unknown';
+      }
+
+      await recordLinkClick(input.linkId, {
+        bentoId: input.bentoId,
+        href: input.href,
+        ip: ip ?? 'Unknown',
+        userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
+        referrer: ctx.req.headers.get('referer') ?? undefined,
+      });
+    }),
+
+  analytics: protectedProcedure
+    .input(
+      z.object({
+        linkId: z.string(),
+        days: z.number().min(1).max(90).default(30),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      await canModifyProfileLink({
+        userId: ctx.user.id,
+        linkId: input.linkId,
+      });
+
+      const [
+        views,
+        clicks,
+        viewsOverTime,
+        clicksOverTime,
+        topCards,
+        topReferrers,
+      ] = await Promise.all([
+        getProfileLinkViews(input.linkId),
+        getTotalClicks(input.linkId),
+        getViewsOverTime(input.linkId, input.days),
+        getClicksOverTime(input.linkId, input.days),
+        getTopCards(input.linkId, input.days),
+        getTopReferrers(input.linkId, input.days),
+      ]);
+
+      return {
+        views,
+        clicks,
+        viewsOverTime,
+        clicksOverTime,
+        topCards,
+        topReferrers,
+      };
     }),
 
   update: protectedProcedure

@@ -3,7 +3,7 @@
 import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { type RouterOutputs, api } from '@/trpc/react';
-import { ExternalLink, Eye, QrCode, Trash2 } from 'lucide-react';
+import { BarChart3, ExternalLink, Eye, QrCode, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -41,34 +41,28 @@ export function DashboardLinkCard({ link }: { link: ProfileLink }) {
           </span>
         </div>
       </div>
-      <div className="flex border-border/50 border-t px-2 py-2">
-        <Link href={`/${link.link}`} target="_blank" className="flex-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full gap-x-1.5 rounded-lg text-xs"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Visit
+      <div className="flex justify-around border-border/50 border-t px-2 py-1">
+        <Link href={`/${link.link}`} target="_blank">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </Link>
+        <Link href={`/app/analytics/${link.id}`}>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <BarChart3 className="h-4 w-4" />
           </Button>
         </Link>
         <LinkQRModal profileLink={link} linkSlug={link.link}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 gap-x-1.5 rounded-lg text-xs"
-          >
-            <QrCode className="h-3.5 w-3.5" />
-            QR
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <QrCode className="h-4 w-4" />
           </Button>
         </LinkQRModal>
         <Button
           variant="ghost"
-          size="sm"
-          className="flex-1 gap-x-1.5 rounded-lg text-destructive text-xs hover:text-destructive"
+          size="icon"
+          className="h-8 w-8 text-destructive hover:text-destructive"
         >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>

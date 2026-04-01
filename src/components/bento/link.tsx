@@ -4,12 +4,19 @@ import type { getMetadata } from '@/lib/metadata';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { LinkBentoSchema } from '@/types';
-import { Github, Instagram, Linkedin, Twitch, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import type React from 'react';
 import { BiLogoTelegram } from 'react-icons/bi';
 import { BsDiscord, BsTwitterX } from 'react-icons/bs';
+import {
+  FaGithub,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTwitch,
+  FaYoutube,
+} from 'react-icons/fa';
 import type * as z from 'zod';
 
 type Metadata = Awaited<ReturnType<typeof getMetadata>>;
@@ -37,7 +44,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   linkedin: {
-    icon: <Linkedin size={24} className="text-[#0A66C2]" />,
+    icon: <FaLinkedinIn size={20} className="text-[#0A66C2]" />,
     color: '#0A66C2',
     bg: 'bg-[#0A66C2]/5',
     action: {
@@ -46,7 +53,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   github: {
-    icon: <Github size={24} className="text-foreground" />,
+    icon: <FaGithub size={20} className="text-foreground" />,
     color: '#333333',
     bg: 'bg-gray-500/5',
     action: {
@@ -55,7 +62,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   instagram: {
-    icon: <Instagram size={24} className="text-[#F56040]" />,
+    icon: <FaInstagram size={20} className="text-[#F56040]" />,
     color: '#F56040',
     bg: 'bg-[#F56040]/5',
     action: {
@@ -65,7 +72,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   twitch: {
-    icon: <Twitch size={24} className="text-[#9146FF]" />,
+    icon: <FaTwitch size={20} className="text-[#9146FF]" />,
     color: '#9146FF',
     bg: 'bg-[#9146FF]/5',
     action: {
@@ -92,7 +99,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   youtube: {
-    icon: <Youtube size={24} className="text-[#FF0000]" />,
+    icon: <FaYoutube size={20} className="text-[#FF0000]" />,
     color: '#FF0000',
     bg: 'bg-[#FF0000]/5',
     action: {
@@ -154,16 +161,16 @@ function getLargeIcon(url: string) {
     return <BsTwitterX size={32} className="text-foreground" />;
   }
   if (hostname.includes('linkedin.com')) {
-    return <Linkedin size={36} className="text-[#0A66C2]" />;
+    return <FaLinkedinIn size={32} className="text-[#0A66C2]" />;
   }
   if (hostname.includes('github.com')) {
-    return <Github size={36} className="text-foreground" />;
+    return <FaGithub size={32} className="text-foreground" />;
   }
   if (hostname.includes('instagram.com')) {
-    return <Instagram size={36} className="text-[#F56040]" />;
+    return <FaInstagram size={32} className="text-[#F56040]" />;
   }
   if (hostname.includes('twitch.tv')) {
-    return <Twitch size={36} className="text-[#9146FF]" />;
+    return <FaTwitch size={32} className="text-[#9146FF]" />;
   }
   if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
     return <BiLogoTelegram size={36} className="text-[#0088CC]" />;
@@ -172,7 +179,7 @@ function getLargeIcon(url: string) {
     return <BsDiscord size={36} className="text-[#5A65EA]" />;
   }
   if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return <Youtube size={36} className="text-[#FF0000]" />;
+    return <FaYoutube size={32} className="text-[#FF0000]" />;
   }
   return null;
 }
@@ -276,12 +283,30 @@ function CardWrapper({
   className?: string;
   children: React.ReactNode;
 }) {
+  const { link: linkSlug } = useParams<{ link: string }>();
+  const { data: profileLink } = api.profileLink.getByLink.useQuery(
+    { link: linkSlug },
+    { enabled: !editable }
+  );
+  const { mutate: trackClick } = api.profileLink.trackClick.useMutation();
+
+  const handleClick = () => {
+    if (!editable && profileLink && bento.href) {
+      trackClick({
+        linkId: profileLink.id,
+        bentoId: bento.id,
+        href: bento.href,
+      });
+    }
+  };
+
   const Comp = editable ? 'div' : Link;
   return (
     <Comp
       href={bento.href ?? ''}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       className={cn(
         'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-card shadow-sm',
         editable

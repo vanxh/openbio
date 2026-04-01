@@ -1,5 +1,6 @@
-import { Github, Twitter } from 'lucide-react';
 import Link from 'next/link';
+import { BsTwitterX } from 'react-icons/bs';
+import { FaGithub } from 'react-icons/fa';
 
 export default function MarketingFooter() {
   return (
@@ -21,14 +22,14 @@ export default function MarketingFooter() {
             target="_blank"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Github className="h-4 w-4" />
+            <FaGithub className="h-4 w-4" />
           </Link>
           <Link
             href="/twitter"
             target="_blank"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Twitter className="h-4 w-4" />
+            <BsTwitterX className="h-4 w-4" />
           </Link>
         </div>
       </div>

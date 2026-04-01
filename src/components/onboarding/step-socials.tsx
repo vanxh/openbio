@@ -2,30 +2,30 @@
 
 import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
-import {
-  AtSign,
-  Github,
-  Instagram,
-  Linkedin,
-  Twitch,
-  Youtube,
-} from 'lucide-react';
+import { AtSign } from 'lucide-react';
 import { BiLogoTelegram } from 'react-icons/bi';
 import { BsDiscord, BsTwitterX } from 'react-icons/bs';
+import {
+  FaGithub,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTwitch,
+  FaYoutube,
+} from 'react-icons/fa';
 
 const socials = [
   { key: 'twitter', name: 'X', icon: BsTwitterX, placeholder: 'username' },
-  { key: 'github', name: 'GitHub', icon: Github, placeholder: 'username' },
+  { key: 'github', name: 'GitHub', icon: FaGithub, placeholder: 'username' },
   {
     key: 'linkedin',
     name: 'LinkedIn',
-    icon: Linkedin,
+    icon: FaLinkedinIn,
     placeholder: 'username',
   },
   {
     key: 'instagram',
     name: 'Instagram',
-    icon: Instagram,
+    icon: FaInstagram,
     placeholder: 'username',
   },
   {
@@ -35,8 +35,8 @@ const socials = [
     placeholder: 'username',
   },
   { key: 'discord', name: 'Discord', icon: BsDiscord, placeholder: 'username' },
-  { key: 'youtube', name: 'YouTube', icon: Youtube, placeholder: 'username' },
-  { key: 'twitch', name: 'Twitch', icon: Twitch, placeholder: 'username' },
+  { key: 'youtube', name: 'YouTube', icon: FaYoutube, placeholder: 'username' },
+  { key: 'twitch', name: 'Twitch', icon: FaTwitch, placeholder: 'username' },
 ] as const;
 
 interface StepSocialsProps {

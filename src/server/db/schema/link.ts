@@ -10,6 +10,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import type * as z from 'zod';
+import { linkClick } from './link-click';
 import { linkView } from './link-view';
 import { user } from './user';
 
@@ -45,4 +46,5 @@ export const linkRelations = relations(link, ({ one, many }) => ({
     references: [user.id],
   }),
   views: many(linkView),
+  clicks: many(linkClick),
 }));

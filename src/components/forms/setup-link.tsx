@@ -11,18 +11,18 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { api } from '@/trpc/react';
-import {
-  AtSign,
-  Github,
-  Instagram,
-  Linkedin,
-  Twitch,
-  Twitter,
-  Youtube,
-} from 'lucide-react';
+import { AtSign } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BiLogoTelegram } from 'react-icons/bi';
+import { BsTwitterX } from 'react-icons/bs';
 import { BsDiscord } from 'react-icons/bs';
+import {
+  FaGithub,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTwitch,
+  FaYoutube,
+} from 'react-icons/fa';
 import * as z from 'zod';
 
 const setupLinkSchema = z.object({
@@ -39,25 +39,25 @@ const setupLinkSchema = z.object({
 const socials = [
   {
     name: 'Twitter',
-    icon: Twitter,
+    icon: BsTwitterX,
     placeholder: 'vanxhh',
     key: 'twitter',
   },
   {
     name: 'Github',
-    icon: Github,
+    icon: FaGithub,
     placeholder: 'vanxh',
     key: 'github',
   },
   {
     name: 'Linkedin',
-    icon: Linkedin,
+    icon: FaLinkedinIn,
     placeholder: 'vanxhh',
     key: 'linkedin',
   },
   {
     name: 'Instagram',
-    icon: Instagram,
+    icon: FaInstagram,
     placeholder: 'vanxh.dev',
     key: 'instagram',
   },
@@ -77,13 +77,13 @@ const socials = [
   },
   {
     name: 'Youtube',
-    icon: Youtube,
+    icon: FaYoutube,
     placeholder: 'username',
     key: 'youtube',
   },
   {
     name: 'Twitch',
-    icon: Twitch,
+    icon: FaTwitch,
     placeholder: 'username',
     key: 'twitch',
   },

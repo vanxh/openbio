@@ -3,24 +3,30 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
-import { Github, Instagram, Linkedin, Twitch, Youtube } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { BiLogoTelegram } from 'react-icons/bi';
 import { BsDiscord, BsTwitterX } from 'react-icons/bs';
+import {
+  FaGithub,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTwitch,
+  FaYoutube,
+} from 'react-icons/fa';
 
 const socialIcons: Record<
   string,
   ComponentType<SVGProps<SVGSVGElement> | { className?: string }>
 > = {
   twitter: BsTwitterX,
-  github: Github,
-  linkedin: Linkedin,
-  instagram: Instagram,
+  github: FaGithub,
+  linkedin: FaLinkedinIn,
+  instagram: FaInstagram,
   telegram: BiLogoTelegram,
   discord: BsDiscord,
-  youtube: Youtube,
-  twitch: Twitch,
+  youtube: FaYoutube,
+  twitch: FaTwitch,
 };
 
 const socialUrls: Record<string, string> = {

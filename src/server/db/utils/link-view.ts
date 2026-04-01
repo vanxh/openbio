@@ -29,9 +29,11 @@ export const recordLinkView = async (
   {
     ip,
     userAgent,
+    referrer,
   }: {
     ip: string;
     userAgent: string;
+    referrer?: string;
   }
 ) => {
   const exists = await db.query.linkView.findFirst({
@@ -51,6 +53,7 @@ export const recordLinkView = async (
       linkId,
       ip,
       userAgent,
+      referrer,
     });
   }
 };

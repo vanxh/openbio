@@ -1,16 +1,9 @@
 import Pricing from '@/components/pricing';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { PillBadge } from '@/components/ui/pill-badge';
-import {
-  BarChart3,
-  Code2,
-  Github,
-  Link2,
-  Moon,
-  Share2,
-  Sparkles,
-} from 'lucide-react';
+import { BarChart3, Code2, Link2, Moon, Share2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { FaGithub } from 'react-icons/fa';
 
 const features = [
   {
@@ -83,7 +76,7 @@ export default function Page() {
               className="inline-flex items-center gap-x-2 rounded-full border border-border bg-background px-6 py-3 font-medium text-base shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
               type="button"
             >
-              <Github className="h-5 w-5" />
+              <FaGithub className="h-5 w-5" />
               Star on GitHub
             </button>
           </Link>
