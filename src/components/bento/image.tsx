@@ -99,7 +99,7 @@ export default function ImageCard({
         </p>
         <button
           type="button"
-          className="absolute bottom-3 rounded-full bg-primary px-3 py-1 font-medium text-primary-foreground text-xs opacity-0 shadow transition-opacity group-hover:opacity-100"
+          className="absolute bottom-3 rounded-full bg-primary p-2 text-primary-foreground opacity-0 shadow transition-opacity group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
             const input = e.currentTarget.parentElement?.querySelector(
@@ -108,7 +108,7 @@ export default function ImageCard({
             input?.click();
           }}
         >
-          Upload
+          <ImagePlus className="h-4 w-4" />
         </button>
       </div>
     );
