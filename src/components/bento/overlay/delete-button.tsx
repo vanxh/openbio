@@ -43,7 +43,7 @@ export default function DeleteButton({
     <Button
       size="icon"
       variant="secondary"
-      className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-20 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
+      className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-30 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
       onClick={() => {
         deleteBento({
           link,
