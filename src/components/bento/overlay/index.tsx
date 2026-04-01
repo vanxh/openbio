@@ -19,6 +19,7 @@ export default function CardOverlay({
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  // Raise z-index of the grid item when overlay is active so controls aren't hidden behind adjacent cards
   useEffect(() => {
     const gridItem = overlayRef.current?.closest(
       '.react-grid-item'
@@ -27,14 +28,11 @@ export default function CardOverlay({
       return;
     }
     if (active) {
-      gridItem.style.overflow = 'visible';
-      gridItem.style.zIndex = '10';
+      gridItem.style.zIndex = '50';
     } else {
-      gridItem.style.overflow = '';
       gridItem.style.zIndex = '';
     }
     return () => {
-      gridItem.style.overflow = '';
       gridItem.style.zIndex = '';
     };
   }, [active]);

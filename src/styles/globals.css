@@ -128,6 +128,11 @@
   }
 }
 
+/* Ensure react-grid-layout items don't clip overflow controls */
+.react-grid-item {
+  overflow: visible !important;
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;

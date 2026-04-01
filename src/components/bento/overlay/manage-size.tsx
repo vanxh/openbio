@@ -5,7 +5,6 @@ import Size2x4 from '@/components/icons/size-2x4';
 import Size4x1 from '@/components/icons/size-4x1';
 import Size4x2 from '@/components/icons/size-4x2';
 import Size4x4 from '@/components/icons/size-4x4';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { useParams } from 'next/navigation';
@@ -107,14 +106,6 @@ export default function ManageSize({
         <div className="absolute inset-0 bg-black/20" onClick={close} />
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pt-4 pb-8">
           {sizeButtons}
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={close}
-            className="w-full max-w-xs rounded-xl"
-          >
-            Done
-          </Button>
         </div>
       </div>,
       document.body
