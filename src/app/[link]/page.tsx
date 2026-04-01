@@ -58,7 +58,11 @@ export default async function Page({ params }: Props) {
   }
 
   return (
-    <ThemeWrapper>
+    <ThemeWrapper
+      theme={profileLink.theme}
+      darkMode={profileLink.darkMode}
+      accentColor={profileLink.accentColor}
+    >
       <div className="h-full w-full max-w-3xl">
         <div className="flex flex-col gap-y-6">
           <ProfileLinkHeader />
