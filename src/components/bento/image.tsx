@@ -90,18 +90,16 @@ export default function ImageCard({
   // Empty state: show dropzone
   if (!hasImage && editable) {
     return (
-      <div
-        {...getRootProps()}
-        className={cn(
-          'group relative z-0 flex h-full w-full cursor-pointer select-none flex-col items-center justify-center gap-y-2 overflow-hidden rounded-2xl border-2 border-border/50 border-dashed bg-card shadow-sm transition-transform duration-200 ease-in-out md:cursor-move'
-        )}
-      >
-        <input {...getInputProps()} />
+      <div className="group relative z-0 h-full w-full select-none rounded-2xl border border-border border-dashed bg-card/50 shadow-sm transition-transform duration-200 ease-in-out md:cursor-move">
         <CardOverlay bento={bento} allowedSizes={IMAGE_CARD_SIZES} />
-        <ImagePlus className="h-8 w-8 text-muted-foreground" />
-        <p className="font-medium text-muted-foreground text-sm">
-          Drop image here
-        </p>
+        <div
+          {...getRootProps()}
+          className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-y-2 rounded-2xl"
+        >
+          <input {...getInputProps()} />
+          <ImagePlus className="h-6 w-6 text-muted-foreground" />
+          <p className="text-muted-foreground text-xs">Drop image here</p>
+        </div>
       </div>
     );
   }
