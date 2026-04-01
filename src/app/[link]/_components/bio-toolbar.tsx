@@ -32,18 +32,18 @@ export default function BioToolbar({
     action();
   };
 
-  const btnClass = 'h-7 w-7 p-0';
+  const btnClass = 'h-6 w-6 p-0';
   const proBtnClass = isPremium ? btnClass : `${btnClass} opacity-40`;
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border border-border/50 bg-card px-1 py-1">
+    <div className="inline-flex w-auto items-center gap-0.5 rounded-md border border-border/50 bg-card/80 px-0.5 py-0.5 backdrop-blur-sm">
       <Button
         variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
         size="sm"
         className={btnClass}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
-        <Bold className="h-3.5 w-3.5" />
+        <Bold className="h-3 w-3" />
       </Button>
       <Button
         variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
@@ -51,7 +51,7 @@ export default function BioToolbar({
         className={btnClass}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
-        <Italic className="h-3.5 w-3.5" />
+        <Italic className="h-3 w-3" />
       </Button>
       <Button
         variant={
@@ -61,7 +61,7 @@ export default function BioToolbar({
         className={btnClass}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
-        <Heading2 className="h-3.5 w-3.5" />
+        <Heading2 className="h-3 w-3" />
       </Button>
       <Button
         variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
@@ -69,7 +69,7 @@ export default function BioToolbar({
         className={btnClass}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
-        <List className="h-3.5 w-3.5" />
+        <List className="h-3 w-3" />
       </Button>
 
       <div className="mx-0.5 h-4 w-px bg-border" />
@@ -82,7 +82,7 @@ export default function BioToolbar({
           proAction(() => editor.chain().focus().toggleUnderline().run())
         }
       >
-        <UnderlineIcon className="h-3.5 w-3.5" />
+        <UnderlineIcon className="h-3 w-3" />
       </Button>
       <Button
         variant={editor.isActive('link') ? 'secondary' : 'ghost'}
@@ -97,7 +97,7 @@ export default function BioToolbar({
           })
         }
       >
-        <LinkIcon className="h-3.5 w-3.5" />
+        <LinkIcon className="h-3 w-3" />
       </Button>
       <Button
         variant={editor.isActive('highlight') ? 'secondary' : 'ghost'}
@@ -107,7 +107,7 @@ export default function BioToolbar({
           proAction(() => editor.chain().focus().toggleHighlight().run())
         }
       >
-        <Highlighter className="h-3.5 w-3.5" />
+        <Highlighter className="h-3 w-3" />
       </Button>
       <Button
         variant="ghost"
@@ -122,7 +122,7 @@ export default function BioToolbar({
           })
         }
       >
-        <Palette className="h-3.5 w-3.5" />
+        <Palette className="h-3 w-3" />
       </Button>
     </div>
   );

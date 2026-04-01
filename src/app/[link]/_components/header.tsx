@@ -129,10 +129,14 @@ export default function ProfileLinkHeader() {
         {profileLink.isPremium && <VerifiedBadge />}
       </div>
 
-      {profileLink.isOwner && editor && (
-        <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
-      )}
-      <EditorContent editor={editor} />
+      <div className="group/bio relative">
+        <EditorContent editor={editor} />
+        {profileLink.isOwner && editor && (
+          <div className="mt-1 opacity-0 transition-opacity duration-200 group-focus-within/bio:opacity-100">
+            <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
