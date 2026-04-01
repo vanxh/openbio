@@ -9,13 +9,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { useParams } from 'next/navigation';
-import type { ComponentType, ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import type { ComponentType } from 'react';
 import type * as z from 'zod';
-
-function Portal({ children }: { children: ReactNode }) {
-  return createPortal(children, document.body);
-}
 
 const ALL_SIZE_OPTIONS: { key: string; icon: ComponentType }[] = [
   { key: '2x2', icon: Size2x2 },
@@ -68,45 +63,43 @@ export default function ManageSize({
   });
 
   return (
-    <Portal>
-      <div className="-translate-x-1/2 fixed bottom-20 left-1/2 z-50 w-max md:bottom-24">
-        <div className="flex items-center gap-x-4 rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:gap-x-0 md:px-2 md:py-2">
-          {sizeOptions.map((o) => (
-            <button
-              type="button"
-              key={o.key}
-              className={cn(
-                'inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95',
-                size === o.key &&
-                  'rounded-sm bg-secondary text-secondary-foreground'
-              )}
-              onClick={() => {
-                updateBento({
-                  link,
-                  bento: {
-                    ...bento,
-                    size: {
-                      ...bento.size,
-                      [window.outerWidth < 500 ? 'sm' : 'md']: o.key,
-                    },
-                  },
-                });
-              }}
-            >
-              <o.icon />
-            </button>
-          ))}
-
-          <Button
+    <div className="-translate-x-1/2 absolute bottom-2 left-1/2 z-100 translate-y-full">
+      <div className="flex items-center gap-x-0 rounded-lg bg-primary px-2 py-2 text-primary-foreground shadow-lg">
+        {sizeOptions.map((o) => (
+          <button
             type="button"
-            variant="secondary"
-            onClick={close}
-            className="ml-auto md:hidden"
+            key={o.key}
+            className={cn(
+              'inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95',
+              size === o.key &&
+                'rounded-sm bg-secondary text-secondary-foreground'
+            )}
+            onClick={() => {
+              updateBento({
+                link,
+                bento: {
+                  ...bento,
+                  size: {
+                    ...bento.size,
+                    [window.outerWidth < 500 ? 'sm' : 'md']: o.key,
+                  },
+                },
+              });
+            }}
           >
-            Done
-          </Button>
-        </div>
+            <o.icon />
+          </button>
+        ))}
+
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={close}
+          className="ml-2 md:hidden"
+        >
+          Done
+        </Button>
       </div>
-    </Portal>
+    </div>
   );
 }

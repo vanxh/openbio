@@ -6,7 +6,7 @@ import ManageSize from '@/components/bento/overlay/manage-size';
 import { cn } from '@/lib/utils';
 import type { BentoSchema } from '@/server/db';
 import type React from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type * as z from 'zod';
 
 export default function CardOverlay({
@@ -18,6 +18,29 @@ export default function CardOverlay({
 }) {
   const [active, setActive] = useState(false);
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Toggle overflow:visible on the react-grid-layout item so the
+  // size picker isn't clipped
+  useEffect(() => {
+    const gridItem = overlayRef.current?.closest(
+      '.react-grid-item'
+    ) as HTMLElement | null;
+    if (!gridItem) {
+      return;
+    }
+    if (active) {
+      gridItem.style.overflow = 'visible';
+      gridItem.style.zIndex = '10';
+    } else {
+      gridItem.style.overflow = '';
+      gridItem.style.zIndex = '';
+    }
+    return () => {
+      gridItem.style.overflow = '';
+      gridItem.style.zIndex = '';
+    };
+  }, [active]);
 
   const show = () => {
     if (leaveTimeout.current) {
@@ -33,13 +56,13 @@ export default function CardOverlay({
     }, 150);
   };
 
-  // Prevent drag from starting when clicking overlay controls
   const stopDrag = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
   };
 
   return (
     <div
+      ref={overlayRef}
       role="toolbar"
       className={cn(
         'absolute top-0 left-0 z-20 h-full w-full',
