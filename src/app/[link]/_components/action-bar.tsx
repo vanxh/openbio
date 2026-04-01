@@ -1,7 +1,7 @@
 'use client';
 
 import CreateLinkBentoModal from '@/components/modals/create-link-bento';
-import { cn } from '@/lib/utils';
+import ThemeSettingsModal from '@/components/modals/theme-settings';
 import { api } from '@/trpc/react';
 import { ImagePlus, Link, Palette, Type } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ export default function ActionBar() {
   const router = useRouter();
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
     onSuccess: () => {
@@ -56,13 +57,11 @@ export default function ActionBar() {
           <ImagePlus size={14} />
         </button>
 
-        <button
-          type="button"
-          className={cn(btnClass, 'opacity-50 active:scale-100')}
-          disabled
-        >
-          <Palette size={14} />
-        </button>
+        <ThemeSettingsModal isPremium={!!profileLink?.isPremium}>
+          <button type="button" className={btnClass}>
+            <Palette size={14} />
+          </button>
+        </ThemeSettingsModal>
       </div>
     </div>
   );
