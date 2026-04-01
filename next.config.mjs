@@ -3,6 +3,7 @@ await import('./src/env.mjs');
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  serverExternalPackages: ['@neondatabase/serverless'],
   images: {
     remotePatterns: [
       {
@@ -15,9 +16,6 @@ const config = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 

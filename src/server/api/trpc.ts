@@ -6,7 +6,12 @@ import superjson from 'superjson';
 import { ZodError } from 'zod';
 
 export const createTRPCContext = async (opts: { req: NextRequest }) => {
-  const session = await auth.api.getSession({ headers: opts.req.headers });
+  let session: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
+  try {
+    session = await auth.api.getSession({ headers: opts.req.headers });
+  } catch {
+    // Session fetch can fail in dev when DB connection is slow
+  }
   return { db, session, req: opts.req };
 };
 
