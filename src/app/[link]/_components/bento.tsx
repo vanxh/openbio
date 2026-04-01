@@ -1,18 +1,25 @@
 'use client';
 
 import BentoCard from '@/components/bento/card';
-import { api } from '@/trpc/react';
+import { api, type RouterOutputs } from '@/trpc/react';
 import { useParams } from 'next/navigation';
 import BentoLayout from './bento-layout';
 import { usePreview } from './preview-context';
 
-export default function Bento() {
+type ProfileLinkData = NonNullable<
+  RouterOutputs['profileLink']['getByLink']
+>;
+
+export default function Bento({
+  profileLink: initialData,
+}: { profileLink: ProfileLinkData }) {
   const { link } = useParams<{ link: string }>();
   const { preview } = usePreview();
 
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
-    link,
-  });
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+    { link },
+    { initialData, staleTime: 60_000 }
+  );
 
   if (!profileLink) {
     return null;

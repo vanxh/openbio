@@ -8,7 +8,7 @@ import { api } from '@/trpc/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 import ActionBar from './_components/action-bar';
 import Bento from './_components/bento';
 import ProfileLinkHeader from './_components/header';
@@ -22,10 +22,14 @@ type Props = {
   }>;
 };
 
+const getProfileLink = cache((link: string) => {
+  return api.profileLink.getByLink({ link });
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { link } = await params;
 
-  const profileLink = await api.profileLink.getByLink({ link });
+  const profileLink = await getProfileLink(link);
 
   const title = profileLink?.name ?? defaultMetadata.title;
   const description =
@@ -53,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params }: Props) {
   const { link } = await params;
-  const profileLink = await api.profileLink.getByLink({ link });
+  const profileLink = await getProfileLink(link);
 
   if (!profileLink) {
     notFound();
@@ -68,7 +72,7 @@ export default async function Page({ params }: Props) {
       <PreviewProvider>
         <ViewportContainer>
           <div className="flex flex-col gap-y-6">
-            <ProfileLinkHeader />
+            <ProfileLinkHeader profileLink={profileLink} />
 
             <Suspense
               fallback={
@@ -79,7 +83,7 @@ export default async function Page({ params }: Props) {
                 </div>
               }
             >
-              <Bento />
+              <Bento profileLink={profileLink} />
             </Suspense>
 
             {profileLink.isOwner && <ActionBar />}

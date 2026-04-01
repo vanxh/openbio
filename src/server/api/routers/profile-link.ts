@@ -5,6 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc';
+import { after } from 'next/server';
 import {
   addProfileLinkBento,
   canModifyProfileLink,
@@ -128,11 +129,13 @@ export const profileLinkRouter = createTRPCRouter({
         ip = forwardedFor.split(',').at(0) ?? 'Unknown';
       }
 
-      await recordLinkView(profileLink.id, {
-        ip: ip ?? 'Unknown',
-        userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
-        referrer: ctx.req.headers.get('referer') ?? undefined,
-      });
+      after(() =>
+        recordLinkView(profileLink.id, {
+          ip: ip ?? 'Unknown',
+          userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
+          referrer: ctx.req.headers.get('referer') ?? undefined,
+        })
+      );
 
       return {
         ...profileLink,

@@ -4,7 +4,7 @@ import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import VerifiedBadge from '@/components/verified-badge';
-import { api } from '@/trpc/react';
+import { api, type RouterOutputs } from '@/trpc/react';
 import Highlight from '@tiptap/extension-highlight';
 import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -35,12 +35,19 @@ const extensions = [
   Highlight.configure({ multicolor: true }),
 ] as Extension[];
 
-export default function ProfileLinkHeader() {
+type ProfileLinkData = NonNullable<
+  RouterOutputs['profileLink']['getByLink']
+>;
+
+export default function ProfileLinkHeader({
+  profileLink: initialData,
+}: { profileLink: ProfileLinkData }) {
   const { link } = useParams<{ link: string }>();
 
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({
-    link,
-  });
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+    { link },
+    { initialData, staleTime: 60_000 }
+  );
 
   const [name, setName] = useState(profileLink?.name);
   const [bio, setBio] = useState(profileLink?.bio);
