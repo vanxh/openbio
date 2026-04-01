@@ -12,7 +12,7 @@ import { Color, TextStyle } from '@tiptap/extension-text-style';
 import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Eye, PenLine, QrCode } from 'lucide-react';
+import { Eye, Monitor, PenLine, QrCode, Smartphone } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
@@ -67,7 +67,7 @@ export default function ProfileLinkHeader() {
     save();
   }, [name, bio, updateProfileLink, profileLink]);
 
-  const { preview, setPreview } = usePreview();
+  const { preview, setPreview, viewport, setViewport } = usePreview();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -97,7 +97,7 @@ export default function ProfileLinkHeader() {
         <ProfileLinkAvatar profileLink={profileLink} />
 
         {profileLink.isOwner && (
-          <div className="flex flex-row items-center gap-x-4">
+          <div className="flex flex-row flex-wrap items-center justify-end gap-2">
             <Button
               size="icon"
               variant={preview ? 'default' : 'outline'}
@@ -112,6 +112,25 @@ export default function ProfileLinkHeader() {
 
             {!preview && (
               <>
+                <div className="hidden items-center rounded-md border border-border md:flex">
+                  <Button
+                    size="icon"
+                    variant={viewport === 'desktop' ? 'default' : 'ghost'}
+                    className="rounded-r-none"
+                    onClick={() => setViewport('desktop')}
+                  >
+                    <Monitor className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant={viewport === 'mobile' ? 'default' : 'ghost'}
+                    className="rounded-l-none"
+                    onClick={() => setViewport('mobile')}
+                  >
+                    <Smartphone className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
+                </div>
+
                 <Button
                   disabled={saving}
                   onClick={() => {
@@ -142,10 +161,11 @@ export default function ProfileLinkHeader() {
 
       <div className="flex items-center gap-x-2">
         <input
-          className="bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
+          className="min-w-0 shrink bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
           defaultValue={profileLink.name}
           onChange={(e) => setName(e.target.value)}
           readOnly={!isEditable}
+          size={Math.max((name ?? profileLink.name ?? '').length, 1)}
         />
         {profileLink.isPremium && <VerifiedBadge />}
       </div>

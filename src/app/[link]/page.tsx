@@ -14,6 +14,7 @@ import Bento from './_components/bento';
 import ProfileLinkHeader from './_components/header';
 import { PreviewProvider } from './_components/preview-context';
 import ThemeWrapper from './_components/theme-wrapper';
+import ViewportContainer from './_components/viewport-container';
 
 type Props = {
   params: Promise<{
@@ -65,7 +66,7 @@ export default async function Page({ params }: Props) {
       accentColor={profileLink.accentColor}
     >
       <PreviewProvider>
-        <div className="h-full w-full max-w-3xl">
+        <ViewportContainer>
           <div className="flex flex-col gap-y-6">
             <ProfileLinkHeader />
 
@@ -92,7 +93,7 @@ export default async function Page({ params }: Props) {
               </Link>
             </footer>
           </div>
-        </div>
+        </ViewportContainer>
       </PreviewProvider>
     </ThemeWrapper>
   );

@@ -323,7 +323,7 @@ function ImageDisplay({
   const content = (
     <div
       className={cn(
-        'group relative z-0 h-full w-full select-none rounded-2xl border border-border/50 bg-card shadow-sm',
+        'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-card shadow-sm',
         editable
           ? 'transition-transform duration-200 ease-in-out md:cursor-move'
           : 'transition-all duration-200 hover:shadow-md',

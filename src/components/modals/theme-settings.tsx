@@ -99,13 +99,13 @@ export default function ThemeSettingsModal({
                     <span
                       className="h-4 w-4 shrink-0 rounded-full border border-border"
                       style={{
-                        background: preset.colors.light['--primary'],
+                        background: (darkMode ? preset.colors.dark : preset.colors.light)['--primary'],
                       }}
                     />
                     <span
                       className="h-4 w-4 shrink-0 rounded-full border border-border"
                       style={{
-                        background: preset.colors.light['--background'],
+                        background: (darkMode ? preset.colors.dark : preset.colors.light)['--background'],
                       }}
                     />
                     <span className="truncate">{preset.label}</span>

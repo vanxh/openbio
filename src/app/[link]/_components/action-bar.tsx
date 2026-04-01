@@ -48,7 +48,7 @@ export default function ActionBar() {
   }
 
   const btnClass =
-    'inline-flex items-center bg-background justify-center rounded-md border border-border p-2 transition-transform duration-200 ease-in-out active:scale-95';
+    'inline-flex items-center justify-center rounded-md border border-border bg-background p-2 text-foreground transition-transform duration-200 ease-in-out active:scale-95';
 
   return (
     <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:bottom-10">

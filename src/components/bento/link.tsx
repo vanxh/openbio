@@ -46,7 +46,7 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
     },
   },
   github: {
-    icon: <Github size={24} className="text-gray-800" />,
+    icon: <Github size={24} className="text-foreground" />,
     color: '#333333',
     bg: 'bg-gray-500/5',
     action: {
@@ -157,7 +157,7 @@ function getLargeIcon(url: string) {
     return <Linkedin size={36} className="text-[#0A66C2]" />;
   }
   if (hostname.includes('github.com')) {
-    return <Github size={36} className="text-gray-800" />;
+    return <Github size={36} className="text-foreground" />;
   }
   if (hostname.includes('instagram.com')) {
     return <Instagram size={36} className="text-[#F56040]" />;
@@ -283,7 +283,7 @@ function CardWrapper({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'group relative z-0 h-full w-full select-none rounded-2xl border border-border/50 bg-card shadow-sm',
+        'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-card shadow-sm',
         editable
           ? 'transition-transform duration-200 ease-in-out md:cursor-move'
           : 'cursor-pointer transition-all duration-200 hover:shadow-md',

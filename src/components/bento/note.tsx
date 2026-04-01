@@ -215,7 +215,7 @@ export default function NoteCard({
     <>
       <div
         className={cn(
-          'group relative z-0 flex h-full w-full select-none flex-col rounded-2xl border border-border/50 bg-card shadow-sm',
+          'group relative z-0 flex h-full w-full select-none flex-col rounded-2xl border border-border bg-card shadow-sm',
           editable
             ? 'transition-transform duration-200 ease-in-out md:cursor-move'
             : 'cursor-pointer transition-all duration-200 hover:shadow-md',
