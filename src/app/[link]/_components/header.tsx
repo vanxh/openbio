@@ -4,13 +4,19 @@ import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { api } from '@/trpc/react';
+import Color from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import TextStyle from '@tiptap/extension-text-style';
+import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { QrCode } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
+import BioToolbar from './bio-toolbar';
 
 const extensions = [
   StarterKit,
@@ -18,6 +24,11 @@ const extensions = [
     placeholder: 'Tell us about yourself!',
     showOnlyWhenEditable: true,
   }),
+  TiptapLink.configure({ openOnClick: false }),
+  TiptapUnderline,
+  TextStyle,
+  Color,
+  Highlight.configure({ multicolor: true }),
 ] as Extension[];
 
 export default function ProfileLinkHeader() {
@@ -112,6 +123,9 @@ export default function ProfileLinkHeader() {
         readOnly={!profileLink.isOwner}
       />
 
+      {profileLink.isOwner && editor && (
+        <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
+      )}
       <EditorContent editor={editor} />
     </div>
   );
