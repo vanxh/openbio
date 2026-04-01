@@ -251,10 +251,7 @@ export default function NoteCard({
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent
-          className="sm:max-w-lg"
-          onPointerDownOutside={(e) => e.preventDefault()}
-        >
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-cal">Edit Note</DialogTitle>
           </DialogHeader>
