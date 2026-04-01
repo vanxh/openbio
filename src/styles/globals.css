@@ -128,9 +128,9 @@
   }
 }
 
-/* Ensure react-grid-layout items don't clip overflow controls */
-.react-grid-item {
-  overflow: visible !important;
+/* Match bento card rounding on drag placeholder */
+.react-grid-placeholder {
+  border-radius: 1rem !important;
 }
 
 @keyframes fade-up {
