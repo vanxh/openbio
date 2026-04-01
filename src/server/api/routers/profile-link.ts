@@ -1,5 +1,10 @@
 import { getMetadata } from '@/lib/metadata';
-import { addDomainToVercel, removeDomainFromVercel } from '@/lib/vercel';
+import {
+  addDomainToVercel,
+  getDomainConfig,
+  removeDomainFromVercel,
+  verifyDomain,
+} from '@/lib/vercel';
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -214,6 +219,39 @@ export const profileLinkRouter = createTRPCRouter({
         clicksOverTime,
         topCards,
         topReferrers,
+      };
+    }),
+
+  checkDomain: protectedProcedure
+    .input(z.object({ domain: z.string() }))
+    .query(async ({ input }) => {
+      const { domain } = input;
+
+      const [config, verification] = await Promise.all([
+        getDomainConfig(domain),
+        verifyDomain(domain),
+      ]);
+
+      const isSubdomain = domain.split('.').length > 2;
+
+      return {
+        configured: config?.misconfigured === false,
+        verified: verification?.verified ?? false,
+        verification: verification?.verification ?? [],
+        isSubdomain,
+        // For subdomains: CNAME record with subdomain prefix
+        // For root domains: A record with @ pointing to Vercel IP
+        dns: isSubdomain
+          ? {
+              type: 'CNAME' as const,
+              name: domain.split('.').slice(0, -2).join('.'),
+              value: 'cname.vercel-dns.com',
+            }
+          : {
+              type: 'A' as const,
+              name: '@',
+              value: '76.76.21.21',
+            },
       };
     }),
 
