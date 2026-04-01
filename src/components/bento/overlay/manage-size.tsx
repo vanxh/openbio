@@ -69,7 +69,7 @@ export default function ManageSize({
 
   return (
     <Portal>
-      <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 w-max">
+      <div className="-translate-x-1/2 fixed bottom-20 left-1/2 z-50 w-max md:bottom-24">
         <div className="flex items-center gap-x-4 rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:gap-x-0 md:px-2 md:py-2">
           {sizeOptions.map((o) => (
             <button
