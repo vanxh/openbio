@@ -5,6 +5,7 @@ import DragHandle from '@/components/bento/overlay/drag-handle';
 import ManageSize from '@/components/bento/overlay/manage-size';
 import { cn } from '@/lib/utils';
 import type { BentoSchema } from '@/server/db';
+import type React from 'react';
 import { useRef, useState } from 'react';
 import type * as z from 'zod';
 
@@ -32,6 +33,11 @@ export default function CardOverlay({
     }, 150);
   };
 
+  // Prevent drag from starting when clicking overlay controls
+  const stopDrag = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div
       role="toolbar"
@@ -53,7 +59,13 @@ export default function CardOverlay({
       onMouseLeave={hide}
     >
       {active && (
-        <fieldset onMouseEnter={show} onMouseLeave={hide} className="contents">
+        <fieldset
+          onMouseEnter={show}
+          onMouseLeave={hide}
+          onMouseDown={stopDrag}
+          onPointerDown={stopDrag}
+          className="contents"
+        >
           <DeleteButton bento={bento} />
           <DragHandle />
           <ManageSize
