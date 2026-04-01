@@ -12,7 +12,7 @@ function isPassthrough(pathname: string) {
   return PASSTHROUGH_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
-function isLocalhost(hostname: string) {
+function isPlainLocalhost(hostname: string) {
   return (
     hostname === 'localhost' ||
     hostname.startsWith('localhost:') ||
@@ -21,11 +21,22 @@ function isLocalhost(hostname: string) {
 }
 
 function getSubdomain(hostname: string): string | null {
-  if (isLocalhost(hostname)) {
+  if (isPlainLocalhost(hostname)) {
     return null;
   }
 
-  const parts = hostname.replace(`:${process.env.PORT ?? 3000}`, '').split('.');
+  const clean = hostname.replace(`:${process.env.PORT ?? 3000}`, '');
+
+  // Local dev: vanxh.localhost → ['vanxh', 'localhost']
+  if (clean.endsWith('.localhost')) {
+    const sub = clean.replace('.localhost', '');
+    if (sub && sub !== 'www') {
+      return sub;
+    }
+    return null;
+  }
+
+  const parts = clean.split('.');
   if (parts.length > ROOT_PARTS_LENGTH) {
     const sub = parts[0];
     if (sub && sub !== 'www') {
@@ -37,7 +48,7 @@ function getSubdomain(hostname: string): string | null {
 }
 
 function isCustomDomain(hostname: string) {
-  return !hostname.endsWith(ROOT_DOMAIN) && !isLocalhost(hostname);
+  return !hostname.endsWith(ROOT_DOMAIN) && !isPlainLocalhost(hostname);
 }
 
 async function resolveCustomDomain(hostname: string): Promise<string | null> {

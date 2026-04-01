@@ -1,4 +1,5 @@
 import { getMetadata } from '@/lib/metadata';
+import { addDomainToVercel, removeDomainFromVercel } from '@/lib/vercel';
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -11,6 +12,7 @@ import {
   createProfileLink,
   deleteProfileLink,
   deleteProfileLinkBento,
+  getProfileLinkById,
   getProfileLinkByLink,
   getProfileLinkViews,
   getProfileLinksOfUser,
@@ -147,7 +149,7 @@ export const profileLinkRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const user = await ctx.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.id, ctx.user.id),
-        columns: { id: true },
+        columns: { id: true, plan: true, subscriptionEndsAt: true },
       });
 
       if (!user) {
@@ -158,6 +160,29 @@ export const profileLinkRouter = createTRPCRouter({
         userId: user.id,
         linkId: input.id,
       });
+
+      // Handle custom domain changes (pro only)
+      if (input.customDomain !== undefined) {
+        const isPro =
+          user.plan === 'pro' &&
+          user.subscriptionEndsAt &&
+          user.subscriptionEndsAt > new Date();
+
+        if (!isPro) {
+          throw new Error('Custom domains require a Pro subscription');
+        }
+
+        const existing = await getProfileLinkById(input.id);
+        const oldDomain = existing?.customDomain;
+
+        if (oldDomain && oldDomain !== input.customDomain) {
+          await removeDomainFromVercel(oldDomain);
+        }
+
+        if (input.customDomain && input.customDomain !== oldDomain) {
+          await addDomainToVercel(input.customDomain);
+        }
+      }
 
       return updateProfileLink(input);
     }),
