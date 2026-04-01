@@ -3,7 +3,6 @@
 import DeleteButton from '@/components/bento/overlay/delete-button';
 import DragHandle from '@/components/bento/overlay/drag-handle';
 import ManageSize from '@/components/bento/overlay/manage-size';
-import { cn } from '@/lib/utils';
 import type { BentoSchema } from '@/server/db';
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
@@ -20,8 +19,6 @@ export default function CardOverlay({
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Toggle overflow:visible on the react-grid-layout item so the
-  // size picker isn't clipped
   useEffect(() => {
     const gridItem = overlayRef.current?.closest(
       '.react-grid-item'
@@ -64,10 +61,7 @@ export default function CardOverlay({
     <div
       ref={overlayRef}
       role="toolbar"
-      className={cn(
-        'absolute top-0 left-0 z-20 h-full w-full',
-        active && 'rounded-md border-2 border-border md:border-0'
-      )}
+      className="absolute top-0 left-0 z-20 h-full w-full"
       onClickCapture={() => {
         if (window.outerWidth < 500) {
           setActive(!active);

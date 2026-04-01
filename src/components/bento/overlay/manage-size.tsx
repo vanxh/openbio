@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import { useParams } from 'next/navigation';
 import type { ComponentType } from 'react';
+import { createPortal } from 'react-dom';
 import type * as z from 'zod';
 
 const ALL_SIZE_OPTIONS: { key: string; icon: ComponentType }[] = [
@@ -30,8 +31,8 @@ export default function ManageSize({
   allowedSizes?: readonly string[];
 }) {
   const { link } = useParams<{ link: string }>();
-
-  const size = window.outerWidth < 500 ? bento.size.sm : bento.size.md;
+  const isMobile = window.outerWidth < 500;
+  const size = isMobile ? bento.size.sm : bento.size.md;
 
   const sizeOptions = allowedSizes
     ? ALL_SIZE_OPTIONS.filter((o) => allowedSizes.includes(o.key))
@@ -45,7 +46,6 @@ export default function ManageSize({
         if (!old) {
           return old;
         }
-
         return {
           ...old,
           bento: old.bento.map((b) => {
@@ -62,44 +62,63 @@ export default function ManageSize({
     },
   });
 
+  const handleSizeClick = (key: string) => {
+    updateBento({
+      link,
+      bento: {
+        ...bento,
+        size: {
+          ...bento.size,
+          [isMobile ? 'sm' : 'md']: key,
+        },
+      },
+    });
+  };
+
+  const sizeButtons = (
+    <div className="flex items-center gap-x-1 rounded-xl bg-primary px-2 py-2 text-primary-foreground shadow-lg">
+      {sizeOptions.map((o) => (
+        <button
+          type="button"
+          key={o.key}
+          className={cn(
+            'inline-flex items-center justify-center rounded-lg p-2 transition-all duration-150 active:scale-95',
+            size === o.key && 'bg-secondary text-secondary-foreground'
+          )}
+          onClick={() => handleSizeClick(o.key)}
+        >
+          <o.icon />
+        </button>
+      ))}
+    </div>
+  );
+
+  // Mobile: fixed bottom sheet with backdrop, portaled to body
+  if (isMobile) {
+    return createPortal(
+      <div className="fixed inset-0 z-100">
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss */}
+        <div className="absolute inset-0 bg-black/20" onClick={close} />
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pt-4 pb-8">
+          {sizeButtons}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={close}
+            className="w-full max-w-xs rounded-xl"
+          >
+            Done
+          </Button>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // Desktop: absolute positioned below card
   return (
     <div className="-translate-x-1/2 absolute bottom-2 left-1/2 z-100 translate-y-full">
-      <div className="flex items-center gap-x-0 rounded-lg bg-primary px-2 py-2 text-primary-foreground shadow-lg">
-        {sizeOptions.map((o) => (
-          <button
-            type="button"
-            key={o.key}
-            className={cn(
-              'inline-flex items-center justify-center p-2 transition-transform duration-200 ease-in-out active:scale-95',
-              size === o.key &&
-                'rounded-sm bg-secondary text-secondary-foreground'
-            )}
-            onClick={() => {
-              updateBento({
-                link,
-                bento: {
-                  ...bento,
-                  size: {
-                    ...bento.size,
-                    [window.outerWidth < 500 ? 'sm' : 'md']: o.key,
-                  },
-                },
-              });
-            }}
-          >
-            <o.icon />
-          </button>
-        ))}
-
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={close}
-          className="ml-2 md:hidden"
-        >
-          Done
-        </Button>
-      </div>
+      {sizeButtons}
     </div>
   );
 }
