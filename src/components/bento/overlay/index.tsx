@@ -22,6 +22,7 @@ export default function CardOverlay({
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const isMobile = typeof window !== 'undefined' && window.outerWidth < 500;
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const gridItem = overlayRef.current?.closest(
@@ -84,14 +85,25 @@ export default function CardOverlay({
       ref={overlayRef}
       role="toolbar"
       className="absolute top-0 left-0 z-20 h-full w-full"
-      onClick={(e) => {
-        if (isMobile) {
-          const target = e.target as HTMLElement;
-          if (target.closest('button') || target.closest('fieldset')) {
-            return;
-          }
-          setActive(!active);
+      onPointerDown={(e) => {
+        pointerStart.current = { x: e.clientX, y: e.clientY };
+      }}
+      onPointerUp={(e) => {
+        if (!isMobile || !pointerStart.current) {
+          return;
         }
+        const dx = Math.abs(e.clientX - pointerStart.current.x);
+        const dy = Math.abs(e.clientY - pointerStart.current.y);
+        pointerStart.current = null;
+        // If moved more than 5px, it was a drag not a tap
+        if (dx > 5 || dy > 5) {
+          return;
+        }
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('fieldset')) {
+          return;
+        }
+        setActive(!active);
       }}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
