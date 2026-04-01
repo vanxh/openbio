@@ -28,6 +28,7 @@ export default function ActionBar() {
             ...old.bento,
             {
               ...input.bento,
+              clicks: 0,
               size: { sm: '2x2', md: '2x2' },
               position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
             },
