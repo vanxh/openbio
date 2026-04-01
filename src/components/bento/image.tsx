@@ -87,19 +87,29 @@ export default function ImageCard({
   const isBanner = mdSize === '4x1';
   const hasImage = !!imgUrl;
 
-  // Empty state: show dropzone
+  // Empty state: show placeholder with upload button on hover/tap
   if (!hasImage && editable) {
     return (
-      <div
-        {...getRootProps()}
-        className="group relative z-0 flex h-full w-full cursor-pointer select-none flex-col items-center justify-center gap-y-2 rounded-2xl border border-border border-dashed bg-card/50 shadow-sm transition-transform duration-200 ease-in-out md:cursor-move"
-      >
-        <input {...getInputProps()} />
+      <div className="group relative z-0 flex h-full w-full select-none flex-col items-center justify-center gap-y-2 rounded-2xl border border-border border-dashed bg-card/50 shadow-sm transition-transform duration-200 ease-in-out md:cursor-move">
         <CardOverlay bento={bento} allowedSizes={IMAGE_CARD_SIZES} />
+        <input {...getInputProps()} />
         <ImagePlus className="h-6 w-6 text-muted-foreground" />
         <p className="text-muted-foreground text-xs">
-          {uploading ? 'Uploading...' : 'Tap to add image'}
+          {uploading ? 'Uploading...' : 'No image'}
         </p>
+        <button
+          type="button"
+          className="absolute bottom-3 rounded-full bg-primary px-3 py-1 font-medium text-primary-foreground text-xs opacity-0 shadow transition-opacity group-hover:opacity-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            const input = e.currentTarget.parentElement?.querySelector(
+              'input[type="file"]'
+            ) as HTMLInputElement | null;
+            input?.click();
+          }}
+        >
+          Upload
+        </button>
       </div>
     );
   }
