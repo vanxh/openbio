@@ -1,5 +1,6 @@
 'use client';
 
+import { usePreview } from '@/app/[link]/_components/preview-context';
 import CardOverlay from '@/components/bento/overlay';
 import { Button } from '@/components/ui/button';
 import {
@@ -180,6 +181,7 @@ export default function NoteCard({
   editable?: boolean;
 }) {
   const params = useParams<{ link: string }>();
+  const { setModalOpen } = usePreview();
   const [editOpen, setEditOpen] = useState(false);
   const queryClient = api.useContext();
   const { mutateAsync: updateBento } =
@@ -209,6 +211,7 @@ export default function NoteCard({
       bento: { ...bento, text: html },
     });
     setEditOpen(false);
+    setModalOpen(false);
   };
 
   return (
@@ -250,7 +253,13 @@ export default function NoteCard({
         )}
       </div>
 
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      <Dialog
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          setModalOpen(open);
+        }}
+      >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-cal">Edit Note</DialogTitle>

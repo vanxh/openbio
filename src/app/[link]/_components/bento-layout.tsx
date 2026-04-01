@@ -74,7 +74,7 @@ export default function BentoLayout({
     []
   );
 
-  const { preview } = usePreview();
+  const { preview, modalOpen } = usePreview();
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
 
   const { mutateAsync: updateBento } =
@@ -136,7 +136,7 @@ export default function BentoLayout({
           : undefined
       }
       isResizable={false}
-      isDraggable={profileLink?.isOwner && !preview}
+      isDraggable={profileLink?.isOwner && !preview && !modalOpen}
       onDragStart={() => {
         hasDragged.current = true;
       }}

@@ -6,12 +6,22 @@ import { createContext, useContext, useState } from 'react';
 const PreviewContext = createContext<{
   preview: boolean;
   setPreview: (v: boolean) => void;
-}>({ preview: false, setPreview: () => {} });
+  modalOpen: boolean;
+  setModalOpen: (v: boolean) => void;
+}>({
+  preview: false,
+  setPreview: () => {},
+  modalOpen: false,
+  setModalOpen: () => {},
+});
 
 export function PreviewProvider({ children }: { children: React.ReactNode }) {
   const [preview, setPreview] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   return (
-    <PreviewContext.Provider value={{ preview, setPreview }}>
+    <PreviewContext.Provider
+      value={{ preview, setPreview, modalOpen, setModalOpen }}
+    >
       {children}
     </PreviewContext.Provider>
   );

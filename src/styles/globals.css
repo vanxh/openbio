@@ -128,11 +128,6 @@
   }
 }
 
-/* Disable grid drag when a dialog/modal is open */
-body:has([data-state="open"][role="dialog"]) .react-grid-layout {
-  pointer-events: none;
-}
-
 /* Match bento card rounding on drag placeholder */
 .react-grid-placeholder {
   border-radius: 1rem !important;

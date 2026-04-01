@@ -1,5 +1,6 @@
 'use client';
 
+import { usePreview } from '@/app/[link]/_components/preview-context';
 import CardOverlay from '@/components/bento/overlay';
 import { Button } from '@/components/ui/button';
 import {
@@ -151,6 +152,7 @@ export default function ImageCard({
   editable?: boolean;
 }) {
   const params = useParams<{ link: string }>();
+  const { setModalOpen } = usePreview();
   const [imgUrl, setImgUrl] = useState(bento.url || '');
   const [uploading, setUploading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -210,6 +212,7 @@ export default function ImageCard({
       },
     });
     setEditOpen(false);
+    setModalOpen(false);
   };
 
   const handleOpenEdit = () => {
@@ -253,7 +256,10 @@ export default function ImageCard({
 
       <ImageEditModal
         open={editOpen}
-        onOpenChange={setEditOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          setModalOpen(open);
+        }}
         modalImgUrl={modalImgUrl}
         caption={caption}
         setCaption={setCaption}
