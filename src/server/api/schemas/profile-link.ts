@@ -34,6 +34,7 @@ export const UpdateLinkSchema = z.object({
   theme: z.string().optional(),
   accentColor: z.string().nullable().optional(),
   darkMode: z.boolean().optional(),
+  customDomain: z.string().nullable().optional(),
 });
 
 export const DeleteLinkSchema = z.object({

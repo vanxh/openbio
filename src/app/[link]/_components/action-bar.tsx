@@ -1,9 +1,10 @@
 'use client';
 
 import CreateLinkBentoModal from '@/components/modals/create-link-bento';
+import CustomDomainModal from '@/components/modals/custom-domain';
 import ThemeSettingsModal from '@/components/modals/theme-settings';
 import { api } from '@/trpc/react';
-import { ImagePlus, Link, Palette, Type } from 'lucide-react';
+import { Globe, ImagePlus, Link, Palette, Type } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { usePreview } from './preview-context';
 
@@ -89,6 +90,12 @@ export default function ActionBar() {
             <Palette size={14} />
           </button>
         </ThemeSettingsModal>
+
+        <CustomDomainModal isPremium={!!profileLink?.isPremium}>
+          <button type="button" className={btnClass}>
+            <Globe size={14} />
+          </button>
+        </CustomDomainModal>
       </div>
     </div>
   );

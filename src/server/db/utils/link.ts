@@ -148,6 +148,7 @@ export const updateProfileLink = async (data: {
   theme?: string;
   accentColor?: string | null;
   darkMode?: boolean;
+  customDomain?: string | null;
 }) => {
   const result = await db
     .update(link)

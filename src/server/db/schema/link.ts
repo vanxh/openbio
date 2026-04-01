@@ -27,6 +27,8 @@ export const link = pgTable('link', {
     .default([])
     .notNull(),
 
+  customDomain: text('custom_domain').unique(),
+
   theme: text('theme').default('default').notNull(),
   accentColor: text('accent_color'),
   darkMode: boolean('dark_mode').default(false).notNull(),
