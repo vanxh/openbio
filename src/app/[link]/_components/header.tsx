@@ -3,6 +3,7 @@
 import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import VerifiedBadge from '@/components/verified-badge';
 import { api } from '@/trpc/react';
 import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
@@ -116,12 +117,15 @@ export default function ProfileLinkHeader() {
         )}
       </div>
 
-      <input
-        className="bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
-        defaultValue={profileLink.name}
-        onChange={(e) => setName(e.target.value)}
-        readOnly={!profileLink.isOwner}
-      />
+      <div className="flex items-center gap-x-2">
+        <input
+          className="bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
+          defaultValue={profileLink.name}
+          onChange={(e) => setName(e.target.value)}
+          readOnly={!profileLink.isOwner}
+        />
+        {profileLink.isPremium && <VerifiedBadge />}
+      </div>
 
       {profileLink.isOwner && editor && (
         <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
