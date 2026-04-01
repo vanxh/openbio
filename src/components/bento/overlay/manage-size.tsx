@@ -67,13 +67,15 @@ export default function ManageSize({
   });
 
   const handleSizeClick = (key: string) => {
+    const sizeKey = key as '2x2' | '4x1' | '4x2' | '2x4' | '4x4';
+    // Set both breakpoints to keep them in sync
     updateBento({
       link,
       bento: {
         ...bento,
         size: {
-          ...bento.size,
-          [isMobile ? 'sm' : 'md']: key,
+          sm: sizeKey,
+          md: sizeKey,
         },
       },
     });
