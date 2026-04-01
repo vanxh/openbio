@@ -8,7 +8,7 @@ import type { AssetBentoSchema } from '@/types';
 import { ImagePlus } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { type FileWithPath, useDropzone } from 'react-dropzone';
 import type * as z from 'zod';
 
@@ -70,6 +70,7 @@ export default function ImageCard({
     [bento, params.link, updateBento]
   );
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -92,7 +93,7 @@ export default function ImageCard({
     return (
       <div className="group relative z-0 flex h-full w-full select-none flex-col items-center justify-center gap-y-2 rounded-2xl border border-border border-dashed bg-card/50 shadow-sm transition-transform duration-200 ease-in-out md:cursor-move">
         <CardOverlay bento={bento} allowedSizes={IMAGE_CARD_SIZES} />
-        <input {...getInputProps()} />
+        <input {...getInputProps()} ref={fileInputRef} />
         <ImagePlus className="h-6 w-6 text-muted-foreground" />
         <p className="text-muted-foreground text-xs">
           {uploading ? 'Uploading...' : 'No image'}
@@ -102,10 +103,7 @@ export default function ImageCard({
           className="absolute bottom-3 rounded-full bg-primary p-2 text-primary-foreground opacity-0 shadow transition-opacity group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
-            const input = e.currentTarget.parentElement?.querySelector(
-              'input[type="file"]'
-            ) as HTMLInputElement | null;
-            input?.click();
+            fileInputRef.current?.click();
           }}
         >
           <ImagePlus className="h-4 w-4" />
