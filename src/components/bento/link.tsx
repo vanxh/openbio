@@ -481,9 +481,11 @@ export default function LinkCard({
 
   const title = getTitle(bento.href, metadata ?? undefined);
   const description = getDescription(bento.href, metadata ?? undefined);
+  const smSize = bento.size.sm ?? '2x2';
   const mdSize = bento.size.md ?? '2x2';
 
-  if (mdSize === '4x1') {
+  // Banner: render if either breakpoint is 4x1
+  if (smSize === '4x1' || mdSize === '4x1') {
     return (
       <BannerLayout
         bento={bento}
