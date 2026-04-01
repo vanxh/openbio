@@ -36,7 +36,7 @@ export default function ThemeSettingsModal({
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
 
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
+  const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
 
   const [theme, setTheme] = useState(profileLink?.theme ?? 'default');
   const [darkMode, setDarkMode] = useState(profileLink?.darkMode ?? false);
