@@ -25,10 +25,14 @@ export default function ManageSize({
   bento,
   close,
   allowedSizes,
+  onHover,
+  onLeave,
 }: {
   bento: z.infer<typeof import('@/types').BentoSchema>;
   close: () => void;
   allowedSizes?: readonly string[];
+  onHover?: () => void;
+  onLeave?: () => void;
 }) {
   const { link } = useParams<{ link: string }>();
   const isMobile = window.outerWidth < 500;
@@ -117,7 +121,11 @@ export default function ManageSize({
 
   // Desktop: absolute positioned below card
   return (
-    <div className="-translate-x-1/2 absolute bottom-2 left-1/2 z-100 translate-y-full">
+    <div
+      className="-translate-x-1/2 absolute bottom-2 left-1/2 z-100 translate-y-full"
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+    >
       {sizeButtons}
     </div>
   );

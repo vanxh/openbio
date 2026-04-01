@@ -39,18 +39,22 @@ export default function CardOverlay({
     };
   }, [active]);
 
-  const show = () => {
+  const cancelHide = () => {
     if (leaveTimeout.current) {
       clearTimeout(leaveTimeout.current);
       leaveTimeout.current = null;
     }
+  };
+
+  const show = () => {
+    cancelHide();
     setActive(true);
   };
 
   const hide = () => {
     leaveTimeout.current = setTimeout(() => {
       setActive(false);
-    }, 150);
+    }, 200);
   };
 
   const stopDrag = (e: React.MouseEvent | React.PointerEvent) => {
@@ -62,8 +66,8 @@ export default function CardOverlay({
       ref={overlayRef}
       role="toolbar"
       className="absolute top-0 left-0 z-20 h-full w-full"
-      onClickCapture={() => {
-        if (window.outerWidth < 500) {
+      onClickCapture={(e) => {
+        if (window.outerWidth < 500 && e.target === e.currentTarget) {
           setActive(!active);
         }
       }}
@@ -77,8 +81,6 @@ export default function CardOverlay({
     >
       {active && (
         <fieldset
-          onMouseEnter={show}
-          onMouseLeave={hide}
           onMouseDown={stopDrag}
           onPointerDown={stopDrag}
           className="contents"
@@ -89,6 +91,8 @@ export default function CardOverlay({
             bento={bento}
             close={() => setActive(false)}
             allowedSizes={allowedSizes}
+            onHover={cancelHide}
+            onLeave={hide}
           />
         </fieldset>
       )}
