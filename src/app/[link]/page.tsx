@@ -8,7 +8,7 @@ import { api } from '@/trpc/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { cache, Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import ActionBar from './_components/action-bar';
 import Bento from './_components/bento';
 import ProfileLinkHeader from './_components/header';

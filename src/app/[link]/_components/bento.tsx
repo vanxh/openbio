@@ -1,14 +1,12 @@
 'use client';
 
 import BentoCard from '@/components/bento/card';
-import { api, type RouterOutputs } from '@/trpc/react';
+import { type RouterOutputs, api } from '@/trpc/react';
 import { useParams } from 'next/navigation';
 import BentoLayout from './bento-layout';
 import { usePreview } from './preview-context';
 
-type ProfileLinkData = NonNullable<
-  RouterOutputs['profileLink']['getByLink']
->;
+type ProfileLinkData = NonNullable<RouterOutputs['profileLink']['getByLink']>;
 
 export default function Bento({
   profileLink: initialData,

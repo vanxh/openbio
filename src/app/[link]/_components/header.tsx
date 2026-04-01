@@ -4,7 +4,7 @@ import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import VerifiedBadge from '@/components/verified-badge';
-import { api, type RouterOutputs } from '@/trpc/react';
+import { type RouterOutputs, api } from '@/trpc/react';
 import Highlight from '@tiptap/extension-highlight';
 import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -35,9 +35,7 @@ const extensions = [
   Highlight.configure({ multicolor: true }),
 ] as Extension[];
 
-type ProfileLinkData = NonNullable<
-  RouterOutputs['profileLink']['getByLink']
->;
+type ProfileLinkData = NonNullable<RouterOutputs['profileLink']['getByLink']>;
 
 export default function ProfileLinkHeader({
   profileLink: initialData,

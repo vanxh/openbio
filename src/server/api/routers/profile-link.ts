@@ -5,7 +5,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc';
-import { after } from 'next/server';
 import {
   addProfileLinkBento,
   canModifyProfileLink,
@@ -29,6 +28,7 @@ import {
   updateProfileLinkBento,
 } from '@/server/db';
 import type { LinkBento } from '@/types';
+import { after } from 'next/server';
 import * as z from 'zod';
 import {
   CreateLinkBentoSchema,
