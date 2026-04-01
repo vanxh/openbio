@@ -66,8 +66,13 @@ export default function CardOverlay({
       ref={overlayRef}
       role="toolbar"
       className="absolute top-0 left-0 z-20 h-full w-full"
-      onClickCapture={(e) => {
-        if (window.outerWidth < 500 && e.target === e.currentTarget) {
+      onClick={(e) => {
+        if (window.outerWidth < 500) {
+          const target = e.target as HTMLElement;
+          // Don't toggle if clicking an actual button or inside the size picker
+          if (target.closest('button') || target.closest('fieldset')) {
+            return;
+          }
           setActive(!active);
         }
       }}
