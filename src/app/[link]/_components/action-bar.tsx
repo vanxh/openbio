@@ -5,8 +5,10 @@ import ThemeSettingsModal from '@/components/modals/theme-settings';
 import { api } from '@/trpc/react';
 import { ImagePlus, Link, Palette, Type } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { usePreview } from './preview-context';
 
 export default function ActionBar() {
+  const { preview } = usePreview();
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
@@ -39,6 +41,10 @@ export default function ActionBar() {
       }
     },
   });
+
+  if (preview) {
+    return null;
+  }
 
   const btnClass =
     'inline-flex items-center bg-background justify-center rounded-md border border-border p-2 transition-transform duration-200 ease-in-out active:scale-95';

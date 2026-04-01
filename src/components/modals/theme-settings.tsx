@@ -67,9 +67,9 @@ export default function ThemeSettingsModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent showClose>
+      <DialogContent className="sm:max-w-lg" showClose>
         <DialogHeader>
-          <DialogTitle>Theme Settings</DialogTitle>
+          <DialogTitle className="font-cal">Theme Settings</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -85,7 +85,7 @@ export default function ThemeSettingsModal({
                     type="button"
                     key={preset.name}
                     className={cn(
-                      'relative flex items-center gap-2 rounded-md border-2 px-3 py-2 text-left text-sm transition-colors',
+                      'relative flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-left text-sm transition-colors',
                       isActive ? 'border-primary' : 'border-border'
                     )}
                     onClick={() => {
@@ -120,21 +120,25 @@ export default function ThemeSettingsModal({
 
           {/* Dark Mode */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-sm">Dark Mode</p>
-              {!isPremium && <Lock className="h-3 w-3 text-muted-foreground" />}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm">Dark Mode</p>
+                {!isPremium && (
+                  <Lock className="h-3 w-3 text-muted-foreground" />
+                )}
+              </div>
+              <Switch
+                checked={darkMode}
+                onCheckedChange={(checked) => {
+                  if (!isPremium) {
+                    showProUpsell();
+                    return;
+                  }
+                  setDarkMode(checked);
+                }}
+                disabled={!isPremium}
+              />
             </div>
-            <Switch
-              checked={darkMode}
-              onCheckedChange={(checked) => {
-                if (!isPremium) {
-                  showProUpsell();
-                  return;
-                }
-                setDarkMode(checked);
-              }}
-              disabled={!isPremium}
-            />
           </div>
 
           {/* Accent Color */}
@@ -146,7 +150,7 @@ export default function ThemeSettingsModal({
             <div className="flex items-center gap-2">
               <input
                 type="color"
-                className="h-9 w-9 shrink-0 cursor-pointer rounded border border-border bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-9 w-9 shrink-0 cursor-pointer rounded-xl border border-border bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
                 value={accentColor || '#000000'}
                 disabled={!isPremium}
                 onChange={(e) => {
@@ -159,7 +163,7 @@ export default function ThemeSettingsModal({
               />
               <input
                 type="text"
-                className="h-9 w-full rounded-md border border-border bg-transparent px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-9 w-full rounded-xl border border-border bg-card px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="#000000"
                 value={accentColor}
                 disabled={!isPremium}
@@ -176,6 +180,7 @@ export default function ThemeSettingsModal({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="rounded-xl"
                   onClick={() => setAccentColor('')}
                 >
                   Clear
@@ -185,7 +190,7 @@ export default function ThemeSettingsModal({
           </div>
 
           {/* Save */}
-          <Button onClick={save} className="w-full">
+          <Button onClick={save} className="w-full rounded-xl">
             Save Theme
           </Button>
         </div>

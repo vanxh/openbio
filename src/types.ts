@@ -49,6 +49,7 @@ export const AssetBentoSchema = z.object({
 
   url: z.string(),
   caption: z.string().optional(),
+  href: z.string().optional(),
 
   size: SizeSchema,
   position: PositionSchema,

@@ -181,6 +181,7 @@ export default function NoteCard({
 }) {
   const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
+  const queryClient = api.useContext();
   const { mutateAsync: updateBento } =
     api.profileLink.updateBento.useMutation();
 
@@ -189,6 +190,20 @@ export default function NoteCard({
   const hasContent = bento.text && bento.text !== '<p></p>';
 
   const handleSave = (html: string) => {
+    queryClient.profileLink.getByLink.cancel({ link: params.link });
+
+    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
+      if (!old) {
+        return old;
+      }
+      return {
+        ...old,
+        bento: old.bento.map((b) =>
+          b.id === bento.id ? { ...b, text: html } : b
+        ),
+      };
+    });
+
     updateBento({
       link: params.link,
       bento: { ...bento, text: html },

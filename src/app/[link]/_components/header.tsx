@@ -12,11 +12,12 @@ import { Color, TextStyle } from '@tiptap/extension-text-style';
 import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { QrCode } from 'lucide-react';
+import { Eye, PenLine, QrCode } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
 import BioToolbar from './bio-toolbar';
+import { usePreview } from './preview-context';
 
 const extensions = [
   StarterKit.configure({
@@ -66,6 +67,8 @@ export default function ProfileLinkHeader() {
     save();
   }, [name, bio, updateProfileLink, profileLink]);
 
+  const { preview, setPreview } = usePreview();
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions,
@@ -76,7 +79,7 @@ export default function ProfileLinkHeader() {
           'focus:outline-none dark:prose-invert prose-p:text-foreground prose-headings:font-cal mx-auto lg:prose-lg lg:prose-p:m-0',
       },
     },
-    editable: profileLink?.isOwner,
+    editable: profileLink?.isOwner && !preview,
     onUpdate: ({ editor }) => {
       setBio(editor.getHTML());
     },
@@ -86,6 +89,8 @@ export default function ProfileLinkHeader() {
     return null;
   }
 
+  const isEditable = profileLink.isOwner && !preview;
+
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex items-start justify-between">
@@ -94,27 +99,43 @@ export default function ProfileLinkHeader() {
         {profileLink.isOwner && (
           <div className="flex flex-row items-center gap-x-4">
             <Button
-              disabled={saving}
-              onClick={() => {
-                navigator.clipboard
-                  .writeText(`https://openbio.app/${profileLink.link}`)
-                  .then(() => {
-                    toast({
-                      title: 'Copied to clipboard!',
-                      description: 'Copied profile link to clipboard!',
-                    });
-                  })
-                  .catch(() => undefined);
-              }}
+              size="icon"
+              variant={preview ? 'default' : 'outline'}
+              onClick={() => setPreview(!preview)}
             >
-              {saving ? 'Saving...' : 'Share'}
+              {preview ? (
+                <PenLine className="h-[1.2rem] w-[1.2rem]" />
+              ) : (
+                <Eye className="h-[1.2rem] w-[1.2rem]" />
+              )}
             </Button>
 
-            <LinkQRModal profileLink={profileLink}>
-              <Button size="icon" variant="outline" disabled={saving}>
-                <QrCode className="h-[1.2rem] w-[1.2rem]" />
-              </Button>
-            </LinkQRModal>
+            {!preview && (
+              <>
+                <Button
+                  disabled={saving}
+                  onClick={() => {
+                    navigator.clipboard
+                      .writeText(`https://openbio.app/${profileLink.link}`)
+                      .then(() => {
+                        toast({
+                          title: 'Copied to clipboard!',
+                          description: 'Copied profile link to clipboard!',
+                        });
+                      })
+                      .catch(() => undefined);
+                  }}
+                >
+                  {saving ? 'Saving...' : 'Share'}
+                </Button>
+
+                <LinkQRModal profileLink={profileLink}>
+                  <Button size="icon" variant="outline" disabled={saving}>
+                    <QrCode className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
+                </LinkQRModal>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -124,15 +145,15 @@ export default function ProfileLinkHeader() {
           className="bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
           defaultValue={profileLink.name}
           onChange={(e) => setName(e.target.value)}
-          readOnly={!profileLink.isOwner}
+          readOnly={!isEditable}
         />
         {profileLink.isPremium && <VerifiedBadge />}
       </div>
 
       <div className="group/bio relative">
         <EditorContent editor={editor} />
-        {profileLink.isOwner && editor && (
-          <div className="mt-1 opacity-0 transition-opacity duration-200 group-focus-within/bio:opacity-100">
+        {isEditable && editor && (
+          <div className="invisible absolute left-0 z-10 mt-1 group-focus-within/bio:visible">
             <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
           </div>
         )}
