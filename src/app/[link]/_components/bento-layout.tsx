@@ -20,7 +20,7 @@ function bentoToLayoutItem(
   b: z.infer<typeof BentoSchema>,
   breakpoint: 'sm' | 'md'
 ) {
-  const { w, h } = sizeToGrid(b.size[breakpoint]);
+  const { w, h } = sizeToGrid(b.size[breakpoint], breakpoint);
   return {
     i: b.id,
     x: b.position[breakpoint]?.x ?? 0,
