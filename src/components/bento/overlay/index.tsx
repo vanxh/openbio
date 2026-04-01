@@ -58,6 +58,11 @@ export default function CardOverlay({
   };
 
   const stopDrag = (e: React.MouseEvent | React.PointerEvent) => {
+    // Let drag handle events propagate to react-grid-layout
+    const target = e.target as HTMLElement;
+    if (target.closest('.drag-handle')) {
+      return;
+    }
     e.stopPropagation();
   };
 
