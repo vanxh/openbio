@@ -44,7 +44,12 @@ export default function ManageSize({
   const queryClient = api.useContext();
 
   const { mutateAsync: updateBento } = api.profileLink.updateBento.useMutation({
-    onMutate: (input) => {
+    onMutate: async (input) => {
+      // Cancel in-flight refetches so they don't overwrite our optimistic update
+      await queryClient.profileLink.getByLink.cancel({ link });
+
+      const previous = queryClient.profileLink.getByLink.getData({ link });
+
       queryClient.profileLink.getByLink.setData({ link }, (old) => {
         if (!old) {
           return old;
@@ -59,9 +64,14 @@ export default function ManageSize({
           }),
         };
       });
+
+      return { previous };
     },
-    onSettled: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
+    onError: (_err, _input, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.profileLink.getByLink.setData({ link }, context.previous);
+      }
     },
   });
 

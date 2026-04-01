@@ -17,25 +17,24 @@ export default function DeleteButton({
   const queryClient = api.useContext();
 
   const { mutateAsync: deleteBento } = api.profileLink.deleteBento.useMutation({
-    onMutate: () => {
-      queryClient.profileLink.getByLink.setData(
-        {
-          link,
-        },
-        (old) => {
-          if (!old) {
-            return old;
-          }
-
-          return {
-            ...old,
-            bento: old.bento.filter((b) => b.id !== bento.id),
-          };
+    onMutate: async () => {
+      await queryClient.profileLink.getByLink.cancel({ link });
+      const previous = queryClient.profileLink.getByLink.getData({ link });
+      queryClient.profileLink.getByLink.setData({ link }, (old) => {
+        if (!old) {
+          return old;
         }
-      );
+        return {
+          ...old,
+          bento: old.bento.filter((b) => b.id !== bento.id),
+        };
+      });
+      return { previous };
     },
-    onSettled: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
+    onError: (_err, _input, context) => {
+      if (context?.previous) {
+        queryClient.profileLink.getByLink.setData({ link }, context.previous);
+      }
     },
   });
 

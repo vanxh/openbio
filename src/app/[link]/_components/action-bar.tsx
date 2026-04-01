@@ -12,7 +12,9 @@ export default function ActionBar() {
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
-    onMutate: (input) => {
+    onMutate: async (input) => {
+      await queryClient.profileLink.getByLink.cancel({ link });
+      const previous = queryClient.profileLink.getByLink.getData({ link });
       queryClient.profileLink.getByLink.setData({ link }, (old) => {
         if (!old) {
           return old;
@@ -29,9 +31,12 @@ export default function ActionBar() {
           ],
         };
       });
+      return { previous };
     },
-    onSettled: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
+    onError: (_err, _input, context) => {
+      if (context?.previous) {
+        queryClient.profileLink.getByLink.setData({ link }, context.previous);
+      }
     },
   });
 
