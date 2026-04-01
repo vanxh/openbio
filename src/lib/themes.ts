@@ -342,5 +342,9 @@ export const THEME_PRESETS: ThemePreset[] = [
 ];
 
 export function getThemePreset(name: string): ThemePreset {
-  return THEME_PRESETS.find((t) => t.name === name) ?? THEME_PRESETS[0];
+  const preset = THEME_PRESETS.find((t) => t.name === name);
+  if (!preset) {
+    return THEME_PRESETS[0] as ThemePreset;
+  }
+  return preset;
 }
