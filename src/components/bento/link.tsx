@@ -495,14 +495,28 @@ export default function LinkCard({
   }
 
   if (mdSize === '4x2') {
+    // On mobile, 4x2 renders as compact since there's only 2 columns
     return (
-      <WideLayout
-        bento={bento}
-        editable={editable}
-        metadata={metadata ?? undefined}
-        title={title}
-        description={description}
-      />
+      <>
+        <div className="h-full md:hidden">
+          <CompactLayout
+            bento={bento}
+            editable={editable}
+            metadata={metadata ?? undefined}
+            title={title}
+            description={description}
+          />
+        </div>
+        <div className="hidden h-full md:block">
+          <WideLayout
+            bento={bento}
+            editable={editable}
+            metadata={metadata ?? undefined}
+            title={title}
+            description={description}
+          />
+        </div>
+      </>
     );
   }
 
