@@ -3,7 +3,6 @@ import { getSessionCookie } from 'better-auth/cookies';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'openbio.app';
-const ROOT_PARTS_LENGTH = ROOT_DOMAIN.split('.').length;
 const IP_REGEX = /^\d+\.\d+\.\d+\.\d+/;
 
 const PASSTHROUGH_PREFIXES = ['/api', '/trpc', '/_next', '/app'];
@@ -36,12 +35,14 @@ function getSubdomain(hostname: string): string | null {
     return null;
   }
 
-  const parts = clean.split('.');
-  if (parts.length > ROOT_PARTS_LENGTH) {
-    const sub = parts[0];
-    if (sub && sub !== 'www') {
-      return sub;
-    }
+  // Only extract subdomains from the root domain
+  if (!clean.endsWith(`.${ROOT_DOMAIN}`)) {
+    return null;
+  }
+
+  const sub = clean.replace(`.${ROOT_DOMAIN}`, '');
+  if (sub && sub !== 'www') {
+    return sub;
   }
 
   return null;

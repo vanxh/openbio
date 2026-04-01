@@ -288,7 +288,10 @@ export default function CustomDomainModal({
           <div className="flex gap-2">
             <Button
               onClick={save}
-              className={cn('flex-1 rounded-xl', !domainChanged && 'opacity-50')}
+              className={cn(
+                'flex-1 rounded-xl',
+                !domainChanged && 'opacity-50'
+              )}
               disabled={isPending || !isPremium || !domainChanged}
             >
               {isPending ? 'Saving...' : 'Save'}
