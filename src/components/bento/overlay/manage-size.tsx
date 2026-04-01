@@ -13,11 +13,7 @@ import type { ComponentType, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type * as z from 'zod';
 
-function ResponsivePortal({ children }: { children: ReactNode }) {
-  if (window.outerWidth > 500) {
-    return children;
-  }
-
+function Portal({ children }: { children: ReactNode }) {
   return createPortal(children, document.body);
 }
 
@@ -72,8 +68,8 @@ export default function ManageSize({
   });
 
   return (
-    <ResponsivePortal>
-      <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:absolute md:bottom-0 md:w-max md:translate-y-1/2">
+    <Portal>
+      <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 w-max">
         <div className="flex items-center gap-x-4 rounded-lg bg-primary px-4 py-4 text-primary-foreground shadow md:gap-x-0 md:px-2 md:py-2">
           {sizeOptions.map((o) => (
             <button
@@ -111,6 +107,6 @@ export default function ManageSize({
           </Button>
         </div>
       </div>
-    </ResponsivePortal>
+    </Portal>
   );
 }
