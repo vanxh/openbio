@@ -8,6 +8,13 @@
       "when": 1693845030498,
       "tag": "0000_perpetual_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775044364495,
+      "tag": "0001_fancy_wolfpack",
+      "breakpoints": true
     }
   ]
 }
