@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { api } from '@/trpc/react';
 import { LinkBentoSchema } from '@/types';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 
 export default function CreateLinkBentoModal({
@@ -21,7 +21,6 @@ export default function CreateLinkBentoModal({
 }) {
   const [open, setOpen] = useState(false);
 
-  const router = useRouter();
   const { link } = useParams<{ link: string }>();
 
   const [input, setInput] = useState('');
@@ -47,9 +46,10 @@ export default function CreateLinkBentoModal({
       );
     },
     onSuccess: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
-      router.refresh();
       setOpen(false);
+    },
+    onSettled: () => {
+      queryClient.profileLink.getByLink.invalidate({ link });
     },
   });
 

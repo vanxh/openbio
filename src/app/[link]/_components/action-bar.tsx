@@ -4,18 +4,34 @@ import CreateLinkBentoModal from '@/components/modals/create-link-bento';
 import ThemeSettingsModal from '@/components/modals/theme-settings';
 import { api } from '@/trpc/react';
 import { ImagePlus, Link, Palette, Type } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 export default function ActionBar() {
-  const router = useRouter();
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
-    onSuccess: () => {
+    onMutate: (input) => {
+      queryClient.profileLink.getByLink.setData({ link }, (old) => {
+        if (!old) {
+          return old;
+        }
+        return {
+          ...old,
+          bento: [
+            ...old.bento,
+            {
+              ...input.bento,
+              size: { sm: '2x2', md: '2x2' },
+              position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
+            },
+          ],
+        };
+      });
+    },
+    onSettled: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
-      router.refresh();
     },
   });
 

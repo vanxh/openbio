@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
 import { Trash } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import type * as z from 'zod';
 
 export default function DeleteButton({
@@ -12,7 +12,6 @@ export default function DeleteButton({
 }: {
   bento: z.infer<typeof BentoSchema>;
 }) {
-  const router = useRouter();
   const { link } = useParams<{ link: string }>();
 
   const queryClient = api.useContext();
@@ -35,9 +34,8 @@ export default function DeleteButton({
         }
       );
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
-      router.refresh();
     },
   });
 

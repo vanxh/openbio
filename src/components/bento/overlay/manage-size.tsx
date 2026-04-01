@@ -66,7 +66,7 @@ export default function ManageSize({
         };
       });
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
     },
   });
