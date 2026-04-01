@@ -1,8 +1,10 @@
 import type { BentoSchema } from '@/server/db';
+import dynamic from 'next/dynamic';
 import type * as z from 'zod';
-import ImageCard from './image';
 import LinkCard from './link';
-import NoteCard from './note';
+
+const NoteCard = dynamic(() => import('./note'), { ssr: false });
+const ImageCard = dynamic(() => import('./image'), { ssr: false });
 
 export default function BentoCard({
   bento,

@@ -29,6 +29,7 @@ export default function NoteCard({
   const isBanner = mdSize === '4x1';
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({
