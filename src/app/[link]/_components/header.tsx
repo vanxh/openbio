@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import VerifiedBadge from '@/components/verified-badge';
 import { api } from '@/trpc/react';
-import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import TextStyle from '@tiptap/extension-text-style';
+import { Color, TextStyle } from '@tiptap/extension-text-style';
 import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -20,7 +19,10 @@ import ProfileLinkAvatar from './avatar';
 import BioToolbar from './bio-toolbar';
 
 const extensions = [
-  StarterKit,
+  StarterKit.configure({
+    link: false,
+    underline: false,
+  }),
   Placeholder.configure({
     placeholder: 'Tell us about yourself!',
     showOnlyWhenEditable: true,
