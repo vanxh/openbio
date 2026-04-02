@@ -30,8 +30,40 @@ type TimeLeft = {
   isPast: boolean;
 };
 
-function getTimeLeft(targetDate: string): TimeLeft {
-  const diff = new Date(targetDate).getTime() - Date.now();
+function getNextOccurrence(
+  targetDate: string,
+  repeat: string
+): Date {
+  const target = new Date(targetDate);
+  const now = new Date();
+
+  if (repeat === 'yearly') {
+    while (target <= now) {
+      target.setFullYear(target.getFullYear() + 1);
+    }
+  } else if (repeat === 'monthly') {
+    while (target <= now) {
+      target.setMonth(target.getMonth() + 1);
+    }
+  } else if (repeat === 'weekly') {
+    while (target <= now) {
+      target.setDate(target.getDate() + 7);
+    }
+  }
+
+  return target;
+}
+
+function getTimeLeft(
+  targetDate: string,
+  repeat = 'none'
+): TimeLeft {
+  const effectiveTarget =
+    repeat !== 'none'
+      ? getNextOccurrence(targetDate, repeat)
+      : new Date(targetDate);
+  const diff = effectiveTarget.getTime() - Date.now();
+
   if (diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
   }
@@ -44,17 +76,17 @@ function getTimeLeft(targetDate: string): TimeLeft {
   };
 }
 
-function useCountdown(targetDate: string) {
+function useCountdown(targetDate: string, repeat = 'none') {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
-    getTimeLeft(targetDate)
+    getTimeLeft(targetDate, repeat)
   );
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(getTimeLeft(targetDate));
+      setTimeLeft(getTimeLeft(targetDate, repeat));
     }, 1000);
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate, repeat]);
 
   return timeLeft;
 }
@@ -202,8 +234,9 @@ export default function CountdownCard({
   const [title, setTitle] = useState(bento.title ?? '');
   const [targetDate, setTargetDate] = useState(bento.targetDate || '');
   const [emoji, setEmoji] = useState(bento.emoji ?? '');
+  const [repeat, setRepeat] = useState(bento.repeat ?? 'none');
 
-  const timeLeft = useCountdown(bento.targetDate);
+  const timeLeft = useCountdown(bento.targetDate, bento.repeat);
 
   const queryClient = api.useContext();
   const { mutateAsync: updateBento } =
@@ -227,6 +260,7 @@ export default function CountdownCard({
                 title: title || undefined,
                 targetDate,
                 emoji: emoji || undefined,
+                repeat,
               }
             : b
         ),
@@ -240,6 +274,7 @@ export default function CountdownCard({
         title: title || undefined,
         targetDate,
         emoji: emoji || undefined,
+        repeat,
       },
     });
     setEditOpen(false);
@@ -346,6 +381,23 @@ export default function CountdownCard({
                 }
                 className="rounded-xl"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cd-repeat" className="font-medium text-sm">
+                Repeat
+              </Label>
+              <select
+                id="cd-repeat"
+                value={repeat}
+                onChange={(e) => setRepeat(e.target.value as typeof repeat)}
+                className="h-9 w-full rounded-xl border border-border bg-card px-3 text-sm"
+              >
+                <option value="none">Don&apos;t repeat</option>
+                <option value="weekly">Every week</option>
+                <option value="monthly">Every month</option>
+                <option value="yearly">Every year</option>
+              </select>
             </div>
 
             <Button onClick={handleSave} className="w-full rounded-xl">

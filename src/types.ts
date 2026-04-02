@@ -96,6 +96,7 @@ export const CountdownBentoSchema = z.object({
   title: z.string().optional(),
   targetDate: z.string(),
   emoji: z.string().optional(),
+  repeat: z.enum(['none', 'yearly', 'monthly', 'weekly']).optional(),
 
   size: SizeSchema,
   position: PositionSchema,

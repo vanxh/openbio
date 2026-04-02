@@ -187,6 +187,7 @@ export default function ActionBar() {
                     id: crypto.randomUUID(),
                     type: 'countdown',
                     targetDate: '',
+                    repeat: 'none',
                   })
                 }
               >

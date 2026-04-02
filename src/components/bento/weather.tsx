@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { WeatherBentoSchema } from '@/types';
@@ -236,6 +237,7 @@ export default function WeatherCard({
 
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
+      toast({ title: 'Geolocation not supported', description: 'Your browser does not support geolocation.' });
       return;
     }
     setLocating(true);
@@ -244,9 +246,11 @@ export default function WeatherCard({
         setLatitude(String(position.coords.latitude));
         setLongitude(String(position.coords.longitude));
         setLocating(false);
+        toast({ title: 'Location updated', description: 'Coordinates have been filled in.' });
       },
       () => {
         setLocating(false);
+        toast({ title: 'Location denied', description: 'Please allow location access and try again.' });
       }
     );
   }, []);
