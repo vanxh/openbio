@@ -3,10 +3,27 @@
 import CreateLinkBentoModal from '@/components/modals/create-link-bento';
 import CustomDomainModal from '@/components/modals/custom-domain';
 import ThemeSettingsModal from '@/components/modals/theme-settings';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { api } from '@/trpc/react';
-import { ArrowLeft, Globe, ImagePlus, Link, Palette, Type } from 'lucide-react';
+import {
+  ArrowLeft,
+  Globe,
+  ImagePlus,
+  Link,
+  Mail,
+  MapPin,
+  Palette,
+  Plus,
+  Type,
+} from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import { usePreview } from './preview-context';
 
 export default function ActionBar() {
@@ -14,6 +31,8 @@ export default function ActionBar() {
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
+  const [addOpen, setAddOpen] = useState(false);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
     onMutate: async (input) => {
@@ -52,59 +71,134 @@ export default function ActionBar() {
   const btnClass =
     'inline-flex items-center justify-center rounded-md border border-border bg-background p-2 text-foreground transition-transform duration-200 ease-in-out active:scale-95';
 
+  const menuItemClass =
+    'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted';
+
+  const addCard = (bento: Record<string, unknown>) => {
+    createBento({ link, bento: bento as never });
+    setAddOpen(false);
+  };
+
   return (
-    <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:bottom-10">
-      <div className="mx-auto flex w-max items-center gap-x-4 rounded-lg bg-background/80 px-3 py-3 backdrop-blur-xl backdrop-saturate-[20]">
-        <NextLink href="/app" className={btnClass} title="Back to dashboard">
-          <ArrowLeft size={14} />
-        </NextLink>
+    <>
+      <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:bottom-10">
+        <div className="mx-auto flex w-max items-center gap-x-4 rounded-lg bg-background/80 px-3 py-3 backdrop-blur-xl backdrop-saturate-[20]">
+          <NextLink href="/app" className={btnClass} title="Back to dashboard">
+            <ArrowLeft size={14} />
+          </NextLink>
 
-        <div className="h-5 w-px bg-border" />
+          <div className="h-5 w-px bg-border" />
 
-        <CreateLinkBentoModal>
-          <button type="button" className={btnClass}>
-            <Link size={14} />
-          </button>
-        </CreateLinkBentoModal>
+          <Popover open={addOpen} onOpenChange={setAddOpen}>
+            <PopoverTrigger asChild>
+              <button type="button" className={btnClass} title="Add card">
+                <Plus size={14} />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-52 p-1.5"
+              side="top"
+              sideOffset={12}
+            >
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() => {
+                  setAddOpen(false);
+                  setLinkModalOpen(true);
+                }}
+              >
+                <Link size={14} className="shrink-0" />
+                Link
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'note',
+                    text: '',
+                  })
+                }
+              >
+                <Type size={14} className="shrink-0" />
+                Note
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'image',
+                    url: '',
+                  })
+                }
+              >
+                <ImagePlus size={14} className="shrink-0" />
+                Image
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'map',
+                    latitude: 0,
+                    longitude: 0,
+                  })
+                }
+              >
+                <MapPin size={14} className="shrink-0" />
+                Map
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'github',
+                    username: '',
+                  })
+                }
+              >
+                <FaGithub size={14} className="shrink-0" />
+                GitHub
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'email-collect',
+                  })
+                }
+              >
+                <Mail size={14} className="shrink-0" />
+                Email Collect
+              </button>
+            </PopoverContent>
+          </Popover>
 
-        <button
-          type="button"
-          className={btnClass}
-          onClick={() => {
-            createBento({
-              link,
-              bento: { id: crypto.randomUUID(), type: 'note', text: '' },
-            });
-          }}
-        >
-          <Type size={14} />
-        </button>
+          <ThemeSettingsModal isPremium={!!profileLink?.isPremium}>
+            <button type="button" className={btnClass}>
+              <Palette size={14} />
+            </button>
+          </ThemeSettingsModal>
 
-        <button
-          type="button"
-          className={btnClass}
-          onClick={() => {
-            createBento({
-              link,
-              bento: { id: crypto.randomUUID(), type: 'image', url: '' },
-            });
-          }}
-        >
-          <ImagePlus size={14} />
-        </button>
-
-        <ThemeSettingsModal isPremium={!!profileLink?.isPremium}>
-          <button type="button" className={btnClass}>
-            <Palette size={14} />
-          </button>
-        </ThemeSettingsModal>
-
-        <CustomDomainModal isPremium={!!profileLink?.isPremium}>
-          <button type="button" className={btnClass}>
-            <Globe size={14} />
-          </button>
-        </CustomDomainModal>
+          <CustomDomainModal isPremium={!!profileLink?.isPremium}>
+            <button type="button" className={btnClass}>
+              <Globe size={14} />
+            </button>
+          </CustomDomainModal>
+        </div>
       </div>
-    </div>
+
+      <CreateLinkBentoModal open={linkModalOpen} onOpenChange={setLinkModalOpen} />
+    </>
   );
 }

@@ -16,10 +16,16 @@ import { type ReactNode, useState } from 'react';
 
 export default function CreateLinkBentoModal({
   children,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = controlledOnOpenChange ?? setUncontrolledOpen;
 
   const { link } = useParams<{ link: string }>();
 
@@ -55,7 +61,7 @@ export default function CreateLinkBentoModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Link Card</DialogTitle>

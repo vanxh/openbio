@@ -11,6 +11,7 @@ import {
   publicProcedure,
 } from '@/server/api/trpc';
 import {
+  addEmailSubscriber,
   addProfileLinkBento,
   canModifyProfileLink,
   canUserCreateProfileLink,
@@ -181,6 +182,17 @@ export const profileLinkRouter = createTRPCRouter({
         userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
         referrer: ctx.req.headers.get('referer') ?? undefined,
       });
+    }),
+
+  subscribe: publicProcedure
+    .input(
+      z.object({
+        linkId: z.string(),
+        email: z.string().email(),
+      })
+    )
+    .mutation(({ input }) => {
+      return addEmailSubscriber(input.linkId, input.email);
     }),
 
   analytics: protectedProcedure

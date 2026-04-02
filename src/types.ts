@@ -55,8 +55,45 @@ export const AssetBentoSchema = z.object({
   position: PositionSchema,
 });
 
-export const BentoSchema =
-  LinkBentoSchema.or(NoteBentoSchema).or(AssetBentoSchema);
+export const MapBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('map'),
+
+  latitude: z.number(),
+  longitude: z.number(),
+  label: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
+export const GithubBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('github'),
+
+  username: z.string(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
+export const EmailCollectBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('email-collect'),
+
+  heading: z.string().optional(),
+  description: z.string().optional(),
+  buttonText: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
+export const BentoSchema = LinkBentoSchema.or(NoteBentoSchema)
+  .or(AssetBentoSchema)
+  .or(MapBentoSchema)
+  .or(GithubBentoSchema)
+  .or(EmailCollectBentoSchema);
 
 export const RESERVED_LINKS = [
   'sign-up',
