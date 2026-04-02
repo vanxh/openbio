@@ -113,7 +113,11 @@ export default function ManageSize({
     return createPortal(
       <div className="fixed inset-0 z-100">
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss */}
-        <div className="absolute inset-0 bg-black/20" onClick={close} />
+        <div
+          role="presentation"
+          className="absolute inset-0 bg-black/20"
+          onClick={close}
+        />
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pt-4 pb-8">
           {sizeButtons}
         </div>
@@ -125,6 +129,7 @@ export default function ManageSize({
   // Desktop: absolute positioned below card
   return (
     <div
+      role="toolbar"
       className="-translate-x-1/2 absolute bottom-2 left-1/2 z-100 translate-y-full"
       onMouseEnter={onHover}
       onMouseLeave={onLeave}

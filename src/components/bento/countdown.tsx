@@ -78,7 +78,7 @@ function TimeUnit({
       >
         {String(value).padStart(2, '0')}
       </span>
-      <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
         {label}
       </span>
     </div>
@@ -99,13 +99,13 @@ function CompactCountdown({
         <p className="font-cal text-xs leading-tight">{bento.title}</p>
       )}
       {timeLeft.isPast ? (
-        <p className="font-cal text-sm text-primary">Time's up!</p>
+        <p className="font-cal text-primary text-sm">Time's up!</p>
       ) : (
         <div className="flex items-center gap-3">
           <TimeUnit value={timeLeft.days} label="d" compact />
-          <span className="font-cal text-xl text-muted-foreground">:</span>
+          <span className="font-cal text-muted-foreground text-xl">:</span>
           <TimeUnit value={timeLeft.hours} label="h" compact />
-          <span className="font-cal text-xl text-muted-foreground">:</span>
+          <span className="font-cal text-muted-foreground text-xl">:</span>
           <TimeUnit value={timeLeft.minutes} label="m" compact />
         </div>
       )}
@@ -124,9 +124,7 @@ function WideCountdown({
     <div className="flex h-full w-full flex-col justify-center gap-4 p-6">
       <div className="flex items-center gap-2">
         {bento.emoji && <span className="text-xl">{bento.emoji}</span>}
-        {bento.title && (
-          <p className="font-cal text-sm">{bento.title}</p>
-        )}
+        {bento.title && <p className="font-cal text-sm">{bento.title}</p>}
       </div>
       {timeLeft.isPast ? (
         <p className="font-cal text-lg text-primary">Time's up!</p>
@@ -155,9 +153,7 @@ function LargeCountdown({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-6 text-center">
       {bento.emoji && <span className="text-4xl">{bento.emoji}</span>}
-      {bento.title && (
-        <p className="font-cal text-lg">{bento.title}</p>
-      )}
+      {bento.title && <p className="font-cal text-lg">{bento.title}</p>}
       {timeLeft.isPast ? (
         <p className="font-cal text-2xl text-primary">Time's up!</p>
       ) : (
@@ -345,7 +341,9 @@ export default function CountdownCard({
                 id="cd-date"
                 type="datetime-local"
                 value={targetDate ? targetDate.slice(0, 16) : ''}
-                onChange={(e) => setTargetDate(new Date(e.target.value).toISOString())}
+                onChange={(e) =>
+                  setTargetDate(new Date(e.target.value).toISOString())
+                }
                 className="rounded-xl"
               />
             </div>

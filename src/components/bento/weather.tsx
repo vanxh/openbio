@@ -310,13 +310,19 @@ export default function WeatherCard({
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
             <span className="text-2xl">🌤️</span>
             <p className="text-muted-foreground text-xs">
-              {editable ? 'Set location' : !weather ? 'Loading...' : ''}
+              {editable ? 'Set location' : weather ? '' : 'Loading...'}
             </p>
           </div>
         ) : mdSize === '4x2' ? (
-          <WideWeather weather={weather} locationName={displayLocation ?? undefined} />
+          <WideWeather
+            weather={weather}
+            locationName={displayLocation ?? undefined}
+          />
         ) : (
-          <CompactWeather weather={weather} locationName={displayLocation ?? undefined} />
+          <CompactWeather
+            weather={weather}
+            locationName={displayLocation ?? undefined}
+          />
         )}
 
         {editable && (

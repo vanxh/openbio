@@ -74,7 +74,11 @@ function useReverseGeocode(lat: number, lng: number) {
           return;
         }
         const parts = [
-          addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city_district,
+          addr.suburb ||
+            addr.neighbourhood ||
+            addr.village ||
+            addr.town ||
+            addr.city_district,
           addr.city || addr.state,
           addr.country,
         ].filter(Boolean);
@@ -201,7 +205,7 @@ function MapDisplay({
       )}
       {displayLabel && compact && (
         <div className="absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/80 via-black/30 to-transparent px-3 pt-6 pb-2.5">
-          <p className="truncate text-center text-xs font-medium text-white/90">
+          <p className="truncate text-center font-medium text-white/90 text-xs">
             {displayLabel}
           </p>
         </div>

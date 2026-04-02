@@ -90,43 +90,46 @@ export default async function Page({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ThemeWrapper
-      theme={profileLink.theme}
-      darkMode={profileLink.darkMode}
-      accentColor={profileLink.accentColor}
-    >
-      <PreviewProvider>
-        <ViewportContainer>
-          <div className="flex flex-col gap-y-6">
-            <div className="animate-fade-in">
-              <ProfileLinkHeader profileLink={profileLink} />
-            </div>
+        theme={profileLink.theme}
+        darkMode={profileLink.darkMode}
+        accentColor={profileLink.accentColor}
+      >
+        <PreviewProvider>
+          <ViewportContainer>
+            <div className="flex flex-col gap-y-6">
+              <div className="animate-fade-in">
+                <ProfileLinkHeader profileLink={profileLink} />
+              </div>
 
-            <Suspense
-              fallback={
-                <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-square h-full w-full" />
-                  ))}
-                </div>
-              }
-            >
-              <Bento profileLink={profileLink} />
-            </Suspense>
-
-            {profileLink.isOwner && <ActionBar />}
-
-            <footer className="animate-fade-in py-8 text-center">
-              <Link
-                href="/"
-                className="text-muted-foreground text-xs transition-colors hover:text-foreground"
+              <Suspense
+                fallback={
+                  <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className="aspect-square h-full w-full"
+                      />
+                    ))}
+                  </div>
+                }
               >
-                {profileLink.customFooter || 'Made with OpenBio'}
-              </Link>
-            </footer>
-          </div>
-        </ViewportContainer>
-      </PreviewProvider>
-    </ThemeWrapper>
+                <Bento profileLink={profileLink} />
+              </Suspense>
+
+              {profileLink.isOwner && <ActionBar />}
+
+              <footer className="animate-fade-in py-8 text-center">
+                <Link
+                  href="/"
+                  className="text-muted-foreground text-xs transition-colors hover:text-foreground"
+                >
+                  {profileLink.customFooter || 'Made with OpenBio'}
+                </Link>
+              </footer>
+            </div>
+          </ViewportContainer>
+        </PreviewProvider>
+      </ThemeWrapper>
     </>
   );
 }
