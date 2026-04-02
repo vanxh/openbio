@@ -90,22 +90,19 @@ export default function MapCard({
       return;
     }
 
-    queryClient.profileLink.getByLink.setData(
-      { link: params.link },
-      (old) => {
-        if (!old) {
-          return old;
-        }
-        return {
-          ...old,
-          bento: old.bento.map((b) =>
-            b.id === bento.id
-              ? { ...b, latitude: lat, longitude: lng, label: label || undefined }
-              : b
-          ),
-        };
+    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
+      if (!old) {
+        return old;
       }
-    );
+      return {
+        ...old,
+        bento: old.bento.map((b) =>
+          b.id === bento.id
+            ? { ...b, latitude: lat, longitude: lng, label: label || undefined }
+            : b
+        ),
+      };
+    });
 
     await updateBento({
       link: params.link,
@@ -176,15 +173,18 @@ export default function MapCard({
             <DialogTitle className="font-cal">Edit Map</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {latitude && longitude && !Number.isNaN(Number(latitude)) && !Number.isNaN(Number(longitude)) && (
-              <div className="aspect-video overflow-hidden rounded-xl border border-border">
-                <MapEmbed
-                  latitude={Number(latitude)}
-                  longitude={Number(longitude)}
-                  label={label}
-                />
-              </div>
-            )}
+            {latitude &&
+              longitude &&
+              !Number.isNaN(Number(latitude)) &&
+              !Number.isNaN(Number(longitude)) && (
+                <div className="aspect-video overflow-hidden rounded-xl border border-border">
+                  <MapEmbed
+                    latitude={Number(latitude)}
+                    longitude={Number(longitude)}
+                    label={label}
+                  />
+                </div>
+              )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">

@@ -80,7 +80,6 @@ function useGitHubStats(username: string) {
   return stats;
 }
 
-
 function GitHubContribGraph({ username }: { username: string }) {
   return (
     <div className="overflow-hidden rounded-lg border border-border/40 bg-muted/20 p-2">
@@ -118,7 +117,9 @@ function CompactGitHub({
       <div className="space-y-0.5">
         <div className="flex items-center justify-center gap-1.5">
           <FaGithub size={11} className="shrink-0 text-muted-foreground" />
-          <p className="font-cal text-sm leading-tight">{stats?.name ?? username}</p>
+          <p className="font-cal text-sm leading-tight">
+            {stats?.name ?? username}
+          </p>
         </div>
         <p className="text-muted-foreground text-xs">@{username}</p>
       </div>
@@ -129,7 +130,9 @@ function CompactGitHub({
             <span className="ml-1 text-muted-foreground">followers</span>
           </div>
           <div className="text-center">
-            <span className="font-cal text-foreground">{stats.publicRepos}</span>
+            <span className="font-cal text-foreground">
+              {stats.publicRepos}
+            </span>
             <span className="ml-1 text-muted-foreground">repos</span>
           </div>
         </div>
@@ -219,15 +222,21 @@ function LargeGitHub({
       {stats && (
         <div className="mt-5 grid grid-cols-3 gap-3">
           <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
-            <span className="font-cal text-lg">{stats.publicRepos.toLocaleString()}</span>
+            <span className="font-cal text-lg">
+              {stats.publicRepos.toLocaleString()}
+            </span>
             <span className="text-[11px] text-muted-foreground">Repos</span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
-            <span className="font-cal text-lg">{stats.followers.toLocaleString()}</span>
+            <span className="font-cal text-lg">
+              {stats.followers.toLocaleString()}
+            </span>
             <span className="text-[11px] text-muted-foreground">Followers</span>
           </div>
           <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
-            <span className="font-cal text-lg">{stats.stars.toLocaleString()}</span>
+            <span className="font-cal text-lg">
+              {stats.stars.toLocaleString()}
+            </span>
             <span className="text-[11px] text-muted-foreground">Stars</span>
           </div>
         </div>

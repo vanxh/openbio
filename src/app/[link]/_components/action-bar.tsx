@@ -20,10 +20,10 @@ import {
   Plus,
   Type,
 } from 'lucide-react';
-import { FaGithub } from 'react-icons/fa';
 import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
 import { usePreview } from './preview-context';
 
 export default function ActionBar() {
@@ -95,11 +95,7 @@ export default function ActionBar() {
                 <Plus size={14} />
               </button>
             </PopoverTrigger>
-            <PopoverContent
-              className="w-52 p-1.5"
-              side="top"
-              sideOffset={12}
-            >
+            <PopoverContent className="w-52 p-1.5" side="top" sideOffset={12}>
               <button
                 type="button"
                 className={menuItemClass}
@@ -198,7 +194,10 @@ export default function ActionBar() {
         </div>
       </div>
 
-      <CreateLinkBentoModal open={linkModalOpen} onOpenChange={setLinkModalOpen} />
+      <CreateLinkBentoModal
+        open={linkModalOpen}
+        onOpenChange={setLinkModalOpen}
+      />
     </>
   );
 }

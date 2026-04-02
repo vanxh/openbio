@@ -50,7 +50,8 @@ function SubscribeForm({
     });
 
   const heading = bento.heading || 'Stay in touch';
-  const description = bento.description || "Get notified when I post something new.";
+  const description =
+    bento.description || 'Get notified when I post something new.';
   const buttonText = bento.buttonText || 'Subscribe';
 
   if (submitted) {
@@ -161,27 +162,24 @@ export default function EmailCollectCard({
     api.profileLink.updateBento.useMutation();
 
   const handleSave = async () => {
-    queryClient.profileLink.getByLink.setData(
-      { link: params.link },
-      (old) => {
-        if (!old) {
-          return old;
-        }
-        return {
-          ...old,
-          bento: old.bento.map((b) =>
-            b.id === bento.id
-              ? {
-                  ...b,
-                  heading: heading || undefined,
-                  description: description || undefined,
-                  buttonText: buttonText || undefined,
-                }
-              : b
-          ),
-        };
+    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
+      if (!old) {
+        return old;
       }
-    );
+      return {
+        ...old,
+        bento: old.bento.map((b) =>
+          b.id === bento.id
+            ? {
+                ...b,
+                heading: heading || undefined,
+                description: description || undefined,
+                buttonText: buttonText || undefined,
+              }
+            : b
+        ),
+      };
+    });
 
     await updateBento({
       link: params.link,
