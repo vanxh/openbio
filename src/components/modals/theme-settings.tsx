@@ -13,7 +13,7 @@ import { toast } from '@/components/ui/use-toast';
 import { THEME_PRESETS } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
-import { Lock } from 'lucide-react';
+import { Check, Lock, Moon, Paintbrush, Palette, Type } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 
@@ -22,6 +22,24 @@ function showProUpsell() {
     title: 'Pro feature',
     description: 'Upgrade to Pro to unlock this feature.',
   });
+}
+
+function SectionHeader({
+  icon,
+  title,
+  locked,
+}: {
+  icon: ReactNode;
+  title: string;
+  locked?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">{icon}</span>
+      <p className="font-medium text-sm">{title}</p>
+      {locked && <Lock className="h-3 w-3 text-muted-foreground" />}
+    </div>
+  );
 }
 
 export default function ThemeSettingsModal({
@@ -71,161 +89,187 @@ export default function ThemeSettingsModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-lg" showClose>
+      <DialogContent
+        className="max-h-[85vh] overflow-hidden sm:max-w-lg"
+        showClose
+      >
         <DialogHeader>
-          <DialogTitle className="font-cal">Theme Settings</DialogTitle>
+          <DialogTitle className="font-cal text-lg">Customize</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Theme Presets */}
-          <div className="space-y-2">
-            <p className="font-medium text-sm">Theme</p>
-            <div className="grid grid-cols-3 gap-2">
-              {THEME_PRESETS.map((preset) => {
-                const isLocked = preset.pro && !isPremium;
-                const isActive = theme === preset.name;
-                return (
-                  <button
-                    type="button"
-                    key={preset.name}
-                    className={cn(
-                      'relative flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-left text-sm transition-colors',
-                      isActive ? 'border-primary' : 'border-border'
-                    )}
-                    onClick={() => {
-                      if (isLocked) {
+        <div
+          className="-mx-6 overflow-y-auto px-6 pb-1"
+          style={{ maxHeight: 'calc(85vh - 120px)' }}
+        >
+          <div className="space-y-6">
+            {/* Theme Presets */}
+            <div className="space-y-3">
+              <SectionHeader
+                icon={<Palette className="h-4 w-4" />}
+                title="Theme"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                {THEME_PRESETS.map((preset) => {
+                  const isLocked = preset.pro && !isPremium;
+                  const isActive = theme === preset.name;
+                  const colors = darkMode
+                    ? preset.colors.dark
+                    : preset.colors.light;
+                  return (
+                    <button
+                      type="button"
+                      key={preset.name}
+                      className={cn(
+                        'relative flex items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left text-sm transition-all',
+                        isActive
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-border/80 hover:bg-muted/30',
+                        isLocked && 'opacity-60'
+                      )}
+                      onClick={() => {
+                        if (isLocked) {
+                          showProUpsell();
+                          return;
+                        }
+                        setTheme(preset.name);
+                      }}
+                    >
+                      {/* Color preview dots */}
+                      <div className="-space-x-1 flex">
+                        <span
+                          className="h-5 w-5 rounded-full border border-white/20 shadow-sm"
+                          style={{ background: colors['--background'] }}
+                        />
+                        <span
+                          className="h-5 w-5 rounded-full border border-white/20 shadow-sm"
+                          style={{ background: colors['--primary'] }}
+                        />
+                        <span
+                          className="h-5 w-5 rounded-full border border-white/20 shadow-sm"
+                          style={{ background: colors['--card'] }}
+                        />
+                      </div>
+                      <span className="flex-1 truncate font-medium text-xs">
+                        {preset.label}
+                      </span>
+                      {isActive && (
+                        <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      )}
+                      {isLocked && (
+                        <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dark Mode */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <SectionHeader
+                  icon={<Moon className="h-4 w-4" />}
+                  title="Dark Mode"
+                  locked={!isPremium}
+                />
+                <Switch
+                  checked={darkMode}
+                  onCheckedChange={(checked) => {
+                    if (!isPremium) {
+                      showProUpsell();
+                      return;
+                    }
+                    setDarkMode(checked);
+                  }}
+                  disabled={!isPremium}
+                />
+              </div>
+            </div>
+
+            {/* Accent Color */}
+            <div className="space-y-3">
+              <SectionHeader
+                icon={<Paintbrush className="h-4 w-4" />}
+                title="Accent Color"
+                locked={!isPremium}
+              />
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <input
+                    type="color"
+                    className="h-9 w-9 shrink-0 cursor-pointer rounded-xl border border-border bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                    value={accentColor || '#000000'}
+                    disabled={!isPremium}
+                    onChange={(e) => {
+                      if (!isPremium) {
                         showProUpsell();
                         return;
                       }
-                      setTheme(preset.name);
+                      setAccentColor(e.target.value);
                     }}
+                  />
+                </div>
+                <input
+                  type="text"
+                  className="h-9 w-full rounded-xl border border-border bg-card px-3 font-mono text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="#000000"
+                  value={accentColor}
+                  disabled={!isPremium}
+                  onChange={(e) => {
+                    if (!isPremium) {
+                      showProUpsell();
+                      return;
+                    }
+                    setAccentColor(e.target.value);
+                  }}
+                />
+                {isPremium && accentColor && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0 rounded-xl text-xs"
+                    onClick={() => setAccentColor('')}
                   >
-                    <span
-                      className="h-4 w-4 shrink-0 rounded-full border border-border"
-                      style={{
-                        background: (darkMode
-                          ? preset.colors.dark
-                          : preset.colors.light)['--primary'],
-                      }}
-                    />
-                    <span
-                      className="h-4 w-4 shrink-0 rounded-full border border-border"
-                      style={{
-                        background: (darkMode
-                          ? preset.colors.dark
-                          : preset.colors.light)['--background'],
-                      }}
-                    />
-                    <span className="truncate">{preset.label}</span>
-                    {isLocked && (
-                      <Lock className="absolute top-1 right-1 h-3 w-3 text-muted-foreground" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Dark Mode */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-sm">Dark Mode</p>
-                {!isPremium && (
-                  <Lock className="h-3 w-3 text-muted-foreground" />
+                    Reset
+                  </Button>
                 )}
               </div>
-              <Switch
-                checked={darkMode}
-                onCheckedChange={(checked) => {
-                  if (!isPremium) {
-                    showProUpsell();
-                    return;
-                  }
-                  setDarkMode(checked);
-                }}
-                disabled={!isPremium}
-              />
             </div>
-          </div>
 
-          {/* Accent Color */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-sm">Custom Accent Color</p>
-              {!isPremium && <Lock className="h-3 w-3 text-muted-foreground" />}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                className="h-9 w-9 shrink-0 cursor-pointer rounded-xl border border-border bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
-                value={accentColor || '#000000'}
-                disabled={!isPremium}
-                onChange={(e) => {
-                  if (!isPremium) {
-                    showProUpsell();
-                    return;
-                  }
-                  setAccentColor(e.target.value);
-                }}
+            {/* Custom Footer */}
+            <div className="space-y-3">
+              <SectionHeader
+                icon={<Type className="h-4 w-4" />}
+                title="Footer Text"
+                locked={!isPremium}
               />
               <input
                 type="text"
                 className="h-9 w-full rounded-xl border border-border bg-card px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="#000000"
-                value={accentColor}
+                placeholder="Made with OpenBio"
+                value={customFooter}
                 disabled={!isPremium}
+                maxLength={100}
                 onChange={(e) => {
                   if (!isPremium) {
                     showProUpsell();
                     return;
                   }
-                  setAccentColor(e.target.value);
+                  setCustomFooter(e.target.value);
                 }}
               />
-              {isPremium && accentColor && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl"
-                  onClick={() => setAccentColor('')}
-                >
-                  Clear
-                </Button>
-              )}
+              <p className="text-muted-foreground text-xs">
+                Shown at the bottom of your profile page.
+              </p>
             </div>
           </div>
+        </div>
 
-          {/* Custom Footer */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-sm">Custom Footer Text</p>
-              {!isPremium && <Lock className="h-3 w-3 text-muted-foreground" />}
-            </div>
-            <input
-              type="text"
-              className="h-9 w-full rounded-xl border border-border bg-card px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Made with OpenBio"
-              value={customFooter}
-              disabled={!isPremium}
-              maxLength={100}
-              onChange={(e) => {
-                if (!isPremium) {
-                  showProUpsell();
-                  return;
-                }
-                setCustomFooter(e.target.value);
-              }}
-            />
-            <p className="text-muted-foreground text-xs">
-              Customize the footer text on your profile page.
-            </p>
-          </div>
-
-          {/* Save */}
+        {/* Sticky save button */}
+        <div className="border-border border-t pt-4">
           <Button onClick={save} className="w-full rounded-xl">
-            Save Theme
+            Save Changes
           </Button>
         </div>
       </DialogContent>
