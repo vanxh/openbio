@@ -26,12 +26,13 @@ export default function Bento({
   return (
     <BentoLayout>
       {profileLink.bento.map((b, i) => (
-        <div
-          key={b.id}
-          className="animate-fade-up"
-          style={{ animationDelay: `${i * 75}ms` }}
-        >
-          <BentoCard bento={b} editable={profileLink.isOwner && !preview} />
+        <div key={b.id}>
+          <div
+            className="h-full w-full animate-fade-up"
+            style={{ animationDelay: `${i * 75}ms` }}
+          >
+            <BentoCard bento={b} editable={profileLink.isOwner && !preview} />
+          </div>
         </div>
       ))}
     </BentoLayout>
