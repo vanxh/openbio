@@ -16,7 +16,7 @@ import type { MapBentoSchema } from '@/types';
 import { Locate, MapPin, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type * as z from 'zod';
 
 type BentoData = z.infer<typeof MapBentoSchema>;
@@ -50,6 +50,46 @@ function getTiles(lat: number, lng: number) {
     offsetX: (xFloat - cx) * 256,
     offsetY: (yFloat - cy) * 256,
   };
+}
+
+function useReverseGeocode(lat: number, lng: number) {
+  const [placeName, setPlaceName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lat && !lng) {
+      return;
+    }
+    let cancelled = false;
+
+    fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=14`
+    )
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) {
+          return;
+        }
+        const addr = data.address;
+        if (!addr) {
+          return;
+        }
+        const parts = [
+          addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city_district,
+          addr.city || addr.state,
+          addr.country,
+        ].filter(Boolean);
+        setPlaceName(parts.join(', '));
+      })
+      .catch(() => {
+        // Geocoding may fail
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lat, lng]);
+
+  return placeName;
 }
 
 function AvatarPin({
@@ -107,6 +147,8 @@ function MapDisplay({
   profileName?: string;
 }) {
   const { tiles, offsetX, offsetY } = getTiles(latitude, longitude);
+  const geocodedName = useReverseGeocode(latitude, longitude);
+  const displayLabel = label || geocodedName;
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#1a1a2e]">
@@ -147,12 +189,21 @@ function MapDisplay({
       </div>
 
       {/* Label */}
-      {label && !compact && (
+      {displayLabel && !compact && (
         <div className="absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/80 via-black/40 to-transparent px-4 pt-8 pb-3">
           <div className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 text-blue-400" />
-            <p className="font-medium text-sm text-white">{label}</p>
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-blue-400" />
+            <p className="truncate font-medium text-sm text-white">
+              {displayLabel}
+            </p>
           </div>
+        </div>
+      )}
+      {displayLabel && compact && (
+        <div className="absolute inset-x-0 bottom-0 z-10 bg-linear-to-t from-black/80 via-black/30 to-transparent px-3 pt-6 pb-2.5">
+          <p className="truncate text-center text-xs font-medium text-white/90">
+            {displayLabel}
+          </p>
         </div>
       )}
 
