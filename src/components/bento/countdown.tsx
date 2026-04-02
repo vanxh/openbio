@@ -126,14 +126,22 @@ function CompactCountdown({
         <p className="font-cal text-xs leading-tight">{bento.title}</p>
       )}
       {timeLeft.isPast ? (
-        <p className="font-cal text-primary text-sm">Time's up!</p>
+        <p className="font-cal text-primary text-sm">Time&apos;s up!</p>
+      ) : timeLeft.days > 7 ? (
+        <p className="font-cal text-2xl tabular-nums">
+          in {timeLeft.days} days
+        </p>
+      ) : timeLeft.days >= 1 ? (
+        <p className="font-cal text-xl tabular-nums">
+          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+        </p>
       ) : (
         <div className="flex items-center gap-3">
-          <TimeUnit value={timeLeft.days} label="d" compact />
-          <span className="font-cal text-muted-foreground text-xl">:</span>
           <TimeUnit value={timeLeft.hours} label="h" compact />
           <span className="font-cal text-muted-foreground text-xl">:</span>
           <TimeUnit value={timeLeft.minutes} label="m" compact />
+          <span className="font-cal text-muted-foreground text-xl">:</span>
+          <TimeUnit value={timeLeft.seconds} label="s" compact />
         </div>
       )}
     </div>
@@ -241,14 +249,20 @@ export default function CountdownCard({
 
   const handleSave = async () => {
     if (!targetDate) {
-      toast({ title: 'Missing date', description: 'Please select a target date.' });
+      toast({
+        title: 'Missing date',
+        description: 'Please select a target date.',
+      });
       return;
     }
 
     // Validate date
     const parsed = new Date(targetDate);
     if (Number.isNaN(parsed.getTime())) {
-      toast({ title: 'Invalid date', description: 'Please enter a valid date.' });
+      toast({
+        title: 'Invalid date',
+        description: 'Please enter a valid date.',
+      });
       return;
     }
 
@@ -412,7 +426,11 @@ export default function CountdownCard({
               </select>
             </div>
 
-            <Button onClick={handleSave} disabled={saving} className="w-full rounded-xl">
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full rounded-xl"
+            >
               {saving ? 'Saving...' : 'Save'}
             </Button>
           </div>
