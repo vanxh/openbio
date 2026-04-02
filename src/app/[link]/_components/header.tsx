@@ -97,7 +97,7 @@ export default function ProfileLinkHeader({
   const isEditable = profileLink.isOwner && !preview;
 
   return (
-    <div className="flex flex-col gap-y-4">
+    <div className="flex flex-col gap-y-4" data-tour="profile-header">
       <div className="flex items-start justify-between">
         <ProfileLinkAvatar profileLink={profileLink} />
 
@@ -107,6 +107,7 @@ export default function ProfileLinkHeader({
               size="icon"
               variant={preview ? 'default' : 'outline'}
               onClick={() => setPreview(!preview)}
+              data-tour="preview-toggle"
             >
               {preview ? (
                 <PenLine className="h-[1.2rem] w-[1.2rem]" />
@@ -117,7 +118,10 @@ export default function ProfileLinkHeader({
 
             {!preview && (
               <>
-                <div className="hidden items-center rounded-md border border-border md:flex">
+                <div
+                  className="hidden items-center rounded-md border border-border md:flex"
+                  data-tour="viewport-switcher"
+                >
                   <Button
                     size="icon"
                     variant={viewport === 'desktop' ? 'default' : 'ghost'}

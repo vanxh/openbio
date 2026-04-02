@@ -3,6 +3,7 @@ import {
   ogMetadata,
   twitterMetadata,
 } from '@/app/shared-metadata';
+import OnboardingTour from '@/components/onboarding-tour';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/trpc/server';
 import type { Metadata } from 'next';
@@ -116,7 +117,12 @@ export default async function Page({ params }: Props) {
                 <Bento profileLink={profileLink} />
               </Suspense>
 
-              {profileLink.isOwner && <ActionBar />}
+              {profileLink.isOwner && (
+                <>
+                  <ActionBar />
+                  <OnboardingTour />
+                </>
+              )}
 
               <footer className="animate-fade-in py-8 text-center">
                 <Link

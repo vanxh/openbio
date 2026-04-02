@@ -93,7 +93,12 @@ export default function ActionBar() {
 
           <Popover open={addOpen} onOpenChange={setAddOpen}>
             <PopoverTrigger asChild>
-              <button type="button" className={btnClass} title="Add card">
+              <button
+                type="button"
+                className={btnClass}
+                title="Add card"
+                data-tour="add-card"
+              >
                 <Plus size={14} />
               </button>
             </PopoverTrigger>
@@ -213,7 +218,11 @@ export default function ActionBar() {
           </Popover>
 
           <ThemeSettingsModal isPremium={!!profileLink?.isPremium}>
-            <button type="button" className={btnClass}>
+            <button
+              type="button"
+              className={btnClass}
+              data-tour="theme-settings"
+            >
               <Palette size={14} />
             </button>
           </ThemeSettingsModal>
