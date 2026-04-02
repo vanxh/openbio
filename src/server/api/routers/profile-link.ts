@@ -272,6 +272,18 @@ export const profileLinkRouter = createTRPCRouter({
         linkId: input.id,
       });
 
+      // Handle custom footer changes (pro only)
+      if (input.customFooter !== undefined) {
+        const isPro =
+          user.plan === 'pro' &&
+          user.subscriptionEndsAt &&
+          user.subscriptionEndsAt > new Date();
+
+        if (!isPro) {
+          throw new Error('Custom footer requires a Pro subscription');
+        }
+      }
+
       // Handle custom domain changes (pro only)
       if (input.customDomain !== undefined) {
         const isPro =

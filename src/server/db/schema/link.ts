@@ -34,6 +34,8 @@ export const link = pgTable('link', {
   accentColor: text('accent_color'),
   darkMode: boolean('dark_mode').default(false).notNull(),
 
+  customFooter: text('custom_footer'),
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 

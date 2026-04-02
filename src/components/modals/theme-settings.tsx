@@ -43,6 +43,9 @@ export default function ThemeSettingsModal({
   const [accentColor, setAccentColor] = useState(
     profileLink?.accentColor ?? ''
   );
+  const [customFooter, setCustomFooter] = useState(
+    profileLink?.customFooter ?? ''
+  );
 
   const { mutateAsync: updateLink } = api.profileLink.update.useMutation({
     onSuccess: () => {
@@ -61,6 +64,7 @@ export default function ThemeSettingsModal({
       theme,
       darkMode,
       accentColor: accentColor || null,
+      customFooter: customFooter || null,
     });
   };
 
@@ -191,6 +195,32 @@ export default function ThemeSettingsModal({
                 </Button>
               )}
             </div>
+          </div>
+
+          {/* Custom Footer */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-sm">Custom Footer Text</p>
+              {!isPremium && <Lock className="h-3 w-3 text-muted-foreground" />}
+            </div>
+            <input
+              type="text"
+              className="h-9 w-full rounded-xl border border-border bg-card px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="Made with OpenBio"
+              value={customFooter}
+              disabled={!isPremium}
+              maxLength={100}
+              onChange={(e) => {
+                if (!isPremium) {
+                  showProUpsell();
+                  return;
+                }
+                setCustomFooter(e.target.value);
+              }}
+            />
+            <p className="text-muted-foreground text-xs">
+              Customize the footer text on your profile page.
+            </p>
           </div>
 
           {/* Save */}

@@ -93,7 +93,7 @@ export default async function Page({ params }: Props) {
                 href="/"
                 className="text-muted-foreground text-xs transition-colors hover:text-foreground"
               >
-                Made with OpenBio
+                {profileLink.customFooter || 'Made with OpenBio'}
               </Link>
             </footer>
           </div>
