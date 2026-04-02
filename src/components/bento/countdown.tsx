@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { CountdownBentoSchema } from '@/types';
@@ -30,10 +31,7 @@ type TimeLeft = {
   isPast: boolean;
 };
 
-function getNextOccurrence(
-  targetDate: string,
-  repeat: string
-): Date {
+function getNextOccurrence(targetDate: string, repeat: string): Date {
   const target = new Date(targetDate);
   const now = new Date();
 
@@ -54,10 +52,7 @@ function getNextOccurrence(
   return target;
 }
 
-function getTimeLeft(
-  targetDate: string,
-  repeat = 'none'
-): TimeLeft {
+function getTimeLeft(targetDate: string, repeat = 'none'): TimeLeft {
   const effectiveTarget =
     repeat !== 'none'
       ? getNextOccurrence(targetDate, repeat)
@@ -242,10 +237,23 @@ export default function CountdownCard({
   const { mutateAsync: updateBento } =
     api.profileLink.updateBento.useMutation();
 
+  const [saving, setSaving] = useState(false);
+
   const handleSave = async () => {
     if (!targetDate) {
+      toast({ title: 'Missing date', description: 'Please select a target date.' });
       return;
     }
+
+    // Validate date
+    const parsed = new Date(targetDate);
+    if (Number.isNaN(parsed.getTime())) {
+      toast({ title: 'Invalid date', description: 'Please enter a valid date.' });
+      return;
+    }
+
+    const isoDate = parsed.toISOString();
+    setSaving(true);
 
     queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
       if (!old) {
@@ -258,7 +266,7 @@ export default function CountdownCard({
             ? {
                 ...b,
                 title: title || undefined,
-                targetDate,
+                targetDate: isoDate,
                 emoji: emoji || undefined,
                 repeat,
               }
@@ -272,12 +280,14 @@ export default function CountdownCard({
       bento: {
         ...bento,
         title: title || undefined,
-        targetDate,
+        targetDate: isoDate,
         emoji: emoji || undefined,
         repeat,
       },
     });
+    setSaving(false);
     setEditOpen(false);
+    toast({ title: 'Saved', description: 'Countdown updated.' });
   };
 
   const mdSize = bento.size.md ?? '2x2';
@@ -374,11 +384,13 @@ export default function CountdownCard({
               </Label>
               <Input
                 id="cd-date"
-                type="datetime-local"
-                value={targetDate ? targetDate.slice(0, 16) : ''}
-                onChange={(e) =>
-                  setTargetDate(new Date(e.target.value).toISOString())
-                }
+                type="date"
+                value={targetDate ? targetDate.slice(0, 10) : ''}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setTargetDate(e.target.value);
+                  }
+                }}
                 className="rounded-xl"
               />
             </div>
@@ -400,8 +412,8 @@ export default function CountdownCard({
               </select>
             </div>
 
-            <Button onClick={handleSave} className="w-full rounded-xl">
-              Save
+            <Button onClick={handleSave} disabled={saving} className="w-full rounded-xl">
+              {saving ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </DialogContent>

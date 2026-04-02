@@ -251,7 +251,10 @@ export default function MapCard({
 
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      toast({ title: 'Geolocation not supported', description: 'Your browser does not support geolocation.' });
+      toast({
+        title: 'Geolocation not supported',
+        description: 'Your browser does not support geolocation.',
+      });
       return;
     }
     setLocating(true);
@@ -260,12 +263,24 @@ export default function MapCard({
         setLatitude(String(position.coords.latitude));
         setLongitude(String(position.coords.longitude));
         setLocating(false);
-        toast({ title: 'Location updated', description: 'Coordinates have been filled in.' });
+        toast({
+          title: 'Location updated',
+          description: 'Coordinates have been filled in.',
+        });
       },
-      () => {
+      (err) => {
         setLocating(false);
-        toast({ title: 'Location denied', description: 'Please allow location access and try again.' });
-      }
+        const msgs: Record<number, string> = {
+          1: 'Permission denied. Go to browser settings to allow location for this site.',
+          2: 'Position unavailable. Try again or enter coordinates manually.',
+          3: 'Request timed out. Try again.',
+        };
+        toast({
+          title: 'Could not get location',
+          description: msgs[err.code] ?? 'Unknown error.',
+        });
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
     );
   }, []);
 
