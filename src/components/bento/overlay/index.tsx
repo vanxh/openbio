@@ -1,5 +1,6 @@
 'use client';
 
+import { usePreview } from '@/app/[link]/_components/preview-context';
 import DeleteButton from '@/components/bento/overlay/delete-button';
 import DragHandle from '@/components/bento/overlay/drag-handle';
 import ManageSize from '@/components/bento/overlay/manage-size';
@@ -21,7 +22,10 @@ export default function CardOverlay({
   const [sizePickerOpen, setSizePickerOpen] = useState(false);
   const leaveTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const isMobile = typeof window !== 'undefined' && window.outerWidth < 500;
+  const { viewport } = usePreview();
+  const isMobile =
+    viewport === 'mobile' ||
+    (typeof window !== 'undefined' && window.innerWidth < 600);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {

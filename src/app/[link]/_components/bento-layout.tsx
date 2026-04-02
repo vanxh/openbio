@@ -131,7 +131,7 @@ export default function BentoLayout({
       margin={[24, 24]}
       containerPadding={[0, 0]}
       draggableHandle={
-        typeof window !== 'undefined' && window.outerWidth < 500
+        typeof window !== 'undefined' && window.innerWidth < 600
           ? '.drag-handle'
           : undefined
       }

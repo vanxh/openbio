@@ -1,5 +1,6 @@
 'use client';
 
+import { usePreview } from '@/app/[link]/_components/preview-context';
 import Size2x2 from '@/components/icons/size-2x2';
 import Size2x4 from '@/components/icons/size-2x4';
 import Size4x1 from '@/components/icons/size-4x1';
@@ -34,7 +35,8 @@ export default function ManageSize({
   onLeave?: () => void;
 }) {
   const { link } = useParams<{ link: string }>();
-  const isMobile = window.outerWidth < 500;
+  const { viewport } = usePreview();
+  const isMobile = viewport === 'mobile' || window.innerWidth < 600;
   const size = isMobile ? bento.size.sm : bento.size.md;
 
   const sizeOptions = allowedSizes
@@ -77,14 +79,14 @@ export default function ManageSize({
 
   const handleSizeClick = (key: string) => {
     const sizeKey = key as '2x2' | '4x1' | '4x2' | '2x4' | '4x4';
-    // Set both breakpoints to keep them in sync
+    const breakpoint = isMobile ? 'sm' : 'md';
     updateBento({
       link,
       bento: {
         ...bento,
         size: {
-          sm: sizeKey,
-          md: sizeKey,
+          ...bento.size,
+          [breakpoint]: sizeKey,
         },
       },
     });
