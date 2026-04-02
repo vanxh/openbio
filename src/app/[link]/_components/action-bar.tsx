@@ -11,6 +11,7 @@ import {
 import { api } from '@/trpc/react';
 import {
   ArrowLeft,
+  CloudSun,
   Globe,
   ImagePlus,
   Link,
@@ -18,6 +19,7 @@ import {
   MapPin,
   Palette,
   Plus,
+  Timer,
   Type,
 } from 'lucide-react';
 import NextLink from 'next/link';
@@ -176,6 +178,35 @@ export default function ActionBar() {
               >
                 <Mail size={14} className="shrink-0" />
                 Email Collect
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'countdown',
+                    targetDate: '',
+                  })
+                }
+              >
+                <Timer size={14} className="shrink-0" />
+                Countdown
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'weather',
+                    latitude: 0,
+                    longitude: 0,
+                  })
+                }
+              >
+                <CloudSun size={14} className="shrink-0" />
+                Weather
               </button>
             </PopoverContent>
           </Popover>

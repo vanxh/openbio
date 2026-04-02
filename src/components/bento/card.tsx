@@ -10,6 +10,8 @@ const GitHubCard = dynamic(() => import('./github'), { ssr: false });
 const EmailCollectCard = dynamic(() => import('./email-collect'), {
   ssr: false,
 });
+const CountdownCard = dynamic(() => import('./countdown'), { ssr: false });
+const WeatherCard = dynamic(() => import('./weather'), { ssr: false });
 
 export default function BentoCard({
   bento,
@@ -40,6 +42,14 @@ export default function BentoCard({
 
   if (bento.type === 'email-collect') {
     return <EmailCollectCard bento={bento} editable={editable} />;
+  }
+
+  if (bento.type === 'countdown') {
+    return <CountdownCard bento={bento} editable={editable} />;
+  }
+
+  if (bento.type === 'weather') {
+    return <WeatherCard bento={bento} editable={editable} />;
   }
 
   return null;

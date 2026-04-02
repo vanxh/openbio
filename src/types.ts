@@ -89,11 +89,37 @@ export const EmailCollectBentoSchema = z.object({
   position: PositionSchema,
 });
 
+export const CountdownBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('countdown'),
+
+  title: z.string().optional(),
+  targetDate: z.string(),
+  emoji: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
+export const WeatherBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('weather'),
+
+  latitude: z.number(),
+  longitude: z.number(),
+  locationName: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
 export const BentoSchema = LinkBentoSchema.or(NoteBentoSchema)
   .or(AssetBentoSchema)
   .or(MapBentoSchema)
   .or(GithubBentoSchema)
-  .or(EmailCollectBentoSchema);
+  .or(EmailCollectBentoSchema)
+  .or(CountdownBentoSchema)
+  .or(WeatherBentoSchema);
 
 export const RESERVED_LINKS = [
   'sign-up',
