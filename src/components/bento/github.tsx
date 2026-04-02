@@ -13,10 +13,9 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { GithubBentoSchema } from '@/types';
-import { GitFork, Pencil, Star } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import type React from 'react';
 import { useEffect, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import type * as z from 'zod';
@@ -43,19 +42,30 @@ function useGitHubStats(username: string) {
     }
     let cancelled = false;
 
-    fetch(`https://api.github.com/users/${username}`)
-      .then((r) => r.json())
-      .then((data) => {
+    Promise.all([
+      fetch(`https://api.github.com/users/${username}`).then((r) => r.json()),
+      fetch(
+        `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`
+      ).then((r) => r.json()),
+    ])
+      .then(([user, repos]) => {
         if (cancelled) {
           return;
         }
+        const totalStars = Array.isArray(repos)
+          ? repos.reduce(
+              (sum: number, r: { stargazers_count?: number }) =>
+                sum + (r.stargazers_count ?? 0),
+              0
+            )
+          : 0;
         setStats({
-          avatar: data.avatar_url ?? '',
-          name: data.name ?? username,
-          bio: data.bio ?? '',
-          publicRepos: data.public_repos ?? 0,
-          followers: data.followers ?? 0,
-          stars: 0,
+          avatar: user.avatar_url ?? '',
+          name: user.name ?? username,
+          bio: user.bio ?? '',
+          publicRepos: user.public_repos ?? 0,
+          followers: user.followers ?? 0,
+          stars: totalStars,
         });
       })
       .catch(() => {
@@ -70,25 +80,6 @@ function useGitHubStats(username: string) {
   return stats;
 }
 
-function StatItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      <div className="flex items-center gap-1 text-muted-foreground">
-        {icon}
-      </div>
-      <span className="font-cal text-sm">{value.toLocaleString()}</span>
-      <span className="text-[10px] text-muted-foreground">{label}</span>
-    </div>
-  );
-}
 
 function GitHubContribGraph({ username }: { username: string }) {
   return (
@@ -105,39 +96,52 @@ function GitHubContribGraph({ username }: { username: string }) {
   );
 }
 
-function CompactGitHub({ username, stats }: { username: string; stats: GitHubStats | null }) {
+function CompactGitHub({
+  username,
+  stats,
+}: { username: string; stats: GitHubStats | null }) {
   return (
-    <div className="flex h-full w-full flex-col p-5">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center">
       {stats?.avatar ? (
         <Image
           src={stats.avatar}
           alt={username}
-          width={40}
-          height={40}
-          className="rounded-full border border-border/60"
+          width={48}
+          height={48}
+          className="rounded-full border-2 border-border/60"
         />
       ) : (
-        <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/50">
-          <FaGithub size={18} className="text-foreground" />
+        <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-border/60 bg-muted/50">
+          <FaGithub size={22} className="text-foreground" />
         </div>
       )}
-      <div className="mt-auto space-y-1">
-        <div className="flex items-center gap-1.5">
-          <FaGithub size={12} className="shrink-0 text-muted-foreground" />
-          <p className="font-cal text-sm leading-tight">@{username}</p>
+      <div className="space-y-0.5">
+        <div className="flex items-center justify-center gap-1.5">
+          <FaGithub size={11} className="shrink-0 text-muted-foreground" />
+          <p className="font-cal text-sm leading-tight">{stats?.name ?? username}</p>
         </div>
-        {stats && (
-          <div className="flex items-center gap-3 text-muted-foreground text-xs">
-            <span>{stats.publicRepos} repos</span>
-            <span>{stats.followers} followers</span>
-          </div>
-        )}
+        <p className="text-muted-foreground text-xs">@{username}</p>
       </div>
+      {stats && (
+        <div className="flex items-center gap-4 text-xs">
+          <div className="text-center">
+            <span className="font-cal text-foreground">{stats.followers}</span>
+            <span className="ml-1 text-muted-foreground">followers</span>
+          </div>
+          <div className="text-center">
+            <span className="font-cal text-foreground">{stats.publicRepos}</span>
+            <span className="ml-1 text-muted-foreground">repos</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function WideGitHub({ username, stats }: { username: string; stats: GitHubStats | null }) {
+function WideGitHub({
+  username,
+  stats,
+}: { username: string; stats: GitHubStats | null }) {
   return (
     <div className="flex h-full w-full items-stretch overflow-hidden rounded-2xl">
       {/* Left: profile info */}
@@ -159,7 +163,9 @@ function WideGitHub({ username, stats }: { username: string; stats: GitHubStats 
           <div>
             <div className="flex items-center gap-1.5">
               <FaGithub size={12} className="shrink-0 text-muted-foreground" />
-              <p className="font-cal text-sm leading-tight">{stats?.name ?? username}</p>
+              <p className="font-cal text-sm leading-tight">
+                {stats?.name ?? username}
+              </p>
             </div>
             <p className="text-muted-foreground text-xs">@{username}</p>
           </div>
@@ -172,54 +178,58 @@ function WideGitHub({ username, stats }: { username: string; stats: GitHubStats 
   );
 }
 
-function LargeGitHub({ username, stats }: { username: string; stats: GitHubStats | null }) {
+function LargeGitHub({
+  username,
+  stats,
+}: { username: string; stats: GitHubStats | null }) {
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl p-5">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {stats?.avatar ? (
           <Image
             src={stats.avatar}
             alt={username}
-            width={48}
-            height={48}
-            className="rounded-full border border-border/60"
+            width={56}
+            height={56}
+            className="rounded-full border-2 border-border/60"
           />
         ) : (
-          <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/50">
-            <FaGithub size={22} className="text-foreground" />
+          <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-border/60 bg-muted/50">
+            <FaGithub size={26} className="text-foreground" />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <FaGithub size={12} className="shrink-0 text-muted-foreground" />
-            <p className="font-cal text-base leading-tight">{stats?.name ?? username}</p>
+            <FaGithub size={14} className="shrink-0 text-muted-foreground" />
+            <p className="font-cal text-lg leading-tight">
+              {stats?.name ?? username}
+            </p>
           </div>
-          <p className="text-muted-foreground text-xs">@{username}</p>
+          <p className="text-muted-foreground text-sm">@{username}</p>
           {stats?.bio && (
-            <p className="mt-0.5 line-clamp-1 text-muted-foreground text-xs">{stats.bio}</p>
+            <p className="mt-1 line-clamp-2 text-muted-foreground text-xs leading-relaxed">
+              {stats.bio}
+            </p>
           )}
         </div>
       </div>
 
       {/* Stats row */}
       {stats && (
-        <div className="mt-4 flex justify-around rounded-xl border border-border/40 bg-muted/20 px-4 py-3">
-          <StatItem
-            icon={<span className="text-xs">📦</span>}
-            label="Repos"
-            value={stats.publicRepos}
-          />
-          <StatItem
-            icon={<Star className="h-3 w-3" />}
-            label="Followers"
-            value={stats.followers}
-          />
-          <StatItem
-            icon={<GitFork className="h-3 w-3" />}
-            label="Stars"
-            value={stats.stars}
-          />
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
+            <span className="font-cal text-lg">{stats.publicRepos.toLocaleString()}</span>
+            <span className="text-[11px] text-muted-foreground">Repos</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
+            <span className="font-cal text-lg">{stats.followers.toLocaleString()}</span>
+            <span className="text-[11px] text-muted-foreground">Followers</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 rounded-xl border border-border/40 bg-muted/20 py-3">
+            <span className="font-cal text-lg">{stats.stars.toLocaleString()}</span>
+            <span className="text-[11px] text-muted-foreground">Stars</span>
+          </div>
         </div>
       )}
 
@@ -252,20 +262,17 @@ export default function GitHubCard({
       return;
     }
 
-    queryClient.profileLink.getByLink.setData(
-      { link: params.link },
-      (old) => {
-        if (!old) {
-          return old;
-        }
-        return {
-          ...old,
-          bento: old.bento.map((b) =>
-            b.id === bento.id ? { ...b, username: username.trim() } : b
-          ),
-        };
+    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
+      if (!old) {
+        return old;
       }
-    );
+      return {
+        ...old,
+        bento: old.bento.map((b) =>
+          b.id === bento.id ? { ...b, username: username.trim() } : b
+        ),
+      };
+    });
 
     await updateBento({
       link: params.link,
