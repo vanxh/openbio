@@ -31,7 +31,11 @@ export default function Bento({
             className="h-full w-full animate-fade-up"
             style={{ animationDelay: `${i * 75}ms` }}
           >
-            <BentoCard bento={b} editable={profileLink.isOwner && !preview} />
+            <BentoCard
+              bento={b}
+              editable={profileLink.isOwner && !preview}
+              linkId={profileLink.id}
+            />
           </div>
         </div>
       ))}

@@ -114,13 +114,33 @@ export const WeatherBentoSchema = z.object({
   position: PositionSchema,
 });
 
+export const TwitterBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('twitter'),
+
+  tweetId: z.string(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
+export const ViewsBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('views'),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
 export const BentoSchema = LinkBentoSchema.or(NoteBentoSchema)
   .or(AssetBentoSchema)
   .or(MapBentoSchema)
   .or(GithubBentoSchema)
   .or(EmailCollectBentoSchema)
   .or(CountdownBentoSchema)
-  .or(WeatherBentoSchema);
+  .or(WeatherBentoSchema)
+  .or(TwitterBentoSchema)
+  .or(ViewsBentoSchema);
 
 export const RESERVED_LINKS = [
   'sign-up',

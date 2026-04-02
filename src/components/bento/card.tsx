@@ -12,13 +12,17 @@ const EmailCollectCard = dynamic(() => import('./email-collect'), {
 });
 const CountdownCard = dynamic(() => import('./countdown'), { ssr: false });
 const WeatherCard = dynamic(() => import('./weather'), { ssr: false });
+const TwitterCard = dynamic(() => import('./twitter'), { ssr: false });
+const ViewsCard = dynamic(() => import('./views'), { ssr: false });
 
 export default function BentoCard({
   bento,
   editable,
+  linkId,
 }: {
   bento: z.infer<typeof BentoSchema>;
   editable?: boolean;
+  linkId?: string;
 }) {
   if (bento.type === 'link') {
     return <LinkCard bento={bento} editable={editable} />;
@@ -50,6 +54,14 @@ export default function BentoCard({
 
   if (bento.type === 'weather') {
     return <WeatherCard bento={bento} editable={editable} />;
+  }
+
+  if (bento.type === 'twitter') {
+    return <TwitterCard bento={bento} editable={editable} />;
+  }
+
+  if (bento.type === 'views') {
+    return <ViewsCard bento={bento} editable={editable} linkId={linkId} />;
   }
 
   return null;

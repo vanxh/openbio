@@ -1,4 +1,5 @@
 import { getMetadata } from '@/lib/metadata';
+import { fetchTweet } from '@/lib/twitter';
 import {
   addDomainToVercel,
   getDomainConfig,
@@ -410,6 +411,12 @@ export const profileLinkRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       return await getMetadata(input.url);
+    }),
+
+  getTweet: publicProcedure
+    .input(z.object({ tweetId: z.string() }))
+    .query(async ({ input }) => {
+      return await fetchTweet(input.tweetId);
     }),
 });
 

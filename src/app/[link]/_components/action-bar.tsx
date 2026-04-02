@@ -12,6 +12,7 @@ import { api } from '@/trpc/react';
 import {
   ArrowLeft,
   CloudSun,
+  Eye,
   Globe,
   ImagePlus,
   Link,
@@ -26,6 +27,7 @@ import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { usePreview } from './preview-context';
 
 export default function ActionBar() {
@@ -214,6 +216,35 @@ export default function ActionBar() {
                 <CloudSun size={14} className="shrink-0" />
                 Weather
               </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'twitter',
+                    tweetId: '',
+                  })
+                }
+              >
+                <FaXTwitter size={14} className="shrink-0" />
+                Tweet
+              </button>
+              {!profileLink?.bento.some((b) => b.type === 'views') && (
+                <button
+                  type="button"
+                  className={menuItemClass}
+                  onClick={() =>
+                    addCard({
+                      id: crypto.randomUUID(),
+                      type: 'views',
+                    })
+                  }
+                >
+                  <Eye size={14} className="shrink-0" />
+                  Profile Views
+                </button>
+              )}
             </PopoverContent>
           </Popover>
 
