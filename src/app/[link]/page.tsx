@@ -73,7 +73,9 @@ export default async function Page({ params }: Props) {
       <PreviewProvider>
         <ViewportContainer>
           <div className="flex flex-col gap-y-6">
-            <ProfileLinkHeader profileLink={profileLink} />
+            <div className="animate-fade-in">
+              <ProfileLinkHeader profileLink={profileLink} />
+            </div>
 
             <Suspense
               fallback={
@@ -89,7 +91,7 @@ export default async function Page({ params }: Props) {
 
             {profileLink.isOwner && <ActionBar />}
 
-            <footer className="py-8 text-center">
+            <footer className="animate-fade-in py-8 text-center">
               <Link
                 href="/"
                 className="text-muted-foreground text-xs transition-colors hover:text-foreground"
