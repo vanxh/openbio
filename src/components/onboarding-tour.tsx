@@ -110,7 +110,8 @@ function Tooltip({
   const placement = step.placement ?? 'bottom';
   const tooltipWidth = 280;
 
-  let style: Record<string, string | number> = {};
+  // biome-ignore lint/correctness/noUndeclaredVariables: React is in scope via JSX transform
+  let style: React.CSSProperties = {};
 
   if (placement === 'bottom') {
     style = {

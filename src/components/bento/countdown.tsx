@@ -86,6 +86,30 @@ function useCountdown(targetDate: string, repeat = 'none') {
   return timeLeft;
 }
 
+function CountdownDisplay({ timeLeft }: { timeLeft: TimeLeft }) {
+  if (timeLeft.days > 7) {
+    return (
+      <p className="font-cal text-2xl tabular-nums">in {timeLeft.days} days</p>
+    );
+  }
+  if (timeLeft.days >= 1) {
+    return (
+      <p className="font-cal text-xl tabular-nums">
+        {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+      </p>
+    );
+  }
+  return (
+    <div className="flex items-center gap-3">
+      <TimeUnit value={timeLeft.hours} label="h" compact />
+      <span className="font-cal text-muted-foreground text-xl">:</span>
+      <TimeUnit value={timeLeft.minutes} label="m" compact />
+      <span className="font-cal text-muted-foreground text-xl">:</span>
+      <TimeUnit value={timeLeft.seconds} label="s" compact />
+    </div>
+  );
+}
+
 function TimeUnit({
   value,
   label,
@@ -127,22 +151,8 @@ function CompactCountdown({
       )}
       {timeLeft.isPast ? (
         <p className="font-cal text-primary text-sm">Time&apos;s up!</p>
-      ) : timeLeft.days > 7 ? (
-        <p className="font-cal text-2xl tabular-nums">
-          in {timeLeft.days} days
-        </p>
-      ) : timeLeft.days >= 1 ? (
-        <p className="font-cal text-xl tabular-nums">
-          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
-        </p>
       ) : (
-        <div className="flex items-center gap-3">
-          <TimeUnit value={timeLeft.hours} label="h" compact />
-          <span className="font-cal text-muted-foreground text-xl">:</span>
-          <TimeUnit value={timeLeft.minutes} label="m" compact />
-          <span className="font-cal text-muted-foreground text-xl">:</span>
-          <TimeUnit value={timeLeft.seconds} label="s" compact />
-        </div>
+        <CountdownDisplay timeLeft={timeLeft} />
       )}
     </div>
   );

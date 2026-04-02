@@ -143,7 +143,9 @@ function useReverseGeocode(lat: number, lng: number) {
           data.address.state;
         setName(city ?? null);
       })
-      .catch(() => {});
+      .catch(() => {
+        /* ignore reverse geocode failures */
+      });
 
     return () => {
       cancelled = true;
@@ -211,6 +213,36 @@ function WideWeather({
       </div>
     </div>
   );
+}
+
+function WeatherContent({
+  hasLocation,
+  weather,
+  editable,
+  mdSize,
+  displayLocation,
+}: {
+  hasLocation: boolean;
+  weather: WeatherData | null;
+  editable?: boolean;
+  mdSize: string;
+  displayLocation?: string;
+}) {
+  if (!hasLocation || !weather) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
+        <span className="text-2xl">🌤️</span>
+        <p className="text-muted-foreground text-xs">
+          {editable && 'Set location'}
+          {!editable && !weather && 'Loading...'}
+        </p>
+      </div>
+    );
+  }
+  if (mdSize === '4x2') {
+    return <WideWeather weather={weather} locationName={displayLocation} />;
+  }
+  return <CompactWeather weather={weather} locationName={displayLocation} />;
 }
 
 export default function WeatherCard({
@@ -325,24 +357,13 @@ export default function WeatherCard({
           <CardOverlay bento={bento} allowedSizes={WEATHER_CARD_SIZES} />
         )}
 
-        {!hasLocation || !weather ? (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
-            <span className="text-2xl">🌤️</span>
-            <p className="text-muted-foreground text-xs">
-              {editable ? 'Set location' : weather ? '' : 'Loading...'}
-            </p>
-          </div>
-        ) : mdSize === '4x2' ? (
-          <WideWeather
-            weather={weather}
-            locationName={displayLocation ?? undefined}
-          />
-        ) : (
-          <CompactWeather
-            weather={weather}
-            locationName={displayLocation ?? undefined}
-          />
-        )}
+        <WeatherContent
+          hasLocation={hasLocation}
+          weather={weather}
+          editable={editable}
+          mdSize={mdSize}
+          displayLocation={displayLocation ?? undefined}
+        />
 
         {editable && (
           <button

@@ -113,6 +113,7 @@ export default function ManageSize({
     return createPortal(
       <div className="fixed inset-0 z-100">
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss */}
+        {/* biome-ignore lint/nursery/noStaticElementInteractions: backdrop dismiss */}
         <div
           role="presentation"
           className="absolute inset-0 bg-black/20"

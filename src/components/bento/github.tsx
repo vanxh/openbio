@@ -316,6 +316,7 @@ export default function GitHubCard({
 
   return (
     <>
+      {/* biome-ignore lint/nursery/noStaticElementInteractions: interactive card with role/tabIndex set conditionally */}
       <div
         className={cn(
           'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-card shadow-sm',

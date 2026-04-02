@@ -118,7 +118,9 @@ function SubscribeForm({
         className="flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          if (email && linkId) subscribe({ linkId, email });
+          if (email && linkId) {
+            subscribe({ linkId, email });
+          }
         }}
       >
         <Input

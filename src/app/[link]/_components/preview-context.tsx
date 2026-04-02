@@ -12,9 +12,9 @@ const PreviewContext = createContext<{
   setViewport: (v: Viewport) => void;
 }>({
   preview: false,
-  setPreview: () => {},
+  setPreview: () => undefined,
   viewport: 'desktop',
-  setViewport: () => {},
+  setViewport: () => undefined,
 });
 
 export function PreviewProvider({ children }: { children: React.ReactNode }) {
