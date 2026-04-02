@@ -64,8 +64,32 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
+  const bio = (profileLink.bio ?? '').replace(/<[^>]*>/g, '');
+  const profileUrl = `https://openbio.app/${profileLink.link}`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: {
+      '@type': 'Person',
+      name: profileLink.name,
+      url: profileUrl,
+      ...(profileLink.image && { image: profileLink.image }),
+      ...(bio && { description: bio }),
+      sameAs: profileLink.bento
+        .filter((b) => b.type === 'link' && b.href)
+        .map((b) => (b as { href: string }).href),
+    },
+  };
+
   return (
-    <ThemeWrapper
+    <>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD with server-only data from our DB
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ThemeWrapper
       theme={profileLink.theme}
       darkMode={profileLink.darkMode}
       accentColor={profileLink.accentColor}
@@ -103,5 +127,6 @@ export default async function Page({ params }: Props) {
         </ViewportContainer>
       </PreviewProvider>
     </ThemeWrapper>
+    </>
   );
 }
