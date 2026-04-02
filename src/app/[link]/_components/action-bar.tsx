@@ -4,7 +4,8 @@ import CreateLinkBentoModal from '@/components/modals/create-link-bento';
 import CustomDomainModal from '@/components/modals/custom-domain';
 import ThemeSettingsModal from '@/components/modals/theme-settings';
 import { api } from '@/trpc/react';
-import { Globe, ImagePlus, Link, Palette, Type } from 'lucide-react';
+import { ArrowLeft, Globe, ImagePlus, Link, Palette, Type } from 'lucide-react';
+import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
 import { usePreview } from './preview-context';
 
@@ -54,6 +55,12 @@ export default function ActionBar() {
   return (
     <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-20 mx-auto md:bottom-10">
       <div className="mx-auto flex w-max items-center gap-x-4 rounded-lg bg-background/80 px-3 py-3 backdrop-blur-xl backdrop-saturate-[20]">
+        <NextLink href="/app" className={btnClass} title="Back to dashboard">
+          <ArrowLeft size={14} />
+        </NextLink>
+
+        <div className="h-5 w-px bg-border" />
+
         <CreateLinkBentoModal>
           <button type="button" className={btnClass}>
             <Link size={14} />
