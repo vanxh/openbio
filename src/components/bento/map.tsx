@@ -13,9 +13,9 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { MapBentoSchema } from '@/types';
-import { MapPin, Pencil } from 'lucide-react';
+import { Locate, MapPin, Pencil } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type * as z from 'zod';
 
 type BentoData = z.infer<typeof MapBentoSchema>;
@@ -78,10 +78,28 @@ export default function MapCard({
   const [latitude, setLatitude] = useState(String(bento.latitude || ''));
   const [longitude, setLongitude] = useState(String(bento.longitude || ''));
   const [label, setLabel] = useState(bento.label ?? '');
+  const [locating, setLocating] = useState(false);
 
   const queryClient = api.useContext();
   const { mutateAsync: updateBento } =
     api.profileLink.updateBento.useMutation();
+
+  const handleUseMyLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(String(position.coords.latitude));
+        setLongitude(String(position.coords.longitude));
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+      }
+    );
+  }, []);
 
   const handleSave = async () => {
     const lat = Number.parseFloat(latitude);
@@ -185,6 +203,17 @@ export default function MapCard({
                   />
                 </div>
               )}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full rounded-xl"
+              disabled={locating}
+              onClick={handleUseMyLocation}
+            >
+              <Locate className="mr-2 h-4 w-4" />
+              {locating ? 'Getting location...' : 'Use my location'}
+            </Button>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
