@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const profileLink = await getProfileLink(link);
 
   const title = profileLink?.name ?? defaultMetadata.title;
-  const description =
+  const description = (
     profileLink?.bio ??
-    `This is ${profileLink?.name ?? profileLink?.link}'s profile.`;
+    `This is ${profileLink?.name ?? profileLink?.link}'s profile.`
+  ).replace(/<[^>]*>/g, '');
 
   return {
     ...defaultMetadata,
