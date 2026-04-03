@@ -57,6 +57,13 @@
       "when": 1775248270758,
       "tag": "0007_nervous_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1775251212827,
+      "tag": "0008_lying_nightmare",
+      "breakpoints": true
     }
   ]
 }

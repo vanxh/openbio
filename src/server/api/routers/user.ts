@@ -4,6 +4,7 @@ import { user as userTable } from '@/server/db/schema';
 import { isUserPremium } from '@/server/db/utils/user';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+import * as z from 'zod';
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {
@@ -45,4 +46,14 @@ export const userRouter = createTRPCRouter({
 
     return { trialEndsAt };
   }),
+
+  updateEmailDigest: protectedProcedure
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .update(userTable)
+        .set({ emailDigest: input.enabled })
+        .where(eq(userTable.id, ctx.user.id));
+      return { emailDigest: input.enabled };
+    }),
 });

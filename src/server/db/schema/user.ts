@@ -15,6 +15,7 @@ export const user = pgTable('user', {
   subscriptionId: text('subscription_id'),
   subscriptionEndsAt: timestamp('subscription_ends_at', { withTimezone: true }),
   trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
+  emailDigest: boolean('email_digest').default(true).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

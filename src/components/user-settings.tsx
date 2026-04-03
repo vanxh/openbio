@@ -1,3 +1,4 @@
+import EmailDigestToggle from '@/components/email-digest-toggle';
 import { PricingCards } from '@/components/pricing';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,10 @@ export default async function UserSettings({
           <Label>Your Name</Label>
 
           <Input value={user.name} readOnly className="w-max" />
+        </div>
+
+        <div className="space-y-2">
+          <EmailDigestToggle defaultEnabled={user.emailDigest} />
         </div>
 
         <div className="flex flex-col space-y-2">
