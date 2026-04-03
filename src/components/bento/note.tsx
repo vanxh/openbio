@@ -264,7 +264,11 @@ export default function NoteCard({
             <DialogTitle className="font-cal">Edit Note</DialogTitle>
           </DialogHeader>
           {editOpen && (
-            <NoteEditor initialContent={bento.text || ''} onSave={handleSave} isSaving={isPending} />
+            <NoteEditor
+              initialContent={bento.text || ''}
+              onSave={handleSave}
+              isSaving={isPending}
+            />
           )}
         </DialogContent>
       </Dialog>

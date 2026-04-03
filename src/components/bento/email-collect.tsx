@@ -292,7 +292,11 @@ export default function EmailCollectCard({
               />
             </div>
 
-            <Button onClick={handleSave} disabled={isSaving} className="w-full rounded-xl">
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full rounded-xl"
+            >
               {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>

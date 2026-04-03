@@ -86,24 +86,26 @@ function CalendarDisplay({
   }
 
   return (
-    <div className="flex h-full w-full flex-col justify-center gap-3 p-6">
+    <div className="flex h-full w-full flex-col p-6">
       <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50">
         <Calendar className="h-5 w-5 text-foreground" />
       </div>
-      <div className="space-y-1">
+      <div className="mt-auto space-y-1">
         <p className="font-cal text-base leading-tight">{title}</p>
         <p className="text-muted-foreground text-xs">{description}</p>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90"
-          onClick={onBookClick}
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          Book a time
-        </button>
-        <span className="text-muted-foreground/60 text-xs">via {provider}</span>
+        <div className="flex items-center gap-2 pt-2">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90"
+            onClick={onBookClick}
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            Book a time
+          </button>
+          <span className="text-muted-foreground/60 text-xs">
+            via {provider}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -288,7 +290,11 @@ export default function CalendarCard({
               />
             </div>
 
-            <Button onClick={handleSave} disabled={isPending} className="w-full rounded-xl">
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="w-full rounded-xl"
+            >
               {isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>

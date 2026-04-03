@@ -65,13 +65,14 @@ export default function ThemeSettingsModal({
     profileLink?.customFooter ?? ''
   );
 
-  const { mutateAsync: updateLink, isPending } = api.profileLink.update.useMutation({
-    onSuccess: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
-      router.refresh();
-      setOpen(false);
-    },
-  });
+  const { mutateAsync: updateLink, isPending } =
+    api.profileLink.update.useMutation({
+      onSuccess: () => {
+        queryClient.profileLink.getByLink.invalidate({ link });
+        router.refresh();
+        setOpen(false);
+      },
+    });
 
   const save = () => {
     if (!profileLink) {
@@ -268,7 +269,11 @@ export default function ThemeSettingsModal({
 
         {/* Sticky save button */}
         <div className="border-border border-t pt-4">
-          <Button onClick={save} disabled={isPending} className="w-full rounded-xl">
+          <Button
+            onClick={save}
+            disabled={isPending}
+            className="w-full rounded-xl"
+          >
             {isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>

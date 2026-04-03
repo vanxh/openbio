@@ -33,31 +33,32 @@ export default function CreateLinkBentoModal({
 
   const queryClient = api.useContext();
 
-  const { mutateAsync: createBento, isPending } = api.profileLink.createBento.useMutation({
-    onMutate: (bento) => {
-      queryClient.profileLink.getByLink.setData(
-        {
-          link,
-        },
-        (old) => {
-          if (!old) {
-            return old;
-          }
+  const { mutateAsync: createBento, isPending } =
+    api.profileLink.createBento.useMutation({
+      onMutate: (bento) => {
+        queryClient.profileLink.getByLink.setData(
+          {
+            link,
+          },
+          (old) => {
+            if (!old) {
+              return old;
+            }
 
-          return {
-            ...old,
-            bento: [...old.bento, LinkBentoSchema.parse(bento.bento)],
-          };
-        }
-      );
-    },
-    onSuccess: () => {
-      setOpen(false);
-    },
-    onSettled: () => {
-      queryClient.profileLink.getByLink.invalidate({ link });
-    },
-  });
+            return {
+              ...old,
+              bento: [...old.bento, LinkBentoSchema.parse(bento.bento)],
+            };
+          }
+        );
+      },
+      onSuccess: () => {
+        setOpen(false);
+      },
+      onSettled: () => {
+        queryClient.profileLink.getByLink.invalidate({ link });
+      },
+    });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -91,7 +92,11 @@ export default function CreateLinkBentoModal({
           />
 
           <div className="flex gap-x-4">
-            <Button type="submit" disabled={!input || isPending} className="w-full">
+            <Button
+              type="submit"
+              disabled={!input || isPending}
+              className="w-full"
+            >
               {isPending ? 'Creating...' : 'Create'}
             </Button>
 

@@ -437,7 +437,11 @@ export default function MapCard({
               />
             </div>
 
-            <Button onClick={handleSave} disabled={isPending} className="w-full rounded-xl">
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="w-full rounded-xl"
+            >
               {isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>
