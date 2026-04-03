@@ -20,8 +20,10 @@ import {
   deleteProfileLink,
   deleteProfileLinkBento,
   getClicksOverTime,
+  getDeviceBreakdown,
   getProfileLinkById,
   getProfileLinkByLink,
+  getProfileLinkUniqueViews,
   getProfileLinkViews,
   getProfileLinksOfUser,
   getTopCards,
@@ -211,27 +213,33 @@ export const profileLinkRouter = createTRPCRouter({
 
       const [
         views,
+        uniqueViews,
         clicks,
         viewsOverTime,
         clicksOverTime,
         topCards,
         topReferrers,
+        deviceBreakdown,
       ] = await Promise.all([
         getProfileLinkViews(input.linkId),
+        getProfileLinkUniqueViews(input.linkId),
         getTotalClicks(input.linkId),
         getViewsOverTime(input.linkId, input.days),
         getClicksOverTime(input.linkId, input.days),
         getTopCards(input.linkId, input.days),
         getTopReferrers(input.linkId, input.days),
+        getDeviceBreakdown(input.linkId, input.days),
       ]);
 
       return {
         views,
+        uniqueViews,
         clicks,
         viewsOverTime,
         clicksOverTime,
         topCards,
         topReferrers,
+        deviceBreakdown,
       };
     }),
 
