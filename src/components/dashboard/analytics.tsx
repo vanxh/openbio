@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -13,8 +14,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import { toast } from '@/components/ui/use-toast';
 import { api } from '@/trpc/react';
-import { Eye, Globe, Monitor, MousePointerClick, Users } from 'lucide-react';
+import {
+  Copy,
+  Download,
+  Eye,
+  Globe,
+  Mail,
+  Monitor,
+  MousePointerClick,
+  Users,
+} from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 const viewsConfig = {
@@ -40,6 +51,10 @@ export default function Analytics({ linkId }: { linkId: string }) {
   const { data, isLoading } = api.profileLink.analytics.useQuery({
     linkId,
     days: 30,
+  });
+
+  const { data: subscribers } = api.profileLink.subscribers.useQuery({
+    linkId,
   });
 
   if (isLoading) {
@@ -414,6 +429,90 @@ export default function Analytics({ linkId }: { linkId: string }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Email Subscribers */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="font-cal">Subscribers</CardTitle>
+            <CardDescription>
+              {subscribers?.length ?? 0} email{' '}
+              {subscribers?.length === 1 ? 'subscriber' : 'subscribers'}
+            </CardDescription>
+          </div>
+          {subscribers && subscribers.length > 0 && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const emails = subscribers.map((s) => s.email).join(', ');
+                  navigator.clipboard
+                    .writeText(emails)
+                    .then(() => {
+                      toast({
+                        title: 'Copied!',
+                        description: `${subscribers.length} emails copied to clipboard.`,
+                      });
+                    })
+                    .catch(() => undefined);
+                }}
+              >
+                <Copy className="mr-1.5 h-3.5 w-3.5" />
+                Copy all
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const csv = ['Email,Date']
+                    .concat(
+                      subscribers.map(
+                        (s) =>
+                          `${s.email},${new Date(s.createdAt).toLocaleDateString()}`
+                      )
+                    )
+                    .join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'subscribers.csv';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          {subscribers?.length ? (
+            <div className="space-y-2">
+              {subscribers.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                >
+                  <span className="truncate text-sm">{s.email}</span>
+                  <span className="shrink-0 text-muted-foreground text-xs">
+                    {new Date(s.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <Mail className="h-8 w-8 text-muted-foreground/40" />
+              <p className="text-muted-foreground text-sm">
+                No subscribers yet. Add an Email Collect card to your profile.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

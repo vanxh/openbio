@@ -21,6 +21,7 @@ import {
   deleteProfileLinkBento,
   getClicksOverTime,
   getDeviceBreakdown,
+  getEmailSubscribers,
   getGeoBreakdown,
   getProfileLinkById,
   getProfileLinkByLink,
@@ -207,6 +208,16 @@ export const profileLinkRouter = createTRPCRouter({
     )
     .mutation(({ input }) => {
       return addEmailSubscriber(input.linkId, input.email);
+    }),
+
+  subscribers: protectedProcedure
+    .input(z.object({ linkId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      await canModifyProfileLink({
+        userId: ctx.user.id,
+        linkId: input.linkId,
+      });
+      return getEmailSubscribers(input.linkId);
     }),
 
   analytics: protectedProcedure
