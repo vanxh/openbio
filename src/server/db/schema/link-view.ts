@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { link } from './link';
 
 export const linkView = pgTable('link_view', {
@@ -8,6 +8,7 @@ export const linkView = pgTable('link_view', {
   ip: text('ip').notNull(),
   userAgent: text('user_agent').notNull(),
   referrer: text('referrer'),
+  country: varchar('country', { length: 2 }), // ISO 3166-1 alpha-2
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),

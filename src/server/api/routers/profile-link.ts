@@ -21,6 +21,7 @@ import {
   deleteProfileLinkBento,
   getClicksOverTime,
   getDeviceBreakdown,
+  getGeoBreakdown,
   getProfileLinkById,
   getProfileLinkByLink,
   getProfileLinkUniqueViews,
@@ -138,11 +139,14 @@ export const profileLinkRouter = createTRPCRouter({
         ip = forwardedFor.split(',').at(0) ?? 'Unknown';
       }
 
+      const country = ctx.req.headers.get('x-vercel-ip-country') ?? undefined;
+
       after(() =>
         recordLinkView(profileLink.id, {
           ip: ip ?? 'Unknown',
           userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
           referrer: ctx.req.headers.get('referer') ?? undefined,
+          country,
         })
       );
 
@@ -220,6 +224,7 @@ export const profileLinkRouter = createTRPCRouter({
         topCards,
         topReferrers,
         deviceBreakdown,
+        geoBreakdown,
       ] = await Promise.all([
         getProfileLinkViews(input.linkId),
         getProfileLinkUniqueViews(input.linkId),
@@ -229,6 +234,7 @@ export const profileLinkRouter = createTRPCRouter({
         getTopCards(input.linkId, input.days),
         getTopReferrers(input.linkId, input.days),
         getDeviceBreakdown(input.linkId, input.days),
+        getGeoBreakdown(input.linkId, input.days),
       ]);
 
       return {
@@ -240,6 +246,7 @@ export const profileLinkRouter = createTRPCRouter({
         topCards,
         topReferrers,
         deviceBreakdown,
+        geoBreakdown,
       };
     }),
 

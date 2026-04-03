@@ -1,6 +1,6 @@
 import { redis } from '@/lib/redis';
 import { UAParser } from 'ua-parser-js';
-import { and, countDistinct, eq, gte, sql } from '..';
+import { and, count, countDistinct, desc, eq, gte, sql } from '..';
 import { db } from '../db';
 import { linkView } from '../schema';
 
@@ -31,10 +31,12 @@ export const recordLinkView = async (
     ip,
     userAgent,
     referrer,
+    country,
   }: {
     ip: string;
     userAgent: string;
     referrer?: string;
+    country?: string;
   }
 ) => {
   const exists = await db.query.linkView.findFirst({
@@ -55,6 +57,7 @@ export const recordLinkView = async (
       ip,
       userAgent,
       referrer,
+      country,
     });
 
     await Promise.all([
@@ -69,14 +72,21 @@ export const recordLinkView = async (
       redis.del(`analytics:devices:${linkId}:7`),
       redis.del(`analytics:devices:${linkId}:30`),
       redis.del(`analytics:devices:${linkId}:90`),
+      redis.del(`analytics:geo:${linkId}:7`),
+      redis.del(`analytics:geo:${linkId}:30`),
+      redis.del(`analytics:geo:${linkId}:90`),
     ]);
   }
 };
 
-export async function getProfileLinkUniqueViews(linkId: string): Promise<number> {
+export async function getProfileLinkUniqueViews(
+  linkId: string
+): Promise<number> {
   const cacheKey = `profile-link-unique-views:${linkId}`;
   const cached = await redis.get<number>(cacheKey);
-  if (cached !== null && cached !== undefined) { return cached; }
+  if (cached !== null && cached !== undefined) {
+    return cached;
+  }
 
   const result = await db
     .select({ count: countDistinct(linkView.ip) })
@@ -128,4 +138,28 @@ export async function getDeviceBreakdown(linkId: string, days: number) {
 
   await redis.set(cacheKey, result, { ex: 300 });
   return result;
+}
+
+export async function getGeoBreakdown(linkId: string, days: number) {
+  const cacheKey = `analytics:geo:${linkId}:${days}`;
+  const cached = await redis.get(cacheKey);
+  if (cached) { return cached as { country: string; count: number }[]; }
+
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+
+  const result = await db
+    .select({
+      country: sql<string>`coalesce(${linkView.country}, 'Unknown')`,
+      count: count(),
+    })
+    .from(linkView)
+    .where(and(eq(linkView.linkId, linkId), gte(linkView.createdAt, since)))
+    .groupBy(linkView.country)
+    .orderBy(desc(count()))
+    .limit(20);
+
+  const mapped = result.map(r => ({ country: r.country, count: Number(r.count) }));
+  await redis.set(cacheKey, mapped, { ex: 300 });
+  return mapped;
 }
