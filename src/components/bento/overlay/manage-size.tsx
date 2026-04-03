@@ -100,8 +100,7 @@ export default function ManageSize({
           key={o.key}
           className={cn(
             'inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-accent-foreground active:scale-95',
-            size === o.key &&
-              'bg-accent text-accent-foreground shadow-sm'
+            size === o.key && 'bg-accent text-accent-foreground shadow-sm'
           )}
           onClick={() => handleSizeClick(o.key)}
         >

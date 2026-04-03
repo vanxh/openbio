@@ -1,13 +1,25 @@
+'use client';
+
 import CardOverlay from '@/components/bento/overlay';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { getMetadata } from '@/lib/metadata';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { LinkBentoSchema } from '@/types';
+import { Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import type React from 'react';
+import { useState } from 'react';
 import { BiLogoTelegram } from 'react-icons/bi';
 import { BsDiscord, BsTwitterX } from 'react-icons/bs';
 import {
@@ -277,11 +289,13 @@ function CardWrapper({
   editable,
   className,
   children,
+  onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
   className?: string;
   children: React.ReactNode;
+  onEdit?: () => void;
 }) {
   const { link: linkSlug } = useParams<{ link: string }>();
   const { data: profileLink } = api.profileLink.getByLink.useQuery(
@@ -317,6 +331,21 @@ function CardWrapper({
     >
       {editable && <CardOverlay bento={bento} allowedSizes={LINK_CARD_SIZES} />}
       {children}
+      {editable && onEdit && (
+        <button
+          type="button"
+          className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onEdit();
+          }}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+      )}
     </Comp>
   );
 }
@@ -353,18 +382,21 @@ function CompactLayout({
   metadata,
   title,
   description,
+  onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
   metadata?: Metadata;
   title?: string | null;
   description?: string | null;
+  onEdit?: () => void;
 }) {
   return (
     <CardWrapper
       bento={bento}
       editable={editable}
       className="flex flex-col p-5"
+      onEdit={onEdit}
     >
       <IconBadge href={bento.href ?? ''} metadata={metadata} />
       <div className="mt-auto space-y-1">
@@ -386,17 +418,20 @@ function BannerLayout({
   editable,
   metadata,
   title,
+  onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
   metadata?: Metadata;
   title?: string | null;
+  onEdit?: () => void;
 }) {
   return (
     <CardWrapper
       bento={bento}
       editable={editable}
       className="flex items-center gap-x-3 px-5"
+      onEdit={onEdit}
     >
       <IconBadge href={bento.href ?? ''} metadata={metadata} size="sm" />
       <span className="truncate font-cal text-sm">{title}</span>
@@ -412,12 +447,14 @@ function WideLayout({
   metadata,
   title,
   description,
+  onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
   metadata?: Metadata;
   title?: string | null;
   description?: string | null;
+  onEdit?: () => void;
 }) {
   const href = bento.href ?? '';
   const platform = getPlatform(href);
@@ -430,6 +467,7 @@ function WideLayout({
         bento={bento}
         editable={editable}
         className="flex overflow-hidden"
+        onEdit={onEdit}
       >
         <div className="flex flex-1 flex-col justify-between p-5">
           <IconBadge href={href} metadata={metadata} />
@@ -460,6 +498,7 @@ function WideLayout({
       bento={bento}
       editable={editable}
       className="flex overflow-hidden"
+      onEdit={onEdit}
     >
       {/* Branded icon area */}
       <div
@@ -496,9 +535,35 @@ export default function LinkCard({
   bento: BentoData;
   editable?: boolean;
 }) {
+  const params = useParams<{ link: string }>();
+  const [editOpen, setEditOpen] = useState(false);
+  const [href, setHref] = useState(bento.href ?? '');
+
+  const queryClient = api.useContext();
+  const { mutateAsync: updateBento, isPending } =
+    api.profileLink.updateBento.useMutation();
+
   const [metadata] = api.profileLink.getMetadataOfURL.useSuspenseQuery({
     url: bento.href ?? '',
   });
+
+  const handleSave = async () => {
+    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
+      if (!old) {
+        return old;
+      }
+      return {
+        ...old,
+        bento: old.bento.map((b) => (b.id === bento.id ? { ...b, href } : b)),
+      };
+    });
+
+    await updateBento({
+      link: params.link,
+      bento: { ...bento, href },
+    });
+    setEditOpen(false);
+  };
 
   if (!bento.href) {
     return null;
@@ -508,38 +573,69 @@ export default function LinkCard({
   const description = getDescription(bento.href, metadata ?? undefined);
   const smSize = bento.size.sm ?? '2x2';
   const mdSize = bento.size.md ?? '2x2';
+  const onEdit = editable ? () => setEditOpen(true) : undefined;
 
-  // Banner: render if either breakpoint is 4x1
-  if (smSize === '4x1' || mdSize === '4x1') {
-    return (
+  const layout =
+    smSize === '4x1' || mdSize === '4x1' ? (
       <BannerLayout
         bento={bento}
         editable={editable}
         metadata={metadata ?? undefined}
         title={title}
+        onEdit={onEdit}
       />
-    );
-  }
-
-  if (mdSize === '4x2') {
-    return (
+    ) : mdSize === '4x2' ? (
       <WideLayout
         bento={bento}
         editable={editable}
         metadata={metadata ?? undefined}
         title={title}
         description={description}
+        onEdit={onEdit}
+      />
+    ) : (
+      <CompactLayout
+        bento={bento}
+        editable={editable}
+        metadata={metadata ?? undefined}
+        title={title}
+        description={description}
+        onEdit={onEdit}
       />
     );
-  }
 
   return (
-    <CompactLayout
-      bento={bento}
-      editable={editable}
-      metadata={metadata ?? undefined}
-      title={title}
-      description={description}
-    />
+    <>
+      {layout}
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-cal">Edit Link</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="link-href" className="font-medium text-sm">
+                URL
+              </Label>
+              <Input
+                id="link-href"
+                placeholder="https://example.com"
+                value={href}
+                onChange={(e) => setHref(e.target.value)}
+                className="rounded-xl"
+              />
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="w-full rounded-xl"
+            >
+              {isPending ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
