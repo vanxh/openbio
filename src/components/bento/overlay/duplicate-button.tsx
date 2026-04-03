@@ -1,5 +1,6 @@
 'use client';
 
+import { useBentoHistory } from '@/app/[link]/_components/bento-history';
 import { Button } from '@/components/ui/button';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
@@ -13,6 +14,7 @@ export default function DuplicateButton({
   bento: z.infer<typeof BentoSchema>;
 }) {
   const { link } = useParams<{ link: string }>();
+  const { pushSnapshot } = useBentoHistory();
 
   const queryClient = api.useContext();
 
@@ -51,7 +53,12 @@ export default function DuplicateButton({
       variant="secondary"
       className="-translate-y-1/2 absolute top-0 left-6 z-30 translate-x-1/2 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
       onClick={() => {
-        const { id: _id, clicks: _clicks, ...rest } = bento as z.infer<typeof BentoSchema> & { clicks?: number };
+        pushSnapshot();
+        const {
+          id: _id,
+          clicks: _clicks,
+          ...rest
+        } = bento as z.infer<typeof BentoSchema> & { clicks?: number };
         createBento({
           link,
           bento: {

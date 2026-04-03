@@ -1,5 +1,6 @@
 'use client';
 
+import { useBentoHistory } from '@/app/[link]/_components/bento-history';
 import { Button } from '@/components/ui/button';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
@@ -13,6 +14,7 @@ export default function DeleteButton({
   bento: z.infer<typeof BentoSchema>;
 }) {
   const { link } = useParams<{ link: string }>();
+  const { pushSnapshot } = useBentoHistory();
 
   const queryClient = api.useContext();
 
@@ -44,6 +46,7 @@ export default function DeleteButton({
       variant="secondary"
       className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-30 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
       onClick={() => {
+        pushSnapshot();
         deleteBento({
           link,
           id: bento.id,

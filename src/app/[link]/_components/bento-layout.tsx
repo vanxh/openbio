@@ -15,6 +15,7 @@ import {
   WidthProvider,
 } from 'react-grid-layout';
 import type * as z from 'zod';
+import { useBentoHistory } from './bento-history';
 import { usePreview } from './preview-context';
 
 function bentoToLayoutItem(
@@ -75,6 +76,7 @@ export default function BentoLayout({
   );
 
   const { preview } = usePreview();
+  const { pushSnapshot } = useBentoHistory();
   const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
 
   const { mutateAsync: updateBento } =
@@ -138,6 +140,7 @@ export default function BentoLayout({
       isResizable={false}
       isDraggable={profileLink?.isOwner && !preview}
       onDragStart={() => {
+        pushSnapshot();
         hasDragged.current = true;
       }}
       onLayoutChange={(_newLayout, newLayouts) => {

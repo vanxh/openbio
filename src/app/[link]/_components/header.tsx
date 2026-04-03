@@ -12,10 +12,20 @@ import { Color, TextStyle } from '@tiptap/extension-text-style';
 import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Eye, Monitor, PenLine, QrCode, Share2, Smartphone } from 'lucide-react';
+import {
+  Eye,
+  Monitor,
+  PenLine,
+  QrCode,
+  Redo2,
+  Share2,
+  Smartphone,
+  Undo2,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
+import { useBentoHistory } from './bento-history';
 import BioToolbar from './bio-toolbar';
 import { usePreview } from './preview-context';
 
@@ -73,6 +83,7 @@ export default function ProfileLinkHeader({
   }, [name, bio, updateProfileLink, profileLink]);
 
   const { preview, setPreview, viewport, setViewport } = usePreview();
+  const { canUndo, canRedo, undo, redo } = useBentoHistory();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -118,6 +129,27 @@ export default function ProfileLinkHeader({
 
             {!preview && (
               <>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    disabled={!canUndo}
+                    onClick={undo}
+                    title="Undo (Ctrl+Z)"
+                  >
+                    <Undo2 className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    disabled={!canRedo}
+                    onClick={redo}
+                    title="Redo (Ctrl+Shift+Z)"
+                  >
+                    <Redo2 className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
+                </div>
+
                 <div
                   className="hidden items-center rounded-md border border-border md:flex"
                   data-tour="viewport-switcher"
@@ -176,7 +208,10 @@ export default function ProfileLinkHeader({
                 const url = `https://openbio.app/${profileLink.link}`;
                 if (navigator.share) {
                   navigator
-                    .share({ title: profileLink.name ?? 'OpenBio Profile', url })
+                    .share({
+                      title: profileLink.name ?? 'OpenBio Profile',
+                      url,
+                    })
                     .catch(() => undefined);
                 } else {
                   navigator.clipboard

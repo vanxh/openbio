@@ -28,10 +28,12 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { useBentoHistory } from './bento-history';
 import { usePreview } from './preview-context';
 
 export default function ActionBar() {
   const { preview } = usePreview();
+  const { pushSnapshot } = useBentoHistory();
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
@@ -79,6 +81,7 @@ export default function ActionBar() {
     'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted';
 
   const addCard = (bento: Record<string, unknown>) => {
+    pushSnapshot();
     createBento({ link, bento: bento as never });
     setAddOpen(false);
   };

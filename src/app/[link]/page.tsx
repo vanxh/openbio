@@ -13,6 +13,7 @@ import { notFound } from 'next/navigation';
 import { Suspense, cache } from 'react';
 import ActionBar from './_components/action-bar';
 import Bento from './_components/bento';
+import { BentoHistoryProvider } from './_components/bento-history';
 import ProfileLinkHeader from './_components/header';
 import { PreviewProvider } from './_components/preview-context';
 import ThemeWrapper from './_components/theme-wrapper';
@@ -97,54 +98,58 @@ export default async function Page({ params }: Props) {
         accentColor={profileLink.accentColor}
       >
         <PreviewProvider>
-          <ViewportContainer>
-            <div className="flex flex-col gap-y-6">
-              <div className="animate-fade-in">
-                <ProfileLinkHeader profileLink={profileLink} />
-              </div>
-
-              <Suspense
-                fallback={
-                  <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-                    {Array.from({ length: 24 }).map((_, i) => (
-                      <Skeleton
-                        key={i}
-                        className="aspect-square h-full w-full"
-                      />
-                    ))}
+          <Suspense>
+            <BentoHistoryProvider>
+              <ViewportContainer>
+                <div className="flex flex-col gap-y-6">
+                  <div className="animate-fade-in">
+                    <ProfileLinkHeader profileLink={profileLink} />
                   </div>
-                }
-              >
-                <Bento profileLink={profileLink} />
-              </Suspense>
 
-              {profileLink.isOwner && (
-                <>
-                  <ActionBar />
-                  <OnboardingTour />
-                </>
-              )}
-
-              <footer className="animate-fade-in py-8 text-center">
-                {profileLink.customFooter ? (
-                  <p className="text-muted-foreground text-xs">
-                    {profileLink.customFooter}
-                  </p>
-                ) : (
-                  <Link
-                    href="/claim-link"
-                    className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 py-2 text-muted-foreground text-sm backdrop-blur-sm transition-all hover:border-primary hover:text-foreground"
+                  <Suspense
+                    fallback={
+                      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                        {Array.from({ length: 24 }).map((_, i) => (
+                          <Skeleton
+                            key={i}
+                            className="aspect-square h-full w-full"
+                          />
+                        ))}
+                      </div>
+                    }
                   >
-                    Create your own free page on
-                    <span className="font-semibold text-foreground">
-                      OpenBio
-                    </span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                )}
-              </footer>
-            </div>
-          </ViewportContainer>
+                    <Bento profileLink={profileLink} />
+                  </Suspense>
+
+                  {profileLink.isOwner && (
+                    <>
+                      <ActionBar />
+                      <OnboardingTour />
+                    </>
+                  )}
+
+                  <footer className="animate-fade-in py-8 text-center">
+                    {profileLink.customFooter ? (
+                      <p className="text-muted-foreground text-xs">
+                        {profileLink.customFooter}
+                      </p>
+                    ) : (
+                      <Link
+                        href="/claim-link"
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 py-2 text-muted-foreground text-sm backdrop-blur-sm transition-all hover:border-primary hover:text-foreground"
+                      >
+                        Create your own free page on
+                        <span className="font-semibold text-foreground">
+                          OpenBio
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    )}
+                  </footer>
+                </div>
+              </ViewportContainer>
+            </BentoHistoryProvider>
+          </Suspense>
         </PreviewProvider>
       </ThemeWrapper>
     </>
