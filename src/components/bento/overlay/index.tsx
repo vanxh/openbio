@@ -6,6 +6,7 @@ import DragHandle from '@/components/bento/overlay/drag-handle';
 import DuplicateButton from '@/components/bento/overlay/duplicate-button';
 import ManageSize from '@/components/bento/overlay/manage-size';
 import { Button } from '@/components/ui/button';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import type { BentoSchema } from '@/server/db';
 import { Maximize2 } from 'lucide-react';
 import type React from 'react';
@@ -124,8 +125,13 @@ export default function CardOverlay({
           onPointerDown={stopDrag}
           className="contents"
         >
-          <DeleteButton bento={bento} />
-          <DuplicateButton bento={bento} />
+          <TooltipProvider delayDuration={300}>
+            <div className="-translate-y-1/2 absolute top-0 left-3 z-30 flex items-center gap-0.5 rounded-lg border border-border/50 bg-background/90 p-0.5 shadow-md backdrop-blur-sm">
+              <DeleteButton bento={bento} />
+              <div className="h-4 w-px bg-border/50" />
+              <DuplicateButton bento={bento} />
+            </div>
+          </TooltipProvider>
           <DragHandle />
 
           {/* Mobile: show a resize button that opens the size picker */}
