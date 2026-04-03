@@ -124,6 +124,17 @@ export const TwitterBentoSchema = z.object({
   position: PositionSchema,
 });
 
+export const MusicBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('music'),
+
+  url: z.string(), // Spotify or Apple Music URL
+  title: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
 export const CalendarBentoSchema = z.object({
   id: z.string(),
   type: z.literal('calendar'),
@@ -152,6 +163,7 @@ export const BentoSchema = LinkBentoSchema.or(NoteBentoSchema)
   .or(CountdownBentoSchema)
   .or(WeatherBentoSchema)
   .or(TwitterBentoSchema)
+  .or(MusicBentoSchema)
   .or(CalendarBentoSchema)
   .or(ViewsBentoSchema);
 
