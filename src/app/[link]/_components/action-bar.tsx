@@ -11,6 +11,7 @@ import {
 import { api } from '@/trpc/react';
 import {
   ArrowLeft,
+  Calendar,
   CloudSun,
   Eye,
   EyeOff,
@@ -262,6 +263,20 @@ export default function ActionBar() {
               >
                 <FaXTwitter size={14} className="shrink-0" />
                 Tweet
+              </button>
+              <button
+                type="button"
+                className={menuItemClass}
+                onClick={() =>
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'calendar',
+                    url: '',
+                  })
+                }
+              >
+                <Calendar size={14} className="shrink-0" />
+                Booking
               </button>
               {!profileLink?.bento.some((b) => b.type === 'views') && (
                 <button

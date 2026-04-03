@@ -10,6 +10,7 @@ const GitHubCard = dynamic(() => import('./github'), { ssr: false });
 const EmailCollectCard = dynamic(() => import('./email-collect'), {
   ssr: false,
 });
+const CalendarCard = dynamic(() => import('./calendar'), { ssr: false });
 const CountdownCard = dynamic(() => import('./countdown'), { ssr: false });
 const WeatherCard = dynamic(() => import('./weather'), { ssr: false });
 const TwitterCard = dynamic(() => import('./twitter'), { ssr: false });
@@ -58,6 +59,10 @@ export default function BentoCard({
 
   if (bento.type === 'twitter') {
     return <TwitterCard bento={bento} editable={editable} />;
+  }
+
+  if (bento.type === 'calendar') {
+    return <CalendarCard bento={bento} editable={editable} />;
   }
 
   if (bento.type === 'views') {

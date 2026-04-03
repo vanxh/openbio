@@ -124,6 +124,18 @@ export const TwitterBentoSchema = z.object({
   position: PositionSchema,
 });
 
+export const CalendarBentoSchema = z.object({
+  id: z.string(),
+  type: z.literal('calendar'),
+
+  url: z.string(), // Cal.com or Calendly URL
+  title: z.string().optional(),
+  description: z.string().optional(),
+
+  size: SizeSchema,
+  position: PositionSchema,
+});
+
 export const ViewsBentoSchema = z.object({
   id: z.string(),
   type: z.literal('views'),
@@ -140,6 +152,7 @@ export const BentoSchema = LinkBentoSchema.or(NoteBentoSchema)
   .or(CountdownBentoSchema)
   .or(WeatherBentoSchema)
   .or(TwitterBentoSchema)
+  .or(CalendarBentoSchema)
   .or(ViewsBentoSchema);
 
 export const RESERVED_LINKS = [
