@@ -86,14 +86,16 @@ export const canUserCreateProfileLink = async ({
   id,
   plan,
   subscriptionEndsAt,
+  trialEndsAt,
 }: {
   id: string;
   plan: 'free' | 'pro';
   subscriptionEndsAt?: Date | null;
+  trialEndsAt?: Date | null;
 }) => {
   const nProfileLinks = await getProfileLinksCountOfUser(id);
 
-  const isPremium = isUserPremium({ plan, subscriptionEndsAt });
+  const isPremium = isUserPremium({ plan, subscriptionEndsAt, trialEndsAt });
   const canCreateProfileLink = isPremium || nProfileLinks < 1;
 
   return canCreateProfileLink;

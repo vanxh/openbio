@@ -11,6 +11,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc';
+import { isUserPremium } from '@/server/db/utils/user';
 import {
   addEmailSubscriber,
   addProfileLinkBento,
@@ -39,8 +40,8 @@ import {
 } from '@/server/db';
 import { db } from '@/server/db/db';
 import { link } from '@/server/db/schema';
-import { and, desc, eq, lt } from 'drizzle-orm';
 import type { LinkBento } from '@/types';
+import { and, desc, eq, lt } from 'drizzle-orm';
 import { after } from 'next/server';
 import * as z from 'zod';
 import {
@@ -67,7 +68,12 @@ export const profileLinkRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const user = await ctx.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.id, ctx.user.id),
-        columns: { id: true, plan: true, subscriptionEndsAt: true },
+        columns: {
+          id: true,
+          plan: true,
+          subscriptionEndsAt: true,
+          trialEndsAt: true,
+        },
       });
 
       if (!user) {
@@ -126,6 +132,7 @@ export const profileLinkRouter = createTRPCRouter({
               id: true,
               plan: true,
               subscriptionEndsAt: true,
+              trialEndsAt: true,
             },
           })
         : null;
@@ -157,10 +164,7 @@ export const profileLinkRouter = createTRPCRouter({
         ...profileLink,
         isOwner: user?.id === profileLink.userId,
         isPremium:
-          user?.id === profileLink.userId &&
-          user?.plan === 'pro' &&
-          user?.subscriptionEndsAt &&
-          user?.subscriptionEndsAt > new Date(),
+          user?.id === profileLink.userId && !!user && isUserPremium(user),
       };
     }),
 
@@ -291,7 +295,12 @@ export const profileLinkRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const user = await ctx.db.query.user.findFirst({
         where: (u, { eq }) => eq(u.id, ctx.user.id),
-        columns: { id: true, plan: true, subscriptionEndsAt: true },
+        columns: {
+          id: true,
+          plan: true,
+          subscriptionEndsAt: true,
+          trialEndsAt: true,
+        },
       });
 
       if (!user) {
@@ -305,10 +314,7 @@ export const profileLinkRouter = createTRPCRouter({
 
       // Handle custom footer changes (pro only)
       if (input.customFooter !== undefined) {
-        const isPro =
-          user.plan === 'pro' &&
-          user.subscriptionEndsAt &&
-          user.subscriptionEndsAt > new Date();
+        const isPro = isUserPremium(user);
 
         if (!isPro) {
           throw new Error('Custom footer requires a Pro subscription');
@@ -317,10 +323,7 @@ export const profileLinkRouter = createTRPCRouter({
 
       // Handle custom domain changes (pro only)
       if (input.customDomain !== undefined) {
-        const isPro =
-          user.plan === 'pro' &&
-          user.subscriptionEndsAt &&
-          user.subscriptionEndsAt > new Date();
+        const isPro = isUserPremium(user);
 
         if (!isPro) {
           throw new Error('Custom domains require a Pro subscription');

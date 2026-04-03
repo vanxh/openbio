@@ -14,6 +14,7 @@ export const user = pgTable('user', {
   stripeCustomerId: text('stripe_customer_id').unique(),
   subscriptionId: text('subscription_id'),
   subscriptionEndsAt: timestamp('subscription_ends_at', { withTimezone: true }),
+  trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
