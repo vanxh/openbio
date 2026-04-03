@@ -6,50 +6,143 @@ export default function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <div
       style={{
-        fontFamily: 'sans-serif',
-        maxWidth: '480px',
-        margin: '0 auto',
-        padding: '32px 24px',
-        backgroundColor: '#ffffff',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        backgroundColor: '#f4f4f5',
+        padding: '40px 16px',
       }}
     >
-      <h1
+      <div
         style={{
-          fontSize: '24px',
-          fontWeight: 700,
-          marginBottom: '16px',
-          color: '#111111',
+          maxWidth: '480px',
+          margin: '0 auto',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          overflow: 'hidden',
         }}
       >
-        Welcome to OpenBio.app {name ? `👋 ${name}` : '👋'}
-      </h1>
-      <p style={{ fontSize: '16px', color: '#444444', marginBottom: '8px' }}>
-        {name ? `Hey ${name}!` : 'Hey!'} Thank you for signing up for OpenBio.
-      </p>
-      <p style={{ fontSize: '16px', color: '#444444', marginBottom: '8px' }}>
-        I hope you will enjoy OpenBio and that it will help you build a better
-        link in bio.
-      </p>
-      <p style={{ fontSize: '16px', color: '#444444', marginBottom: '32px' }}>
-        If you have any questions about setting up your link in bio, please feel
-        free to reply to this email. I&apos;m always happy to help out.
-      </p>
-      <p style={{ fontSize: '16px', color: '#444444', marginBottom: '4px' }}>
-        Thank you,
-      </p>
-      <a
-        href="https://twitter.com/vanxhh"
-        style={{ color: '#7c3aed', fontWeight: 600, fontSize: '16px' }}
-      >
-        Vanxh
-      </a>
-      <p style={{ fontSize: '14px', color: '#888888', marginTop: '32px' }}>
-        ⭐ Star{' '}
-        <a href="https://github.com/vanxh/openbio" style={{ color: '#7c3aed' }}>
-          OpenBio
-        </a>{' '}
-        on GitHub
-      </p>
+        {/* Header */}
+        <div
+          style={{
+            padding: '28px 28px 0 28px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          {/* biome-ignore lint/nursery/noImgElement: email template */}
+          <img
+            src="https://openbio.app/openbio.png"
+            alt="OpenBio"
+            width="32"
+            height="32"
+            style={{ borderRadius: '8px' }}
+          />
+          <span
+            style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              color: '#09090b',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            OpenBio
+          </span>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '24px 28px 28px 28px' }}>
+          <h1
+            style={{
+              fontSize: '22px',
+              fontWeight: 700,
+              color: '#09090b',
+              margin: '0 0 16px 0',
+            }}
+          >
+            Welcome to OpenBio{name ? `, ${name}` : ''}!
+          </h1>
+
+          <p
+            style={{
+              fontSize: '14px',
+              color: '#52525b',
+              lineHeight: 1.6,
+              margin: '0 0 12px 0',
+            }}
+          >
+            Thanks for signing up! OpenBio helps you create a beautiful
+            link-in-bio page in minutes — share all your important links, social
+            profiles, and content in one place.
+          </p>
+
+          <p
+            style={{
+              fontSize: '14px',
+              color: '#52525b',
+              lineHeight: 1.6,
+              margin: '0 0 24px 0',
+            }}
+          >
+            Get started by claiming your unique link and customizing your
+            profile.
+          </p>
+
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <a
+              href="https://openbio.app/claim-link"
+              style={{
+                display: 'inline-block',
+                padding: '12px 32px',
+                backgroundColor: '#09090b',
+                color: '#ffffff',
+                borderRadius: '10px',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '14px',
+              }}
+            >
+              Create your page
+            </a>
+          </div>
+
+          <p
+            style={{
+              fontSize: '14px',
+              color: '#52525b',
+              lineHeight: 1.6,
+              margin: '0 0 4px 0',
+            }}
+          >
+            If you have any questions, just reply to this email.
+          </p>
+          <p style={{ fontSize: '14px', color: '#52525b', margin: 0 }}>
+            &mdash; Vanxh
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            borderTop: '1px solid #e4e4e7',
+            padding: '16px 28px',
+            fontSize: '12px',
+            color: '#a1a1aa',
+            textAlign: 'center',
+            backgroundColor: '#fafafa',
+          }}
+        >
+          <p style={{ margin: 0 }}>
+            <a
+              href="https://openbio.app"
+              style={{ color: '#7c3aed', textDecoration: 'none' }}
+            >
+              OpenBio
+            </a>{' '}
+            &middot; Your link-in-bio page
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
