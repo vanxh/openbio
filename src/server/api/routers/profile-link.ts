@@ -439,6 +439,7 @@ export const profileLinkRouter = createTRPCRouter({
           name: link.name,
           image: link.image,
           bio: link.bio,
+          bento: link.bento,
         })
         .from(link)
         .where(

@@ -300,7 +300,11 @@ export default function ActionBar() {
           <button
             type="button"
             className={btnClass}
-            title={profileLink?.isPublic ? 'Listed on Explore (click to hide)' : 'Hidden from Explore (click to show)'}
+            title={
+              profileLink?.isPublic
+                ? 'Listed on Explore (click to hide)'
+                : 'Hidden from Explore (click to show)'
+            }
             onClick={() => {
               if (!profileLink) {
                 return;
