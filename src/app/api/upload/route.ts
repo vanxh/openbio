@@ -4,6 +4,9 @@ import { db, eq } from '@/server/db';
 import { link } from '@/server/db/schema';
 import { del, put } from '@vercel/blob';
 import { type NextRequest, NextResponse } from 'next/server';
+import sharp from 'sharp';
+
+const FILE_EXT_RE = /\.\w+$/;
 
 export async function POST(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
@@ -39,9 +42,25 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const blob = await put(`avatars/${profileLinkId}/${file.name}`, file, {
-    access: 'public',
-  });
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const optimized = await sharp(buffer)
+    .resize(400, 400, { fit: 'cover' })
+    .webp({ quality: 85 })
+    .toBuffer();
+
+  const optimizedFile = new File(
+    [new Uint8Array(optimized)],
+    file.name.replace(FILE_EXT_RE, '.webp'),
+    { type: 'image/webp' }
+  );
+
+  const blob = await put(
+    `avatars/${profileLinkId}/${optimizedFile.name}`,
+    optimizedFile,
+    { access: 'public' }
+  );
   const [updated] = await db
     .update(link)
     .set({ image: blob.url })

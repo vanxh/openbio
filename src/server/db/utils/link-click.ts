@@ -27,9 +27,23 @@ export const recordLinkClick = async (
     userAgent,
     referrer,
   });
+
+  await Promise.all([
+    redis.del(`profile-link-clicks:${linkId}`),
+    redis.del(`analytics:clicks-over-time:${linkId}:7`),
+    redis.del(`analytics:clicks-over-time:${linkId}:30`),
+    redis.del(`analytics:clicks-over-time:${linkId}:90`),
+    redis.del(`analytics:top-cards:${linkId}:7`),
+    redis.del(`analytics:top-cards:${linkId}:30`),
+    redis.del(`analytics:top-cards:${linkId}:90`),
+  ]);
 };
 
 export const getViewsOverTime = async (linkId: string, days: number) => {
+  const cacheKey = `analytics:views-over-time:${linkId}:${days}`;
+  const cached = await redis.get<{ date: string; count: number }[]>(cacheKey);
+  if (cached) { return cached; }
+
   const rows = await db
     .select({
       date: sql<string>`date_trunc('day', ${linkView.createdAt})::date`.as(
@@ -47,10 +61,16 @@ export const getViewsOverTime = async (linkId: string, days: number) => {
     .groupBy(sql`date_trunc('day', ${linkView.createdAt})::date`)
     .orderBy(sql`date_trunc('day', ${linkView.createdAt})::date`);
 
-  return rows.map((r) => ({ date: r.date, count: Number(r.count) }));
+  const result = rows.map((r) => ({ date: r.date, count: Number(r.count) }));
+  await redis.set(cacheKey, result, { ex: 300 });
+  return result;
 };
 
 export const getClicksOverTime = async (linkId: string, days: number) => {
+  const cacheKey = `analytics:clicks-over-time:${linkId}:${days}`;
+  const cached = await redis.get<{ date: string; count: number }[]>(cacheKey);
+  if (cached) { return cached; }
+
   const rows = await db
     .select({
       date: sql<string>`date_trunc('day', ${linkClick.createdAt})::date`.as(
@@ -68,10 +88,16 @@ export const getClicksOverTime = async (linkId: string, days: number) => {
     .groupBy(sql`date_trunc('day', ${linkClick.createdAt})::date`)
     .orderBy(sql`date_trunc('day', ${linkClick.createdAt})::date`);
 
-  return rows.map((r) => ({ date: r.date, count: Number(r.count) }));
+  const result = rows.map((r) => ({ date: r.date, count: Number(r.count) }));
+  await redis.set(cacheKey, result, { ex: 300 });
+  return result;
 };
 
 export const getTopCards = async (linkId: string, days: number) => {
+  const cacheKey = `analytics:top-cards:${linkId}:${days}`;
+  const cached = await redis.get<{ bentoId: string; href: string; count: number }[]>(cacheKey);
+  if (cached) { return cached; }
+
   const rows = await db
     .select({
       bentoId: linkClick.bentoId,
@@ -89,14 +115,20 @@ export const getTopCards = async (linkId: string, days: number) => {
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
-  return rows.map((r) => ({
+  const result = rows.map((r) => ({
     bentoId: r.bentoId,
     href: r.href,
     count: Number(r.count),
   }));
+  await redis.set(cacheKey, result, { ex: 300 });
+  return result;
 };
 
 export const getTopReferrers = async (linkId: string, days: number) => {
+  const cacheKey = `analytics:top-referrers:${linkId}:${days}`;
+  const cached = await redis.get<{ referrer: string; count: number }[]>(cacheKey);
+  if (cached) { return cached; }
+
   const rows = await db
     .select({
       referrer: sql<string>`coalesce(${linkView.referrer}, 'Direct')`.as(
@@ -115,10 +147,12 @@ export const getTopReferrers = async (linkId: string, days: number) => {
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
-  return rows.map((r) => ({
+  const result = rows.map((r) => ({
     referrer: r.referrer,
     count: Number(r.count),
   }));
+  await redis.set(cacheKey, result, { ex: 300 });
+  return result;
 };
 
 export const getTotalClicks = async (linkId: string) => {

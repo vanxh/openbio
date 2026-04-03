@@ -55,5 +55,15 @@ export const recordLinkView = async (
       userAgent,
       referrer,
     });
+
+    await Promise.all([
+      redis.del(`profile-link-views:${linkId}`),
+      redis.del(`analytics:views-over-time:${linkId}:7`),
+      redis.del(`analytics:views-over-time:${linkId}:30`),
+      redis.del(`analytics:views-over-time:${linkId}:90`),
+      redis.del(`analytics:top-referrers:${linkId}:7`),
+      redis.del(`analytics:top-referrers:${linkId}:30`),
+      redis.del(`analytics:top-referrers:${linkId}:90`),
+    ]);
   }
 };
