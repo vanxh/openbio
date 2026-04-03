@@ -37,6 +37,9 @@ import {
   updateProfileLink,
   updateProfileLinkBento,
 } from '@/server/db';
+import { db } from '@/server/db/db';
+import { link } from '@/server/db/schema';
+import { and, desc, eq, lt } from 'drizzle-orm';
 import type { LinkBento } from '@/types';
 import { after } from 'next/server';
 import * as z from 'zod';
@@ -416,6 +419,38 @@ export const profileLinkRouter = createTRPCRouter({
       });
 
       return updateProfileLinkBento(input.link, input.bento);
+    }),
+
+  listPublic: publicProcedure
+    .input(
+      z.object({
+        cursor: z.string().uuid().optional(),
+        limit: z.number().min(1).max(50).default(20),
+      })
+    )
+    .query(async ({ input }) => {
+      const items = await db
+        .select({
+          id: link.id,
+          link: link.link,
+          name: link.name,
+          image: link.image,
+          bio: link.bio,
+        })
+        .from(link)
+        .where(
+          input.cursor
+            ? and(eq(link.isPublic, true), lt(link.id, input.cursor))
+            : eq(link.isPublic, true)
+        )
+        .orderBy(desc(link.createdAt))
+        .limit(input.limit + 1);
+
+      const hasMore = items.length > input.limit;
+      const profiles = hasMore ? items.slice(0, -1) : items;
+      const nextCursor = hasMore ? profiles.at(-1)?.id : undefined;
+
+      return { profiles, nextCursor };
     }),
 
   getMetadataOfURL: publicProcedure

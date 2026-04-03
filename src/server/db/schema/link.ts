@@ -36,6 +36,8 @@ export const link = pgTable('link', {
 
   customFooter: text('custom_footer'),
 
+  isPublic: boolean('is_public').default(false).notNull(),
+
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 

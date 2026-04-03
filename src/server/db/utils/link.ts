@@ -150,6 +150,7 @@ export const updateProfileLink = async (data: {
   darkMode?: boolean;
   customDomain?: string | null;
   customFooter?: string | null;
+  isPublic?: boolean;
 }) => {
   const result = await db
     .update(link)
