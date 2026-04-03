@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   CloudSun,
   Eye,
+  EyeOff,
   Globe,
   ImagePlus,
   Link,
@@ -41,6 +42,12 @@ export default function ActionBar() {
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
   const [addOpen, setAddOpen] = useState(false);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
+
+  const { mutate: updateProfileLink } = api.profileLink.update.useMutation({
+    onSuccess: () => {
+      queryClient.profileLink.getByLink.invalidate({ link });
+    },
+  });
 
   const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
     onMutate: async (input) => {
@@ -289,6 +296,23 @@ export default function ActionBar() {
               <Globe size={14} />
             </button>
           </CustomDomainModal>
+
+          <button
+            type="button"
+            className={btnClass}
+            title={profileLink?.isPublic ? 'Listed on Explore (click to hide)' : 'Hidden from Explore (click to show)'}
+            onClick={() => {
+              if (!profileLink) {
+                return;
+              }
+              updateProfileLink({
+                id: profileLink.id,
+                isPublic: !profileLink.isPublic,
+              });
+            }}
+          >
+            {profileLink?.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
+          </button>
         </div>
       </div>
 

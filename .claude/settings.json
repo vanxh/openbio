@@ -18,8 +18,6 @@
       "Bash(git -C:*)",
       "Bash(git add:*)"
     ],
-    "additionalDirectories": [
-      "/Users/vanxh/Developer/codes/openbio/.claude"
-    ]
+    "additionalDirectories": ["/Users/vanxh/Developer/codes/openbio/.claude"]
   }
 }
