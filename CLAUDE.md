@@ -4,7 +4,7 @@ Open-source link-in-bio page builder. Users create customizable profile pages at
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router, Turbopack)
+- **Framework**: Next.js 16 (App Router, Turbopack)
 - **Language**: TypeScript 5.7+ (strict mode)
 - **Runtime**: Bun
 - **Styling**: Tailwind CSS 4 (CSS-based config in `src/styles/globals.css`)
@@ -52,6 +52,7 @@ src/
 │   │   └── og/             # OG image generation
 │   ├── claim-link/         # Link claiming
 │   ├── create-link/        # Profile setup
+│   ├── explore/            # Browse public profiles
 │   └── legal/              # Privacy/Terms
 ├── components/
 │   ├── bento/              # Bento card system (core UI)
@@ -59,6 +60,7 @@ src/
 │   ├── forms/              # Form components
 │   ├── emails/             # Resend email templates
 │   ├── modals/             # Dialog components
+│   ├── onboarding/         # New user onboarding wizard
 │   └── navbar/             # Navigation
 ├── server/
 │   ├── api/
@@ -74,9 +76,12 @@ src/
 │   ├── auth-client.ts      # Better Auth React client
 │   ├── redis.ts            # Upstash Redis client
 │   ├── stripe/             # Stripe config & plans
-│   └── metadata.ts         # URL metadata fetching
+│   ├── metadata.ts         # URL metadata fetching
+│   ├── themes.ts           # Profile theme definitions
+│   └── utils.ts            # Shared utilities (cn, etc.)
 └── trpc/
-    └── react.ts            # tRPC React client + provider
+    ├── react.ts            # tRPC React client + provider
+    └── server.ts           # tRPC server caller
 ```
 
 ## Key Patterns
@@ -101,7 +106,7 @@ src/
 
 ### Bento System
 - Grid layout with react-grid-layout
-- Card types: link, note, image, video
+- Card types: link, note, image, map, github, email-collect, countdown, weather, twitter, views
 - Responsive: 2 cols (mobile), 4 cols (desktop)
 - Sizes: 2x2, 4x1, 2x4, 4x2, 4x4
 - Stored as JSON array in `link.bento` column
