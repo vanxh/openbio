@@ -35,11 +35,15 @@ function SubscribeForm({
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const { mutateAsync: subscribe, isPending } =
+  const { mutate: subscribe, isPending } =
     api.profileLink.subscribe.useMutation({
       onSuccess: () => {
         setSubmitted(true);
         setEmail('');
+        toast({
+          title: 'Subscribed!',
+          description: 'You will receive updates from this creator.',
+        });
       },
       onError: (err) => {
         toast({
@@ -95,7 +99,7 @@ function SubscribeForm({
               type="submit"
               size="sm"
               className="h-8 shrink-0 rounded-lg px-2"
-              disabled={isPending}
+              disabled={isPending || !linkId}
             >
               <Send className="h-3.5 w-3.5" />
             </Button>
@@ -134,7 +138,7 @@ function SubscribeForm({
         <Button
           type="submit"
           className="shrink-0 rounded-xl"
-          disabled={isPending}
+          disabled={isPending || !linkId}
         >
           {buttonText}
         </Button>
@@ -211,11 +215,19 @@ export default function EmailCollectCard({
           <CardOverlay bento={bento} allowedSizes={EMAIL_COLLECT_CARD_SIZES} />
         )}
 
-        <SubscribeForm
-          bento={bento}
-          linkId={profileLink?.id}
-          compact={mdSize === '2x2'}
-        />
+        {/* biome-ignore lint/nursery/noStaticElementInteractions: stops drag propagation so form inputs are usable */}
+        <div
+          role="presentation"
+          className="relative z-10 h-full"
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <SubscribeForm
+            bento={bento}
+            linkId={profileLink?.id}
+            compact={mdSize === '2x2'}
+          />
+        </div>
 
         {editable && (
           <button
