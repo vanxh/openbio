@@ -93,14 +93,15 @@ export default function ManageSize({
   };
 
   const sizeButtons = (
-    <div className="flex items-center gap-x-1 rounded-xl bg-primary px-2 py-2 text-primary-foreground shadow-lg">
+    <div className="flex items-center gap-0.5 rounded-lg border border-border/50 bg-background/90 p-0.5 shadow-md backdrop-blur-sm">
       {sizeOptions.map((o) => (
         <button
           type="button"
           key={o.key}
           className={cn(
-            'inline-flex items-center justify-center rounded-lg p-2 transition-all duration-150 active:scale-95',
-            size === o.key && 'bg-secondary text-secondary-foreground'
+            'inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-accent-foreground active:scale-95',
+            size === o.key &&
+              'bg-accent text-accent-foreground shadow-sm'
           )}
           onClick={() => handleSizeClick(o.key)}
         >
@@ -118,7 +119,7 @@ export default function ManageSize({
         {/* biome-ignore lint/nursery/noStaticElementInteractions: backdrop dismiss */}
         <div
           role="presentation"
-          className="absolute inset-0 bg-black/20"
+          className="absolute inset-0 bg-foreground/20"
           onClick={close}
         />
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pt-4 pb-8">

@@ -5,7 +5,6 @@ import DeleteButton from '@/components/bento/overlay/delete-button';
 import DragHandle from '@/components/bento/overlay/drag-handle';
 import DuplicateButton from '@/components/bento/overlay/duplicate-button';
 import ManageSize from '@/components/bento/overlay/manage-size';
-import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import type { BentoSchema } from '@/server/db';
 import { Maximize2 } from 'lucide-react';
@@ -136,14 +135,13 @@ export default function CardOverlay({
 
           {/* Mobile: show a resize button that opens the size picker */}
           {isMobile && !sizePickerOpen && (
-            <Button
-              size="icon"
-              variant="secondary"
-              className="-translate-y-1/2 absolute top-0 right-0 z-30 translate-x-1/2 rounded-full shadow"
+            <button
+              type="button"
+              className="-translate-y-1/2 absolute top-0 right-3 z-30 flex h-7 w-7 items-center justify-center rounded-lg border border-border/50 bg-background/90 shadow-md backdrop-blur-sm transition-colors hover:bg-accent active:scale-95"
               onClick={() => setSizePickerOpen(true)}
             >
-              <Maximize2 className="h-3.5 w-3.5" />
-            </Button>
+              <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
           )}
 
           {/* Mobile: portal size picker only when explicitly opened */}

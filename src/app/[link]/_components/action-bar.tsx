@@ -86,7 +86,7 @@ export default function ActionBar() {
   }
 
   const btnClass =
-    'inline-flex items-center justify-center rounded-md border border-border bg-background p-2 text-foreground transition-transform duration-200 ease-in-out active:scale-95';
+    'inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-accent-foreground active:scale-95 disabled:opacity-40 disabled:pointer-events-none';
 
   const menuItemClass =
     'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted';
@@ -100,12 +100,12 @@ export default function ActionBar() {
   return (
     <>
       <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-50 mx-auto md:bottom-10">
-        <div className="mx-auto flex w-max items-center gap-x-4 rounded-lg bg-background/80 px-3 py-3 backdrop-blur-xl backdrop-saturate-[20]">
+        <div className="mx-auto flex w-max items-center gap-x-2 rounded-xl border border-border/50 bg-background/90 px-2 py-2 shadow-lg backdrop-blur-sm">
           <NextLink href="/app" className={btnClass} title="Back to dashboard">
             <ArrowLeft size={14} />
           </NextLink>
 
-          <div className="h-5 w-px bg-border" />
+          <div className="h-5 w-px bg-border/40" />
 
           <button
             type="button"
@@ -126,7 +126,7 @@ export default function ActionBar() {
             <Redo2 size={14} />
           </button>
 
-          <div className="h-5 w-px bg-border" />
+          <div className="h-5 w-px bg-border/40" />
 
           <Popover open={addOpen} onOpenChange={setAddOpen}>
             <PopoverTrigger asChild>
