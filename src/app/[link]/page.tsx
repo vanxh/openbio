@@ -6,6 +6,7 @@ import {
 import OnboardingTour from '@/components/onboarding-tour';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/trpc/server';
+import { ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -125,12 +126,22 @@ export default async function Page({ params }: Props) {
               )}
 
               <footer className="animate-fade-in py-8 text-center">
-                <Link
-                  href="/"
-                  className="text-muted-foreground text-xs transition-colors hover:text-foreground"
-                >
-                  {profileLink.customFooter || 'Made with OpenBio'}
-                </Link>
+                {profileLink.customFooter ? (
+                  <p className="text-muted-foreground text-xs">
+                    {profileLink.customFooter}
+                  </p>
+                ) : (
+                  <Link
+                    href="/claim-link"
+                    className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 py-2 text-muted-foreground text-sm backdrop-blur-sm transition-all hover:border-primary hover:text-foreground"
+                  >
+                    Create your own free page on
+                    <span className="font-semibold text-foreground">
+                      OpenBio
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                )}
               </footer>
             </div>
           </ViewportContainer>
