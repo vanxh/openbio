@@ -16,6 +16,28 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+    sendVerificationEmail: async ({ user, url }: { user: { email: string }; url: string; token: string }) => {
+      const { sendEmail } = await import('@/server/emails');
+      const VerifyEmail = (await import('@/components/emails/verify-email'))
+        .default;
+      await sendEmail({
+        to: [user.email],
+        subject: 'Verify your OpenBio email',
+        react: VerifyEmail({ url }),
+      });
+    },
+    sendResetPassword: async ({ user, url }: { user: { email: string }; url: string; token: string }) => {
+      const { sendEmail } = await import('@/server/emails');
+      const ResetPassword = (
+        await import('@/components/emails/reset-password')
+      ).default;
+      await sendEmail({
+        to: [user.email],
+        subject: 'Reset your OpenBio password',
+        react: ResetPassword({ url }),
+      });
+    },
   },
   socialProviders: {
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
@@ -41,6 +63,21 @@ export const auth = betterAuth({
       stripeCustomerId: { type: 'string', required: false },
       subscriptionId: { type: 'string', required: false },
       subscriptionEndsAt: { type: 'date', required: false },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          const { sendEmail } = await import('@/server/emails');
+          const Welcome = (await import('@/components/emails/welcome')).default;
+          await sendEmail({
+            to: [user.email],
+            subject: 'Welcome to OpenBio!',
+            react: Welcome({ name: user.name }),
+          });
+        },
+      },
     },
   },
   plugins: [nextCookies()],

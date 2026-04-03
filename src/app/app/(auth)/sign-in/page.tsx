@@ -67,6 +67,14 @@ export default function SignInPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <div className="flex justify-end">
+            <Link
+              href="/app/reset-password"
+              className="text-muted-foreground text-sm hover:text-foreground"
+            >
+              Forgot your password?
+            </Link>
+          </div>
         </div>
         {error && (
           <p className="rounded-xl bg-destructive/10 px-3 py-2 text-destructive text-sm">
