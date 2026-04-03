@@ -22,27 +22,27 @@ export default async function ExplorePage() {
       {profiles.length === 0 ? (
         <p className="text-muted-foreground">No public profiles yet.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {profiles.map((profile) => (
             <Link
               key={profile.id}
               href={`/${profile.link}`}
-              className="group flex flex-col items-center gap-3 rounded-xl border border-border p-6 transition-colors hover:border-primary"
+              className="group flex flex-col items-center gap-2 rounded-lg border border-border px-3 py-4 transition-colors hover:border-primary"
             >
               {profile.image ? (
                 <Image
                   src={profile.image}
                   alt={profile.name ?? ''}
-                  width={80}
-                  height={80}
-                  className="rounded-full"
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 rounded-full object-cover"
                 />
               ) : (
-                <div className="h-20 w-20 rounded-full bg-muted" />
+                <div className="h-14 w-14 rounded-full bg-muted" />
               )}
-              <div className="text-center">
-                <p className="font-cal text-lg">{profile.name}</p>
-                <p className="text-muted-foreground text-sm">@{profile.link}</p>
+              <div className="w-full text-center">
+                <p className="truncate font-cal text-sm">{profile.name}</p>
+                <p className="truncate text-muted-foreground text-xs">@{profile.link}</p>
               </div>
             </Link>
           ))}
