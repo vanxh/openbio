@@ -1,10 +1,14 @@
 'use client';
 
 import { useBentoHistory } from '@/app/[link]/_components/bento-history';
-import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
-import { Trash } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import type * as z from 'zod';
 
@@ -41,19 +45,25 @@ export default function DeleteButton({
   });
 
   return (
-    <Button
-      size="icon"
-      variant="secondary"
-      className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-0 z-30 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
-      onClick={() => {
-        pushSnapshot();
-        deleteBento({
-          link,
-          id: bento.id,
-        });
-      }}
-    >
-      <Trash className="h-[1.2rem] w-[1.2rem]" />
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive active:scale-95"
+          onClick={() => {
+            pushSnapshot();
+            deleteBento({
+              link,
+              id: bento.id,
+            });
+          }}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="text-xs">
+        Delete
+      </TooltipContent>
+    </Tooltip>
   );
 }

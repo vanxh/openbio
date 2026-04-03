@@ -1,7 +1,11 @@
 'use client';
 
 import { useBentoHistory } from '@/app/[link]/_components/bento-history';
-import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
 import { Copy } from 'lucide-react';
@@ -48,28 +52,34 @@ export default function DuplicateButton({
   });
 
   return (
-    <Button
-      size="icon"
-      variant="secondary"
-      className="-translate-y-1/2 absolute top-0 left-6 z-30 translate-x-1/2 rounded-full shadow transition-transform duration-200 ease-in-out active:scale-95"
-      onClick={() => {
-        pushSnapshot();
-        const {
-          id: _id,
-          clicks: _clicks,
-          ...rest
-        } = bento as z.infer<typeof BentoSchema> & { clicks?: number };
-        createBento({
-          link,
-          bento: {
-            ...rest,
-            id: crypto.randomUUID(),
-            position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
-          } as never,
-        });
-      }}
-    >
-      <Copy className="h-[1.2rem] w-[1.2rem]" />
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+          onClick={() => {
+            pushSnapshot();
+            const {
+              id: _id,
+              clicks: _clicks,
+              ...rest
+            } = bento as z.infer<typeof BentoSchema> & { clicks?: number };
+            createBento({
+              link,
+              bento: {
+                ...rest,
+                id: crypto.randomUUID(),
+                position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
+              } as never,
+            });
+          }}
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="text-xs">
+        Duplicate
+      </TooltipContent>
+    </Tooltip>
   );
 }
