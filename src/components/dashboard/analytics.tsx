@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { api } from '@/trpc/react';
-import { Eye, MousePointerClick } from 'lucide-react';
+import { Eye, Globe, Monitor, MousePointerClick, Users } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 const viewsConfig = {
@@ -83,7 +83,7 @@ export default function Analytics({ linkId }: { linkId: string }) {
   return (
     <div className="grid gap-6">
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-medium text-sm">Total Views</CardTitle>
@@ -95,11 +95,33 @@ export default function Analytics({ linkId }: { linkId: string }) {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-medium text-sm">Unique Views</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="font-cal text-3xl">{data.uniqueViews}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="font-medium text-sm">Total Clicks</CardTitle>
             <MousePointerClick className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="font-cal text-3xl">{data.clicks}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="font-medium text-sm">Click Rate</CardTitle>
+            <MousePointerClick className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="font-cal text-3xl">
+              {data.views > 0
+                ? `${Math.round((data.clicks / data.views) * 100)}%`
+                : '0%'}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -265,6 +287,129 @@ export default function Analytics({ linkId }: { linkId: string }) {
                   );
                 })}
               </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Devices, Browsers & Geography */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Devices */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-cal">Devices</CardTitle>
+            <CardDescription>Visitor device types</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {data.deviceBreakdown?.devices?.length ? (
+              <div className="space-y-3">
+                {data.deviceBreakdown.devices.map((d) => {
+                  const maxCount = data.deviceBreakdown.devices[0]?.count ?? 1;
+                  const pct = Math.round((d.count / maxCount) * 100);
+                  return (
+                    <div key={d.device} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-1.5 capitalize">
+                          <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
+                          {d.device}
+                        </span>
+                        <span className="shrink-0 text-muted-foreground">
+                          {d.count}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-chart-4 transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="py-6 text-center text-muted-foreground text-sm">
+                No device data yet
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Browsers */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-cal">Browsers</CardTitle>
+            <CardDescription>Visitor browsers</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {data.deviceBreakdown?.browsers?.length ? (
+              <div className="space-y-3">
+                {data.deviceBreakdown.browsers.map((b) => {
+                  const maxCount = data.deviceBreakdown.browsers[0]?.count ?? 1;
+                  const pct = Math.round((b.count / maxCount) * 100);
+                  return (
+                    <div key={b.browser} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="truncate">{b.browser}</span>
+                        <span className="shrink-0 text-muted-foreground">
+                          {b.count}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-chart-5 transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="py-6 text-center text-muted-foreground text-sm">
+                No browser data yet
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Countries */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-cal">Countries</CardTitle>
+            <CardDescription>Visitor locations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {data.geoBreakdown?.length ? (
+              <div className="space-y-3">
+                {data.geoBreakdown.map((g) => {
+                  const maxCount = data.geoBreakdown[0]?.count ?? 1;
+                  const pct = Math.round((g.count / maxCount) * 100);
+                  return (
+                    <div key={g.country} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-1.5">
+                          <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                          {g.country}
+                        </span>
+                        <span className="shrink-0 text-muted-foreground">
+                          {g.count}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="py-6 text-center text-muted-foreground text-sm">
+                No location data yet
+              </p>
             )}
           </CardContent>
         </Card>

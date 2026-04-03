@@ -45,10 +45,7 @@ export default function WelcomeEmail({ name }: WelcomeEmailProps) {
       </a>
       <p style={{ fontSize: '14px', color: '#888888', marginTop: '32px' }}>
         ⭐ Star{' '}
-        <a
-          href="https://github.com/vanxh/openbio"
-          style={{ color: '#7c3aed' }}
-        >
+        <a href="https://github.com/vanxh/openbio" style={{ color: '#7c3aed' }}>
           OpenBio
         </a>{' '}
         on GitHub

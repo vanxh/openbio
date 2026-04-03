@@ -17,15 +17,12 @@ import {
   Monitor,
   PenLine,
   QrCode,
-  Redo2,
   Share2,
   Smartphone,
-  Undo2,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
-import { useBentoHistory } from './bento-history';
 import BioToolbar from './bio-toolbar';
 import { usePreview } from './preview-context';
 
@@ -83,7 +80,6 @@ export default function ProfileLinkHeader({
   }, [name, bio, updateProfileLink, profileLink]);
 
   const { preview, setPreview, viewport, setViewport } = usePreview();
-  const { canUndo, canRedo, undo, redo } = useBentoHistory();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -129,27 +125,6 @@ export default function ProfileLinkHeader({
 
             {!preview && (
               <>
-                <div className="flex items-center gap-1">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    disabled={!canUndo}
-                    onClick={undo}
-                    title="Undo (Ctrl+Z)"
-                  >
-                    <Undo2 className="h-[1.2rem] w-[1.2rem]" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    disabled={!canRedo}
-                    onClick={redo}
-                    title="Redo (Ctrl+Shift+Z)"
-                  >
-                    <Redo2 className="h-[1.2rem] w-[1.2rem]" />
-                  </Button>
-                </div>
-
                 <div
                   className="hidden items-center rounded-md border border-border md:flex"
                   data-tour="viewport-switcher"

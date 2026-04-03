@@ -43,6 +43,20 @@
       "when": 1775247002980,
       "tag": "0005_silky_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775247338034,
+      "tag": "0006_curious_micromacro",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775248270758,
+      "tag": "0007_nervous_king_cobra",
+      "breakpoints": true
     }
   ]
 }

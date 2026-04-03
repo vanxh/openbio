@@ -20,8 +20,10 @@ import {
   MapPin,
   Palette,
   Plus,
+  Redo2,
   Timer,
   Type,
+  Undo2,
 } from 'lucide-react';
 import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
@@ -33,7 +35,7 @@ import { usePreview } from './preview-context';
 
 export default function ActionBar() {
   const { preview } = usePreview();
-  const { pushSnapshot } = useBentoHistory();
+  const { pushSnapshot, canUndo, canRedo, undo, redo } = useBentoHistory();
   const { link } = useParams<{ link: string }>();
   const queryClient = api.useContext();
   const { data: profileLink } = api.profileLink.getByLink.useQuery({ link });
@@ -93,6 +95,27 @@ export default function ActionBar() {
           <NextLink href="/app" className={btnClass} title="Back to dashboard">
             <ArrowLeft size={14} />
           </NextLink>
+
+          <div className="h-5 w-px bg-border" />
+
+          <button
+            type="button"
+            className={btnClass}
+            title="Undo (Ctrl+Z)"
+            disabled={!canUndo}
+            onClick={undo}
+          >
+            <Undo2 size={14} />
+          </button>
+          <button
+            type="button"
+            className={btnClass}
+            title="Redo (Ctrl+Shift+Z)"
+            disabled={!canRedo}
+            onClick={redo}
+          >
+            <Redo2 size={14} />
+          </button>
 
           <div className="h-5 w-px bg-border" />
 

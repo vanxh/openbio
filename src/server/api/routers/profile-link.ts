@@ -11,7 +11,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc';
-import { isUserPremium } from '@/server/db/utils/user';
 import {
   addEmailSubscriber,
   addProfileLinkBento,
@@ -40,6 +39,7 @@ import {
 } from '@/server/db';
 import { db } from '@/server/db/db';
 import { link } from '@/server/db/schema';
+import { isUserPremium } from '@/server/db/utils/user';
 import type { LinkBento } from '@/types';
 import { and, desc, eq, lt } from 'drizzle-orm';
 import { after } from 'next/server';

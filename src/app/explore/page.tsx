@@ -1,7 +1,7 @@
 import { api } from '@/trpc/server';
-import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Explore Profiles | OpenBio',
@@ -42,7 +42,7 @@ export default async function ExplorePage() {
               )}
               <div className="text-center">
                 <p className="font-cal text-lg">{profile.name}</p>
-                <p className="text-sm text-muted-foreground">@{profile.link}</p>
+                <p className="text-muted-foreground text-sm">@{profile.link}</p>
               </div>
             </Link>
           ))}

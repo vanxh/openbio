@@ -1,9 +1,9 @@
-import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc';
 import { db } from '@/server/db/db';
 import { user as userTable } from '@/server/db/schema';
 import { isUserPremium } from '@/server/db/utils/user';
+import { TRPCError } from '@trpc/server';
+import { eq } from 'drizzle-orm';
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {

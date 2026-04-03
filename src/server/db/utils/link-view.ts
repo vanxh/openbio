@@ -143,7 +143,9 @@ export async function getDeviceBreakdown(linkId: string, days: number) {
 export async function getGeoBreakdown(linkId: string, days: number) {
   const cacheKey = `analytics:geo:${linkId}:${days}`;
   const cached = await redis.get(cacheKey);
-  if (cached) { return cached as { country: string; count: number }[]; }
+  if (cached) {
+    return cached as { country: string; count: number }[];
+  }
 
   const since = new Date();
   since.setDate(since.getDate() - days);
@@ -159,7 +161,10 @@ export async function getGeoBreakdown(linkId: string, days: number) {
     .orderBy(desc(count()))
     .limit(20);
 
-  const mapped = result.map(r => ({ country: r.country, count: Number(r.count) }));
+  const mapped = result.map((r) => ({
+    country: r.country,
+    count: Number(r.count),
+  }));
   await redis.set(cacheKey, mapped, { ex: 300 });
   return mapped;
 }

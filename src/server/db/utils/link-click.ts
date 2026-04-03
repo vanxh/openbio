@@ -42,7 +42,9 @@ export const recordLinkClick = async (
 export const getViewsOverTime = async (linkId: string, days: number) => {
   const cacheKey = `analytics:views-over-time:${linkId}:${days}`;
   const cached = await redis.get<{ date: string; count: number }[]>(cacheKey);
-  if (cached) { return cached; }
+  if (cached) {
+    return cached;
+  }
 
   const rows = await db
     .select({
@@ -69,7 +71,9 @@ export const getViewsOverTime = async (linkId: string, days: number) => {
 export const getClicksOverTime = async (linkId: string, days: number) => {
   const cacheKey = `analytics:clicks-over-time:${linkId}:${days}`;
   const cached = await redis.get<{ date: string; count: number }[]>(cacheKey);
-  if (cached) { return cached; }
+  if (cached) {
+    return cached;
+  }
 
   const rows = await db
     .select({
@@ -95,8 +99,13 @@ export const getClicksOverTime = async (linkId: string, days: number) => {
 
 export const getTopCards = async (linkId: string, days: number) => {
   const cacheKey = `analytics:top-cards:${linkId}:${days}`;
-  const cached = await redis.get<{ bentoId: string; href: string; count: number }[]>(cacheKey);
-  if (cached) { return cached; }
+  const cached =
+    await redis.get<{ bentoId: string; href: string; count: number }[]>(
+      cacheKey
+    );
+  if (cached) {
+    return cached;
+  }
 
   const rows = await db
     .select({
@@ -126,8 +135,11 @@ export const getTopCards = async (linkId: string, days: number) => {
 
 export const getTopReferrers = async (linkId: string, days: number) => {
   const cacheKey = `analytics:top-referrers:${linkId}:${days}`;
-  const cached = await redis.get<{ referrer: string; count: number }[]>(cacheKey);
-  if (cached) { return cached; }
+  const cached =
+    await redis.get<{ referrer: string; count: number }[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   const rows = await db
     .select({

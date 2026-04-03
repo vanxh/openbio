@@ -17,7 +17,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    sendVerificationEmail: async ({ user, url }: { user: { email: string }; url: string; token: string }) => {
+    sendVerificationEmail: async ({
+      user,
+      url,
+    }: { user: { email: string }; url: string; token: string }) => {
       const { sendEmail } = await import('@/server/emails');
       const VerifyEmail = (await import('@/components/emails/verify-email'))
         .default;
@@ -27,11 +30,13 @@ export const auth = betterAuth({
         react: VerifyEmail({ url }),
       });
     },
-    sendResetPassword: async ({ user, url }: { user: { email: string }; url: string; token: string }) => {
+    sendResetPassword: async ({
+      user,
+      url,
+    }: { user: { email: string }; url: string; token: string }) => {
       const { sendEmail } = await import('@/server/emails');
-      const ResetPassword = (
-        await import('@/components/emails/reset-password')
-      ).default;
+      const ResetPassword = (await import('@/components/emails/reset-password'))
+        .default;
       await sendEmail({
         to: [user.email],
         subject: 'Reset your OpenBio password',
