@@ -208,7 +208,7 @@ export default function EmailCollectCard({
           'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-card shadow-sm',
           editable
             ? 'transition-transform duration-200 ease-in-out md:cursor-move'
-            : 'transition-all duration-200 hover:shadow-md'
+            : 'hover:-translate-y-0.5 transition-all duration-200 hover:border-border/80 hover:shadow-md'
         )}
       >
         {editable && (

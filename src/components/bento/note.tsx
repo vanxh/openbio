@@ -221,7 +221,7 @@ export default function NoteCard({
           'group relative z-0 flex h-full w-full select-none flex-col rounded-2xl border border-border bg-card shadow-sm',
           editable
             ? 'transition-transform duration-200 ease-in-out md:cursor-move'
-            : 'cursor-pointer transition-all duration-200 hover:shadow-md',
+            : 'hover:-translate-y-0.5 cursor-pointer transition-all duration-200 hover:border-border/80 hover:shadow-md',
           isBanner ? 'px-4 py-2' : 'p-5'
         )}
       >

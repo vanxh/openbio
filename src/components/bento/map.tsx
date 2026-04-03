@@ -327,7 +327,7 @@ export default function MapCard({
           'group relative z-0 h-full w-full select-none rounded-2xl border border-border bg-[#1a1a2e] shadow-sm',
           editable
             ? 'transition-transform duration-200 ease-in-out md:cursor-move'
-            : 'cursor-pointer transition-all duration-200 hover:shadow-md'
+            : 'hover:-translate-y-0.5 cursor-pointer transition-all duration-200 hover:border-border/80 hover:shadow-md'
         )}
       >
         {editable && (
