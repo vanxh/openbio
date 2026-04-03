@@ -3,6 +3,7 @@
 import { usePreview } from '@/app/[link]/_components/preview-context';
 import DeleteButton from '@/components/bento/overlay/delete-button';
 import DragHandle from '@/components/bento/overlay/drag-handle';
+import DuplicateButton from '@/components/bento/overlay/duplicate-button';
 import ManageSize from '@/components/bento/overlay/manage-size';
 import { Button } from '@/components/ui/button';
 import type { BentoSchema } from '@/server/db';
@@ -124,6 +125,7 @@ export default function CardOverlay({
           className="contents"
         >
           <DeleteButton bento={bento} />
+          <DuplicateButton bento={bento} />
           <DragHandle />
 
           {/* Mobile: show a resize button that opens the size picker */}
