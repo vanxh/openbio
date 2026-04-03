@@ -1,6 +1,8 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { AppleMusic } from '@/components/icons/apple-music';
+import { Spotify } from '@/components/icons/spotify';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,8 +16,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { MusicBentoSchema } from '@/types';
-import { AppleMusic } from '@/components/icons/apple-music';
-import { Spotify } from '@/components/icons/spotify';
 import { ExternalLink, Music, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
