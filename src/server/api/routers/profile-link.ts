@@ -7,11 +7,17 @@ import {
   removeDomainFromVercel,
   verifyDomain,
 } from '@/lib/vercel';
+import { fetchLimit, generalLimit, subscribeLimit } from '@/lib/ratelimit';
 import {
+  createRateLimitedProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc';
+
+const rateLimitedProcedure = createRateLimitedProcedure(generalLimit);
+const rateLimitedSubscribe = createRateLimitedProcedure(subscribeLimit);
+const rateLimitedFetch = createRateLimitedProcedure(fetchLimit);
 import {
   addEmailSubscriber,
   addProfileLinkBento,
@@ -176,7 +182,7 @@ export const profileLinkRouter = createTRPCRouter({
       return await getProfileLinkViews(input.id);
     }),
 
-  trackClick: publicProcedure
+  trackClick: rateLimitedProcedure
     .input(
       z.object({
         linkId: z.string(),
@@ -200,7 +206,7 @@ export const profileLinkRouter = createTRPCRouter({
       });
     }),
 
-  subscribe: publicProcedure
+  subscribe: rateLimitedSubscribe
     .input(
       z.object({
         linkId: z.string(),
@@ -469,7 +475,7 @@ export const profileLinkRouter = createTRPCRouter({
       return { profiles, nextCursor };
     }),
 
-  getMetadataOfURL: publicProcedure
+  getMetadataOfURL: rateLimitedFetch
     .input(
       z.object({
         url: z.string(),
@@ -479,13 +485,13 @@ export const profileLinkRouter = createTRPCRouter({
       return await getMetadata(input.url);
     }),
 
-  getTweet: publicProcedure
+  getTweet: rateLimitedFetch
     .input(z.object({ tweetId: z.string() }))
     .query(async ({ input }) => {
       return await fetchTweet(input.tweetId);
     }),
 
-  getMusicMetadata: publicProcedure
+  getMusicMetadata: rateLimitedFetch
     .input(z.object({ url: z.string() }))
     .query(async ({ input }) => {
       return await fetchMusicMetadata(input.url);

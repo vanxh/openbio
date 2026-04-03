@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import type { Ratelimit } from '@upstash/ratelimit';
 import { db } from '@/server/db/db';
 import { TRPCError, initTRPC } from '@trpc/server';
 import type { NextRequest } from 'next/server';
@@ -46,3 +47,25 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 });
 
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+function getIp(req: NextRequest): string {
+  return (
+    req.headers.get('x-real-ip') ??
+    req.headers.get('x-forwarded-for')?.split(',')[0] ??
+    'unknown'
+  );
+}
+
+export function createRateLimitedProcedure(limiter: Ratelimit) {
+  return t.procedure.use(async ({ ctx, next }) => {
+    const ip = getIp(ctx.req);
+    const { success } = await limiter.limit(ip);
+    if (!success) {
+      throw new TRPCError({
+        code: 'TOO_MANY_REQUESTS',
+        message: 'Too many requests. Please try again later.',
+      });
+    }
+    return next();
+  });
+}
