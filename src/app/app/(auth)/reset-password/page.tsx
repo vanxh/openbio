@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { type SyntheticEvent, Suspense, useState } from 'react';
+import { Suspense, type SyntheticEvent, useState } from 'react';
 
 export default function ResetPasswordPage() {
   return (
