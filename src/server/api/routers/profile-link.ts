@@ -1,5 +1,6 @@
 import { getMetadata } from '@/lib/metadata';
 import { fetchMusicMetadata } from '@/lib/music';
+import { fetchLimit, generalLimit, subscribeLimit } from '@/lib/ratelimit';
 import { fetchTweet } from '@/lib/twitter';
 import {
   addDomainToVercel,
@@ -7,7 +8,6 @@ import {
   removeDomainFromVercel,
   verifyDomain,
 } from '@/lib/vercel';
-import { fetchLimit, generalLimit, subscribeLimit } from '@/lib/ratelimit';
 import {
   createRateLimitedProcedure,
   createTRPCRouter,
