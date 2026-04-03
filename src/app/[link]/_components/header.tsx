@@ -12,7 +12,7 @@ import { Color, TextStyle } from '@tiptap/extension-text-style';
 import TiptapUnderline from '@tiptap/extension-underline';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Eye, Monitor, PenLine, QrCode, Smartphone } from 'lucide-react';
+import { Eye, Monitor, PenLine, QrCode, Share2, Smartphone } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
@@ -164,6 +164,41 @@ export default function ProfileLinkHeader({
                 </LinkQRModal>
               </>
             )}
+          </div>
+        )}
+
+        {!profileLink.isOwner && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const url = `https://openbio.app/${profileLink.link}`;
+                if (navigator.share) {
+                  navigator
+                    .share({ title: profileLink.name ?? 'OpenBio Profile', url })
+                    .catch(() => undefined);
+                } else {
+                  navigator.clipboard
+                    .writeText(url)
+                    .then(() => {
+                      toast({
+                        title: 'Copied to clipboard!',
+                        description: 'Profile link copied!',
+                      });
+                    })
+                    .catch(() => undefined);
+                }
+              }}
+            >
+              <Share2 className="mr-1.5 h-4 w-4" />
+              Share
+            </Button>
+            <LinkQRModal profileLink={profileLink}>
+              <Button size="icon" variant="outline" className="h-9 w-9">
+                <QrCode className="h-4 w-4" />
+              </Button>
+            </LinkQRModal>
           </div>
         )}
       </div>
