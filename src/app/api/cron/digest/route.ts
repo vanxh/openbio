@@ -17,15 +17,21 @@ async function getWeeklyStats(linkIds: string[], since: Date) {
         db
           .select({ count: countFn() })
           .from(linkView)
-          .where(and(eq(linkView.linkId, linkId), gte(linkView.createdAt, since))),
+          .where(
+            and(eq(linkView.linkId, linkId), gte(linkView.createdAt, since))
+          ),
         db
           .select({ count: sql<number>`count(distinct ${linkView.ip})` })
           .from(linkView)
-          .where(and(eq(linkView.linkId, linkId), gte(linkView.createdAt, since))),
+          .where(
+            and(eq(linkView.linkId, linkId), gte(linkView.createdAt, since))
+          ),
         db
           .select({ count: countFn() })
           .from(linkClick)
-          .where(and(eq(linkClick.linkId, linkId), gte(linkClick.createdAt, since))),
+          .where(
+            and(eq(linkClick.linkId, linkId), gte(linkClick.createdAt, since))
+          ),
         db
           .select({ count: countFn() })
           .from(emailSubscriber)
