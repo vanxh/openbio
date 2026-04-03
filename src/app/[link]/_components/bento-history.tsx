@@ -36,7 +36,10 @@ export function BentoHistoryProvider({
   children: React.ReactNode;
 }) {
   const { link } = useParams<{ link: string }>();
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+    { link },
+    { staleTime: 60_000 }
+  );
   const utils = api.useUtils();
 
   const pastRef = useRef<BentoSnapshot[]>([]);

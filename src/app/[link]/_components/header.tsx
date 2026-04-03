@@ -66,7 +66,7 @@ export default function ProfileLinkHeader({
       return;
     }
 
-    const save = () => {
+    const timer = setTimeout(() => {
       startSaving(async () => {
         await updateProfileLink({
           id: profileLink.id,
@@ -74,9 +74,9 @@ export default function ProfileLinkHeader({
           bio: bio ?? undefined,
         });
       });
-    };
+    }, 800);
 
-    save();
+    return () => clearTimeout(timer);
   }, [name, bio, updateProfileLink, profileLink]);
 
   const { preview, setPreview, viewport, setViewport } = usePreview();

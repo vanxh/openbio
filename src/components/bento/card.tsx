@@ -1,21 +1,20 @@
 import type { BentoSchema } from '@/server/db';
 import dynamic from 'next/dynamic';
 import type * as z from 'zod';
+import CountdownCard from './countdown';
+import EmailCollectCard from './email-collect';
+import ImageCard from './image';
 import LinkCard from './link';
+import NoteCard from './note';
+import ViewsCard from './views';
 
-const NoteCard = dynamic(() => import('./note'), { ssr: false });
-const ImageCard = dynamic(() => import('./image'), { ssr: false });
+// Lazy-load heavy cards (external APIs, maps, iframes)
 const MapCard = dynamic(() => import('./map'), { ssr: false });
 const GitHubCard = dynamic(() => import('./github'), { ssr: false });
-const EmailCollectCard = dynamic(() => import('./email-collect'), {
-  ssr: false,
-});
 const CalendarCard = dynamic(() => import('./calendar'), { ssr: false });
 const MusicCard = dynamic(() => import('./music'), { ssr: false });
-const CountdownCard = dynamic(() => import('./countdown'), { ssr: false });
 const WeatherCard = dynamic(() => import('./weather'), { ssr: false });
 const TwitterCard = dynamic(() => import('./twitter'), { ssr: false });
-const ViewsCard = dynamic(() => import('./views'), { ssr: false });
 
 export default function BentoCard({
   bento,

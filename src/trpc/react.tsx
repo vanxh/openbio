@@ -32,7 +32,7 @@ function getBaseUrl() {
 function makeQueryClient() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return new (require('@tanstack/react-query').QueryClient)({
-    defaultOptions: { queries: { staleTime: 5 * 1000 } },
+    defaultOptions: { queries: { staleTime: 60 * 1000 } },
   }) as QueryClient;
 }
 

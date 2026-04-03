@@ -77,7 +77,10 @@ export default function BentoLayout({
 
   const { preview } = usePreview();
   const { pushSnapshot } = useBentoHistory();
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery({ link });
+  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+    { link },
+    { staleTime: 60_000 }
+  );
 
   const { mutateAsync: updateBento } =
     api.profileLink.updateBento.useMutation();
