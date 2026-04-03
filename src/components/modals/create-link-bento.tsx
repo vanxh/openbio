@@ -33,7 +33,7 @@ export default function CreateLinkBentoModal({
 
   const queryClient = api.useContext();
 
-  const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
+  const { mutateAsync: createBento, isPending } = api.profileLink.createBento.useMutation({
     onMutate: (bento) => {
       queryClient.profileLink.getByLink.setData(
         {
@@ -91,8 +91,8 @@ export default function CreateLinkBentoModal({
           />
 
           <div className="flex gap-x-4">
-            <Button type="submit" disabled={!input} className="w-full">
-              Create
+            <Button type="submit" disabled={!input || isPending} className="w-full">
+              {isPending ? 'Creating...' : 'Create'}
             </Button>
 
             <Button

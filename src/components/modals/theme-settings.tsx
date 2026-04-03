@@ -65,7 +65,7 @@ export default function ThemeSettingsModal({
     profileLink?.customFooter ?? ''
   );
 
-  const { mutateAsync: updateLink } = api.profileLink.update.useMutation({
+  const { mutateAsync: updateLink, isPending } = api.profileLink.update.useMutation({
     onSuccess: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
       router.refresh();
@@ -268,8 +268,8 @@ export default function ThemeSettingsModal({
 
         {/* Sticky save button */}
         <div className="border-border border-t pt-4">
-          <Button onClick={save} className="w-full rounded-xl">
-            Save Changes
+          <Button onClick={save} disabled={isPending} className="w-full rounded-xl">
+            {isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </DialogContent>

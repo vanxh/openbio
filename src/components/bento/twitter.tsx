@@ -238,7 +238,7 @@ export default function TwitterCard({
   );
 
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento } =
+  const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
 
   const handleSave = async () => {
@@ -374,9 +374,9 @@ export default function TwitterCard({
             <Button
               onClick={handleSave}
               className="w-full rounded-xl"
-              disabled={!extractTweetId(tweetUrl)}
+              disabled={!extractTweetId(tweetUrl) || isPending}
             >
-              Save
+              {isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </DialogContent>

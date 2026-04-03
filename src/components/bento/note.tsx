@@ -50,9 +50,11 @@ function NoteContent({ html }: { html: string }) {
 function NoteEditor({
   initialContent,
   onSave,
+  isSaving,
 }: {
   initialContent: string;
   onSave: (html: string) => void;
+  isSaving?: boolean;
 }) {
   const [preview, setPreview] = useState(false);
 
@@ -160,13 +162,14 @@ function NoteEditor({
 
       <Button
         className="w-full rounded-xl"
+        disabled={isSaving}
         onClick={() => {
           if (editor) {
             onSave(editor.getHTML());
           }
         }}
       >
-        Save
+        {isSaving ? 'Saving...' : 'Save'}
       </Button>
     </div>
   );
@@ -182,7 +185,7 @@ export default function NoteCard({
   const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento } =
+  const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
 
   const mdSize = bento.size.md ?? '2x2';
@@ -261,7 +264,7 @@ export default function NoteCard({
             <DialogTitle className="font-cal">Edit Note</DialogTitle>
           </DialogHeader>
           {editOpen && (
-            <NoteEditor initialContent={bento.text || ''} onSave={handleSave} />
+            <NoteEditor initialContent={bento.text || ''} onSave={handleSave} isSaving={isPending} />
           )}
         </DialogContent>
       </Dialog>

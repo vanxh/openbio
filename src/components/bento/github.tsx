@@ -263,7 +263,7 @@ export default function GitHubCard({
   const stats = useGitHubStats(bento.username);
 
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento } =
+  const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
 
   const handleSave = async () => {
@@ -390,8 +390,8 @@ export default function GitHubCard({
               </div>
             )}
 
-            <Button onClick={handleSave} className="w-full rounded-xl">
-              Save
+            <Button onClick={handleSave} disabled={isPending} className="w-full rounded-xl">
+              {isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </DialogContent>

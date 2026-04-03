@@ -252,10 +252,8 @@ export default function CountdownCard({
   const timeLeft = useCountdown(bento.targetDate, bento.repeat);
 
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento } =
+  const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
-
-  const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!targetDate) {
@@ -277,7 +275,6 @@ export default function CountdownCard({
     }
 
     const isoDate = parsed.toISOString();
-    setSaving(true);
 
     queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
       if (!old) {
@@ -309,7 +306,6 @@ export default function CountdownCard({
         repeat,
       },
     });
-    setSaving(false);
     setEditOpen(false);
     toast({ title: 'Saved', description: 'Countdown updated.' });
   };
@@ -438,10 +434,10 @@ export default function CountdownCard({
 
             <Button
               onClick={handleSave}
-              disabled={saving}
+              disabled={isPending}
               className="w-full rounded-xl"
             >
-              {saving ? 'Saving...' : 'Save'}
+              {isPending ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </DialogContent>

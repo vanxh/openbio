@@ -164,7 +164,7 @@ export default function EmailCollectCard({
     link: params.link,
   });
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento } =
+  const { mutateAsync: updateBento, isPending: isSaving } =
     api.profileLink.updateBento.useMutation();
 
   const handleSave = async () => {
@@ -292,8 +292,8 @@ export default function EmailCollectCard({
               />
             </div>
 
-            <Button onClick={handleSave} className="w-full rounded-xl">
-              Save
+            <Button onClick={handleSave} disabled={isSaving} className="w-full rounded-xl">
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </DialogContent>
