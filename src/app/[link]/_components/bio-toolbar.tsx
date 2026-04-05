@@ -1,5 +1,6 @@
 'use client';
 
+import BioWriter from '@/components/ai/bio-writer';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import type { Editor } from '@tiptap/react';
@@ -11,15 +12,20 @@ import {
   LinkIcon,
   List,
   Palette,
+  Sparkles,
   Underline as UnderlineIcon,
 } from 'lucide-react';
 
 export default function BioToolbar({
   editor,
   isPremium,
+  name,
+  links,
 }: {
   editor: Editor;
   isPremium: boolean;
+  name: string;
+  links?: string[];
 }) {
   const proAction = (action: () => void) => {
     if (!isPremium) {
@@ -124,6 +130,24 @@ export default function BioToolbar({
       >
         <Palette className="h-3 w-3" />
       </Button>
+
+      <div className="mx-0.5 h-4 w-px bg-border" />
+
+      <BioWriter
+        name={name}
+        links={links}
+        onGenerated={(bio) => {
+          editor.commands.setContent(`<p>${bio}</p>`);
+        }}
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`${btnClass} text-violet-500`}
+        >
+          <Sparkles className="h-3 w-3" />
+        </Button>
+      </BioWriter>
     </div>
   );
 }

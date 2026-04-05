@@ -1,5 +1,6 @@
 'use client';
 
+import ProfileBuilder from '@/components/ai/profile-builder';
 import CreateLinkBentoModal from '@/components/modals/create-link-bento';
 import CustomDomainModal from '@/components/modals/custom-domain';
 import ThemeSettingsModal from '@/components/modals/theme-settings';
@@ -24,6 +25,7 @@ import {
   Palette,
   Plus,
   Redo2,
+  Sparkles,
   Timer,
   Type,
   Undo2,
@@ -347,6 +349,69 @@ export default function ActionBar() {
           >
             {profileLink?.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
           </button>
+
+          <div className="h-5 w-px bg-border/40" />
+
+          <ProfileBuilder
+            name={profileLink?.name ?? ''}
+            onApply={(suggestion) => {
+              // Apply bio via update mutation
+              if (profileLink) {
+                updateProfileLink({
+                  id: profileLink.id,
+                  bio: `<p>${suggestion.bio}</p>`,
+                });
+              }
+              // Add suggested cards
+              for (const card of suggestion.cards) {
+                if (card.type === 'link' && card.value) {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'link',
+                    href: card.value,
+                    clicks: 0,
+                  });
+                } else if (card.type === 'note') {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'note',
+                    text: card.value || card.title,
+                  });
+                } else if (card.type === 'github' && card.value) {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'github',
+                    username: card.value,
+                  });
+                } else if (card.type === 'email-collect') {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'email-collect',
+                  });
+                } else if (card.type === 'music' && card.value) {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'music',
+                    url: card.value,
+                  });
+                } else if (card.type === 'calendar' && card.value) {
+                  addCard({
+                    id: crypto.randomUUID(),
+                    type: 'calendar',
+                    url: card.value,
+                  });
+                }
+              }
+            }}
+          >
+            <button
+              type="button"
+              className={`${btnClass} text-violet-500`}
+              title="AI Profile Builder"
+            >
+              <Sparkles size={14} />
+            </button>
+          </ProfileBuilder>
         </div>
       </div>
 

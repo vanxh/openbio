@@ -227,8 +227,15 @@ export default function ProfileLinkHeader({
       <div className="group/bio relative">
         <EditorContent editor={editor} />
         {isEditable && editor && (
-          <div className="invisible absolute left-0 z-10 mt-1 group-focus-within/bio:visible">
-            <BioToolbar editor={editor} isPremium={!!profileLink.isPremium} />
+          <div className="invisible absolute left-0 z-40 mt-1 group-focus-within/bio:visible">
+            <BioToolbar
+              editor={editor}
+              isPremium={!!profileLink.isPremium}
+              name={profileLink.name ?? ''}
+              links={profileLink.bento
+                .filter((b) => b.type === 'link' && 'href' in b)
+                .map((b) => (b as { href: string }).href)}
+            />
           </div>
         )}
       </div>
