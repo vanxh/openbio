@@ -14,7 +14,7 @@ export default function Bento({
   const { link } = useParams<{ link: string }>();
   const { preview } = usePreview();
 
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+  const { data: profileLink } = api.profileLink.getByLink.useQuery(
     { link },
     { initialData, staleTime: 60_000 }
   );

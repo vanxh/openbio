@@ -10,11 +10,17 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { extractTweetId } from '@/lib/twitter';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { TwitterBentoSchema } from '@/types';
 import { Heart, MessageCircle, Pencil, Repeat2 } from 'lucide-react';
+
+const TWEET_URL_RE = /(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/;
+
+function extractTweetId(url: string): string | null {
+  const match = url.match(TWEET_URL_RE);
+  return match?.[1] ?? null;
+}
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
