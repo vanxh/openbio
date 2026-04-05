@@ -9,8 +9,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { authClient } from '@/lib/auth-client';
 import { PLANS } from '@/lib/plans';
-import { type RouterOutputs, api } from '@/trpc/react';
+import type { RouterOutputs } from '@/trpc/react';
 import { Check, HelpCircle, Loader, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
@@ -27,20 +28,14 @@ export const PricingCards = ({
 }) => {
   const [isPending, startTransition] = useTransition();
 
-  const { mutateAsync: getCustomerPortalUrl } =
-    api.polar.getCustomerPortalUrl.useMutation();
-
-  const { mutateAsync: getCheckoutUrl } =
-    api.polar.getCheckoutUrl.useMutation();
-
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
       if (plan === 'free') {
-        const result = await getCustomerPortalUrl();
-        window.location.href = result.url;
+        await authClient.customer.portal();
       } else if (plan === 'pro') {
-        const result = await getCheckoutUrl({ billing });
-        window.location.href = result.url;
+        const slug =
+          billing === 'monthly' ? 'pro-monthly' : 'pro-yearly';
+        await authClient.checkout({ slug });
       }
     });
   };
