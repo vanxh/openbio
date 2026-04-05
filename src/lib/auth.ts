@@ -141,9 +141,8 @@ export const auth = betterAuth({
               .where(eq(schema.user.id, found.id));
 
             const { sendEmail } = await import('@/server/emails');
-            const UpgradedEmail = (
-              await import('@/components/emails/upgraded')
-            ).default;
+            const UpgradedEmail = (await import('@/components/emails/upgraded'))
+              .default;
             await sendEmail({
               to: [email],
               subject: "You've upgraded to OpenBio Pro!",

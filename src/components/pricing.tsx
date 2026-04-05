@@ -33,8 +33,7 @@ export const PricingCards = ({
       if (plan === 'free') {
         await authClient.customer.portal();
       } else if (plan === 'pro') {
-        const slug =
-          billing === 'monthly' ? 'pro-monthly' : 'pro-yearly';
+        const slug = billing === 'monthly' ? 'pro-monthly' : 'pro-yearly';
         await authClient.checkout({ slug });
       }
     });
