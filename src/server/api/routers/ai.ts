@@ -104,4 +104,37 @@ Description: ${input.description}`,
         });
       }
     }),
+
+  generateNote: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1),
+        existingContent: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const canUse = await consumeAiCredits(ctx.user.id, 1);
+      if (!canUse) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No AI credits remaining. Upgrade your plan for more.',
+        });
+      }
+
+      const context = input.existingContent
+        ? `Existing note content: ${input.existingContent}\n\n`
+        : '';
+
+      const { text } = await generateText({
+        model: 'google/gemini-2.0-flash',
+        system: `You are a note writer for a link-in-bio platform.
+Write or expand note content based on the user's prompt.
+Keep it concise — notes are displayed on small cards.
+Use simple HTML: <p>, <strong>, <em>, <ul>, <li>, <h2>.
+Do NOT use markdown. Return ONLY the HTML content.`,
+        prompt: `${context}User request: ${input.prompt}`,
+      });
+
+      return { html: text.trim() };
+    }),
 });
