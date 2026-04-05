@@ -26,13 +26,20 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  return 'http://localhost:3000';
+  return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
 function makeQueryClient() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   return new (require('@tanstack/react-query').QueryClient)({
-    defaultOptions: { queries: { staleTime: 60 * 1000 } },
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        // Prevent HTTP fetches during SSR — the server component already
+        // provides initialData; client queries should only run after hydration.
+        enabled: typeof window !== 'undefined',
+      },
+    },
   }) as QueryClient;
 }
 

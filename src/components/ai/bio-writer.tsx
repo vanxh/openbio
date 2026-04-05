@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { api } from '@/trpc/react';
-import { Loader2, Sparkles, Wand2 } from 'lucide-react';
-import { useState } from 'react';
+import { useCompletion } from '@ai-sdk/react';
+import { Sparkles, Wand2 } from 'lucide-react';
+import { type ReactNode, useState } from 'react';
 
 const TONES = [
   { value: 'casual', label: 'Casual' },
@@ -31,38 +32,29 @@ export default function BioWriter({
   name: string;
   links?: string[];
   onGenerated: (bio: string) => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [tone, setTone] = useState<(typeof TONES)[number]['value']>('casual');
   const [context, setContext] = useState('');
-  const [generatedBio, setGeneratedBio] = useState('');
 
   const { data: credits } = api.ai.getCredits.useQuery(undefined, {
     enabled: open,
   });
 
-  const { mutate: generate, isPending } = api.ai.generateBio.useMutation({
-    onSuccess: (data) => {
-      setGeneratedBio(data.bio);
-    },
-    onError: (err) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
+  const { completion, isLoading, complete } = useCompletion({
+    api: '/api/ai/generate',
   });
 
   const handleGenerate = () => {
-    generate({ name, links, tone, context: context || undefined });
+    complete('generate', {
+      body: { type: 'bio', name, links, tone, context: context || undefined },
+    });
   };
 
   const handleApply = () => {
-    onGenerated(generatedBio);
+    onGenerated(completion);
     setOpen(false);
-    setGeneratedBio('');
     toast({
       title: 'Bio updated!',
       description: 'Your AI-generated bio has been applied.',
@@ -87,7 +79,6 @@ export default function BioWriter({
             </p>
           )}
 
-          {/* Tone selector */}
           <div className="space-y-2">
             <Label className="font-medium text-sm">Tone</Label>
             <div className="flex gap-2">
@@ -108,7 +99,6 @@ export default function BioWriter({
             </div>
           </div>
 
-          {/* Extra context */}
           <div className="space-y-2">
             <Label htmlFor="ai-context" className="font-medium text-sm">
               Tell us about yourself{' '}
@@ -125,36 +115,34 @@ export default function BioWriter({
             />
           </div>
 
-          {/* Generate button */}
           <Button
             onClick={handleGenerate}
-            disabled={isPending || (credits?.remaining ?? 0) < 1}
+            disabled={isLoading || (credits?.remaining ?? 0) < 1}
             className="w-full rounded-xl"
           >
-            {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Wand2 className="mr-2 h-4 w-4" />
-            )}
-            {isPending ? 'Generating...' : 'Generate Bio (1 credit)'}
+            <Wand2 className="mr-2 h-4 w-4" />
+            {isLoading ? 'Generating...' : 'Generate Bio (1 credit)'}
           </Button>
 
-          {/* Result */}
-          {generatedBio && (
+          {completion && (
             <div className="space-y-3">
               <div className="rounded-xl border border-border bg-muted/50 p-4">
-                <p className="text-sm leading-relaxed">{generatedBio}</p>
+                <p className="text-sm leading-relaxed">{completion}</p>
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   className="flex-1 rounded-xl"
                   onClick={handleGenerate}
-                  disabled={isPending}
+                  disabled={isLoading}
                 >
                   Regenerate
                 </Button>
-                <Button className="flex-1 rounded-xl" onClick={handleApply}>
+                <Button
+                  className="flex-1 rounded-xl"
+                  onClick={handleApply}
+                  disabled={isLoading}
+                >
                   Apply
                 </Button>
               </div>

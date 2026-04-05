@@ -18,6 +18,7 @@ import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { NoteBentoSchema } from '@/types';
+import { useCompletion } from '@ai-sdk/react';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -62,9 +63,10 @@ function AiNoteButton({
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
 
-  const { mutate: generate, isPending } = api.ai.generateNote.useMutation({
-    onSuccess: (data) => {
-      onGenerated(data.html);
+  const { completion, isLoading, complete } = useCompletion({
+    api: '/api/ai/generate',
+    onFinish: (_prompt, text) => {
+      onGenerated(text);
       setOpen(false);
       setPrompt('');
       toast({ title: 'Note generated!', description: 'AI content applied.' });
@@ -95,12 +97,17 @@ function AiNoteButton({
           onSubmit={(e) => {
             e.preventDefault();
             if (prompt.trim()) {
-              generate({ prompt });
+              complete('generate', { body: { type: 'note', prompt } });
             }
           }}
           className="flex flex-col gap-2"
         >
           <p className="font-medium text-xs">Write with AI</p>
+          {completion && (
+            <div className="max-h-24 overflow-y-auto rounded-lg border border-border bg-muted/50 p-2 text-xs">
+              {completion}
+            </div>
+          )}
           <Input
             placeholder="e.g. write a short intro about my photography"
             value={prompt}
@@ -112,14 +119,14 @@ function AiNoteButton({
             type="submit"
             size="sm"
             className="h-7 rounded-lg text-xs"
-            disabled={isPending || !prompt.trim()}
+            disabled={isLoading || !prompt.trim()}
           >
-            {isPending ? (
+            {isLoading ? (
               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
             ) : (
               <Sparkles className="mr-1 h-3 w-3" />
             )}
-            {isPending ? 'Writing...' : 'Generate (1 credit)'}
+            {isLoading ? 'Writing...' : 'Generate (1 credit)'}
           </Button>
         </form>
       </PopoverContent>

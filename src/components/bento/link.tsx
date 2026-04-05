@@ -543,9 +543,10 @@ export default function LinkCard({
   const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
 
-  const [metadata] = api.profileLink.getMetadataOfURL.useSuspenseQuery({
-    url: bento.href ?? '',
-  });
+  const { data: metadata } = api.profileLink.getMetadataOfURL.useQuery(
+    { url: bento.href ?? '' },
+    { enabled: !!bento.href }
+  );
 
   const handleSave = async () => {
     queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {

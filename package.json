@@ -18,6 +18,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.148",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^0.10.0",
     "@polar-sh/better-auth": "^1.8.3",

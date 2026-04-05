@@ -49,7 +49,7 @@ export default function ProfileLinkHeader({
 }: { profileLink: ProfileLinkData }) {
   const { link } = useParams<{ link: string }>();
 
-  const [profileLink] = api.profileLink.getByLink.useSuspenseQuery(
+  const { data: profileLink } = api.profileLink.getByLink.useQuery(
     { link },
     { initialData, staleTime: 60_000 }
   );
