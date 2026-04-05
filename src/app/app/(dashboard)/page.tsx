@@ -2,20 +2,18 @@ import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
 import { EmptyState } from '@/components/dashboard/empty-state';
 import { DashboardLinkCard } from '@/components/dashboard/link-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { Skeleton } from '@/components/ui/skeleton';
 import UserSettings from '@/components/user-settings';
 import { api } from '@/trpc/server';
-import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default async function Page() {
   const user = await api.user.me();
 
   if (!user) {
-    // This is a hack to make sure the user is created after the first login
-    setInterval(() => {
-      revalidatePath('/app');
-    }, 1000);
-    return null;
+    redirect('/app/sign-in');
   }
 
   const links = await api.profileLink.getAll();
@@ -47,7 +45,20 @@ export default async function Page() {
             </div>
           )
         }
-        settings={<UserSettings user={user} />}
+        settings={
+          <Suspense
+            fallback={
+              <div className="flex flex-col gap-y-6 rounded-lg border border-border bg-background p-6">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+            }
+          >
+            <UserSettings user={user} />
+          </Suspense>
+        }
       />
     </div>
   );
