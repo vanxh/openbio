@@ -65,7 +65,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       plan: { type: 'string', defaultValue: 'free' },
-      stripeCustomerId: { type: 'string', required: false },
+      polarCustomerId: { type: 'string', required: false },
       subscriptionId: { type: 'string', required: false },
       subscriptionEndsAt: { type: 'date', required: false },
     },

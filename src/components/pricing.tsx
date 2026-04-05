@@ -9,12 +9,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { getStripe } from '@/lib/stripe/client';
-import { PLANS } from '@/lib/stripe/plans';
+import { PLANS } from '@/lib/plans';
 import { type RouterOutputs, api } from '@/trpc/react';
 import { Check, HelpCircle, Loader, X } from 'lucide-react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import Confetti from 'react-dom-confetti';
 
@@ -29,36 +27,20 @@ export const PricingCards = ({
 }) => {
   const [isPending, startTransition] = useTransition();
 
-  const { mutateAsync: getBillingPortalUrl } =
-    api.stripe.getBillingPortalUrl.useMutation();
+  const { mutateAsync: getCustomerPortalUrl } =
+    api.polar.getCustomerPortalUrl.useMutation();
 
-  const { mutateAsync: getCheckoutSession } =
-    api.stripe.getCheckoutSession.useMutation();
+  const { mutateAsync: getCheckoutUrl } =
+    api.polar.getCheckoutUrl.useMutation();
 
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
-      switch (plan) {
-        case 'free': {
-          const billingPortal = await getBillingPortalUrl();
-
-          redirect(billingPortal);
-          break;
-        }
-
-        case 'pro': {
-          const session = await getCheckoutSession({
-            billing,
-          });
-
-          const stripe = await getStripe();
-
-          stripe?.redirectToCheckout({
-            sessionId: session.id,
-          });
-          break;
-        }
-        default:
-          break;
+      if (plan === 'free') {
+        const result = await getCustomerPortalUrl();
+        window.location.href = result.url;
+      } else if (plan === 'pro') {
+        const result = await getCheckoutUrl({ billing });
+        window.location.href = result.url;
       }
     });
   };

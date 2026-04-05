@@ -11,7 +11,7 @@ export const user = pgTable('user', {
   plan: text('plan', { enum: ['free', 'pro'] })
     .default('free')
     .notNull(),
-  stripeCustomerId: text('stripe_customer_id').unique(),
+  polarCustomerId: text('polar_customer_id').unique(),
   subscriptionId: text('subscription_id'),
   subscriptionEndsAt: timestamp('subscription_ends_at', { withTimezone: true }),
   trialEndsAt: timestamp('trial_ends_at', { withTimezone: true }),
