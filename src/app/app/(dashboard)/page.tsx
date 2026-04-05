@@ -24,13 +24,13 @@ export default async function Page() {
       <UpgradeCelebration />
       <div className="flex items-center justify-between">
         <h1 className="font-cal text-3xl">Dashboard</h1>
-        {user.plan === 'pro' || links.length === 0 ? (
+        {user.plan !== 'free' || links.length === 0 ? (
           <Link href="/claim-link">
             <GradientButton>Create new</GradientButton>
           </Link>
         ) : (
           <GradientButton disabled className="text-xs opacity-50 sm:text-sm">
-            Pro required
+            Upgrade to add more
           </GradientButton>
         )}
       </div>

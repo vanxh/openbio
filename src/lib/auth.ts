@@ -11,6 +11,14 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 
+function getPlanFromProductId(productId: string): 'pro' | 'business' {
+  const businessIds = [
+    process.env.POLAR_BUSINESS_MONTHLY_PRODUCT_ID,
+    process.env.POLAR_BUSINESS_YEARLY_PRODUCT_ID,
+  ];
+  return businessIds.includes(productId) ? 'business' : 'pro';
+}
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -108,6 +116,14 @@ export const auth = betterAuth({
               productId: process.env.POLAR_PRO_YEARLY_PRODUCT_ID ?? '',
               slug: 'pro-yearly',
             },
+            {
+              productId: process.env.POLAR_BUSINESS_MONTHLY_PRODUCT_ID ?? '',
+              slug: 'business-monthly',
+            },
+            {
+              productId: process.env.POLAR_BUSINESS_YEARLY_PRODUCT_ID ?? '',
+              slug: 'business-yearly',
+            },
           ],
           successUrl: '/app?upgraded=true',
           authenticatedUsersOnly: true,
@@ -130,10 +146,12 @@ export const auth = betterAuth({
               return;
             }
 
+            const plan = getPlanFromProductId(sub.productId);
+
             await db
               .update(schema.user)
               .set({
-                plan: 'pro',
+                plan,
                 polarCustomerId: sub.customerId,
                 subscriptionId: sub.id,
                 subscriptionEndsAt: sub.currentPeriodEnd,
@@ -164,10 +182,12 @@ export const auth = betterAuth({
               return;
             }
 
+            const plan = getPlanFromProductId(sub.productId);
+
             await db
               .update(schema.user)
               .set({
-                plan: 'pro',
+                plan,
                 subscriptionId: sub.id,
                 subscriptionEndsAt: sub.currentPeriodEnd,
               })

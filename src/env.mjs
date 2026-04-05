@@ -15,7 +15,10 @@ export const env = createEnv({
     POLAR_WEBHOOK_SECRET: z.string().min(1),
     POLAR_PRO_MONTHLY_PRODUCT_ID: z.string().min(1),
     POLAR_PRO_YEARLY_PRODUCT_ID: z.string().min(1),
+    POLAR_BUSINESS_MONTHLY_PRODUCT_ID: z.string().min(1),
+    POLAR_BUSINESS_YEARLY_PRODUCT_ID: z.string().min(1),
     POLAR_SERVER: z.enum(['sandbox', 'production']).default('sandbox'),
+    AI_GATEWAY_API_KEY: z.string().min(1),
     GITHUB_CLIENT_ID: z.string().min(1).optional(),
     GITHUB_CLIENT_SECRET: z.string().min(1).optional(),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
@@ -41,7 +44,12 @@ export const env = createEnv({
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     POLAR_PRO_MONTHLY_PRODUCT_ID: process.env.POLAR_PRO_MONTHLY_PRODUCT_ID,
     POLAR_PRO_YEARLY_PRODUCT_ID: process.env.POLAR_PRO_YEARLY_PRODUCT_ID,
+    POLAR_BUSINESS_MONTHLY_PRODUCT_ID:
+      process.env.POLAR_BUSINESS_MONTHLY_PRODUCT_ID,
+    POLAR_BUSINESS_YEARLY_PRODUCT_ID:
+      process.env.POLAR_BUSINESS_YEARLY_PRODUCT_ID,
     POLAR_SERVER: process.env.POLAR_SERVER,
+    AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

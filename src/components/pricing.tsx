@@ -32,8 +32,8 @@ export const PricingCards = ({
     startTransition(async () => {
       if (plan === 'free') {
         await authClient.customer.portal();
-      } else if (plan === 'pro') {
-        const slug = billing === 'monthly' ? 'pro-monthly' : 'pro-yearly';
+      } else {
+        const slug = `${plan}-${billing === 'monthly' ? 'monthly' : 'yearly'}`;
         await authClient.checkoutEmbed({ slug });
       }
     });
@@ -42,7 +42,7 @@ export const PricingCards = ({
   return (
     <div
       id="pricing"
-      className="flex w-full flex-col gap-6 md:grid md:grid-cols-2"
+      className="flex w-full flex-col gap-6 md:grid md:grid-cols-3"
     >
       {PLANS.map((plan) => (
         <div
@@ -102,24 +102,22 @@ export const PricingCards = ({
           {user && (
             <Button
               className="mt-4"
-              disabled={
-                user.plan.toLowerCase() === plan.name.toLowerCase() || isPending
-              }
+              disabled={user.plan === plan.slug || isPending}
               onClick={() => {
-                handleCheckout(plan.name.toLowerCase());
+                handleCheckout(plan.slug);
               }}
             >
               {isPending && (
                 <Loader className="mr-2 inline-block animate-spin" size={16} />
               )}
               {(() => {
-                if (user.plan.toLowerCase() === plan.name.toLowerCase()) {
+                if (user.plan === plan.slug) {
                   return 'Current plan';
                 }
-                if (plan.name.toLowerCase() === 'free') {
-                  return 'Downgrade';
-                }
-                return 'Upgrade';
+                const tierOrder = ['free', 'pro', 'business'];
+                const currentIdx = tierOrder.indexOf(user.plan);
+                const planIdx = tierOrder.indexOf(plan.slug);
+                return planIdx > currentIdx ? 'Upgrade' : 'Downgrade';
               })()}
             </Button>
           )}

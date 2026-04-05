@@ -78,6 +78,7 @@ function ImageEditModal({
                 src={modalImgUrl}
                 alt="Preview"
                 fill
+                sizes="(max-width: 640px) 100vw, 512px"
                 className="object-cover"
               />
             </div>
@@ -338,6 +339,7 @@ function ImageDisplay({
           src={imgUrl}
           alt={bento.caption ?? 'Image'}
           fill
+          sizes="(max-width: 768px) 50vw, 25vw"
           className="object-cover"
         />
         {bento.caption && !isBanner && (

@@ -1,7 +1,13 @@
 import { redis } from '@/lib/redis';
 import { type BentoSchema, type LinkBento, ValidLinkSchema } from '@/types';
 import type * as z from 'zod';
-import { type InferSelectModel, eq, isUserPremium, sql } from '..';
+import {
+  type InferSelectModel,
+  eq,
+  getLinkLimit,
+  isUserPremium,
+  sql,
+} from '..';
 import { db } from '../db';
 import { link } from '../schema';
 
@@ -89,14 +95,17 @@ export const canUserCreateProfileLink = async ({
   trialEndsAt,
 }: {
   id: string;
-  plan: 'free' | 'pro';
+  plan: string;
   subscriptionEndsAt?: Date | null;
   trialEndsAt?: Date | null;
 }) => {
   const nProfileLinks = await getProfileLinksCountOfUser(id);
+  const limit = getLinkLimit(plan);
 
   const isPremium = isUserPremium({ plan, subscriptionEndsAt, trialEndsAt });
-  const canCreateProfileLink = isPremium || nProfileLinks < 1;
+  const canCreateProfileLink = isPremium
+    ? nProfileLinks < limit
+    : nProfileLinks < 1;
 
   return canCreateProfileLink;
 };

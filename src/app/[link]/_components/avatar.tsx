@@ -75,6 +75,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
           alt="Profile link image"
           width={150}
           height={150}
+          priority
           className="max-h-full max-w-full rounded-full object-cover"
         />
       )}

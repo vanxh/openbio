@@ -113,17 +113,75 @@ async function setupYearly() {
   return product.id;
 }
 
+async function setupBusinessMonthly() {
+  const name = 'OpenBio Business (Monthly)';
+  const existing = await findProduct(name);
+
+  if (existing) {
+    console.log(`✓ Business monthly product exists: ${existing.id}`);
+    return existing.id;
+  }
+
+  const product = await polar.products.create({
+    name,
+    description:
+      'Unlimited links, 500 AI credits/month, remove branding, export analytics, priority support. Everything in Pro and more.',
+    recurringInterval: 'month',
+    prices: [
+      {
+        amountType: 'fixed',
+        priceCurrency: 'usd',
+        priceAmount: 2900, // $29.00
+      },
+    ],
+  });
+
+  console.log(`✓ Created business monthly product: ${product.id}`);
+  return product.id;
+}
+
+async function setupBusinessYearly() {
+  const name = 'OpenBio Business (Yearly)';
+  const existing = await findProduct(name);
+
+  if (existing) {
+    console.log(`✓ Business yearly product exists: ${existing.id}`);
+    return existing.id;
+  }
+
+  const product = await polar.products.create({
+    name,
+    description:
+      'Unlimited links, 500 AI credits/month, remove branding, export analytics, priority support. Everything in Pro and more. Save 2 months with annual billing.',
+    recurringInterval: 'year',
+    prices: [
+      {
+        amountType: 'fixed',
+        priceCurrency: 'usd',
+        priceAmount: 29000, // $290.00
+      },
+    ],
+  });
+
+  console.log(`✓ Created business yearly product: ${product.id}`);
+  return product.id;
+}
+
 async function main() {
   console.log(
     `Setting up Polar products (${process.env.POLAR_SERVER ?? 'sandbox'})...\n`
   );
 
-  const monthlyId = await setupMonthly();
-  const yearlyId = await setupYearly();
+  const proMonthlyId = await setupMonthly();
+  const proYearlyId = await setupYearly();
+  const businessMonthlyId = await setupBusinessMonthly();
+  const businessYearlyId = await setupBusinessYearly();
 
   console.log('\n--- Add these to your .env ---\n');
-  console.log(`POLAR_PRO_MONTHLY_PRODUCT_ID=${monthlyId}`);
-  console.log(`POLAR_PRO_YEARLY_PRODUCT_ID=${yearlyId}`);
+  console.log(`POLAR_PRO_MONTHLY_PRODUCT_ID=${proMonthlyId}`);
+  console.log(`POLAR_PRO_YEARLY_PRODUCT_ID=${proYearlyId}`);
+  console.log(`POLAR_BUSINESS_MONTHLY_PRODUCT_ID=${businessMonthlyId}`);
+  console.log(`POLAR_BUSINESS_YEARLY_PRODUCT_ID=${businessYearlyId}`);
   console.log('');
 }
 
