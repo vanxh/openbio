@@ -34,7 +34,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type * as z from 'zod';
 
 type BentoData = z.infer<typeof NoteBentoSchema>;
@@ -65,8 +65,7 @@ function AiNoteButton({
 
   const { completion, isLoading, complete } = useCompletion({
     api: '/api/ai/generate',
-    onFinish: (_prompt, text) => {
-      onGenerated(text);
+    onFinish: (_p, text) => {
       setOpen(false);
       setPrompt('');
       toast({ title: 'Note generated!', description: 'AI content applied.' });
@@ -79,6 +78,13 @@ function AiNoteButton({
       });
     },
   });
+
+  // Stream content into editor as tokens arrive
+  useEffect(() => {
+    if (completion) {
+      onGenerated(completion);
+    }
+  }, [completion, onGenerated]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -103,11 +109,6 @@ function AiNoteButton({
           className="flex flex-col gap-2"
         >
           <p className="font-medium text-xs">Write with AI</p>
-          {completion && (
-            <div className="max-h-24 overflow-y-auto rounded-lg border border-border bg-muted/50 p-2 text-xs">
-              {completion}
-            </div>
-          )}
           <Input
             placeholder="e.g. write a short intro about my photography"
             value={prompt}

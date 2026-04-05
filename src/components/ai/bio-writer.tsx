@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { api } from '@/trpc/react';
 import { useCompletion } from '@ai-sdk/react';
-import { Sparkles, Wand2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 const TONES = [
@@ -44,6 +44,13 @@ export default function BioWriter({
 
   const { completion, isLoading, complete } = useCompletion({
     api: '/api/ai/generate',
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
+    },
   });
 
   const handleGenerate = () => {
@@ -120,7 +127,11 @@ export default function BioWriter({
             disabled={isLoading || (credits?.remaining ?? 0) < 1}
             className="w-full rounded-xl"
           >
-            <Wand2 className="mr-2 h-4 w-4" />
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Wand2 className="mr-2 h-4 w-4" />
+            )}
             {isLoading ? 'Generating...' : 'Generate Bio (1 credit)'}
           </Button>
 
