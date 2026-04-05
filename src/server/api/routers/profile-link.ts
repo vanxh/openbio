@@ -133,23 +133,21 @@ export const profileLinkRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const authedUserId = ctx.session?.user?.id;
 
-      const user = authedUserId
-        ? await ctx.db.query.user.findFirst({
-            where: (u, { eq }) => eq(u.id, authedUserId),
-            columns: {
-              id: true,
-              plan: true,
-              subscriptionEndsAt: true,
-              trialEndsAt: true,
-            },
-          })
-        : null;
-
       const profileLink = await getProfileLinkByLink(input.link);
 
       if (!profileLink) {
         return null;
       }
+
+      const owner = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, profileLink.userId),
+        columns: {
+          id: true,
+          plan: true,
+          subscriptionEndsAt: true,
+          trialEndsAt: true,
+        },
+      });
 
       let ip = ctx.req.headers.get('x-real-ip');
       const forwardedFor = ctx.req.headers.get('x-forwarded-for');
@@ -170,9 +168,8 @@ export const profileLinkRouter = createTRPCRouter({
 
       return {
         ...profileLink,
-        isOwner: user?.id === profileLink.userId,
-        isPremium:
-          user?.id === profileLink.userId && !!user && isUserPremium(user),
+        isOwner: authedUserId === profileLink.userId,
+        isPremium: !!owner && isUserPremium(owner),
       };
     }),
 
