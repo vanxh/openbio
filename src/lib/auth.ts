@@ -109,7 +109,7 @@ export const auth = betterAuth({
               slug: 'pro-yearly',
             },
           ],
-          successUrl: '/app',
+          successUrl: '/app?upgraded=true',
           authenticatedUsersOnly: true,
         }),
         portal(),
