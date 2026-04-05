@@ -38,7 +38,7 @@ export const aiRouter = createTRPCRouter({
         : '';
 
       const { text } = await generateText({
-        model: 'google/gemini-2.0-flash',
+        model: 'openai/gpt-5.4-mini',
         system: `You are a bio writer for a link-in-bio platform called OpenBio.
 Write short, engaging bios for user profiles.
 The bio should be 1-3 sentences max.
@@ -71,7 +71,7 @@ ${extraContext}`,
       }
 
       const { text } = await generateText({
-        model: 'google/gemini-2.0-flash',
+        model: 'openai/gpt-5.4-mini',
         system: `You are a profile builder for OpenBio, a link-in-bio platform.
 Given a user description, generate a complete profile suggestion.
 Return a JSON object with:
@@ -126,7 +126,7 @@ Description: ${input.description}`,
         : '';
 
       const { text } = await generateText({
-        model: 'google/gemini-2.0-flash',
+        model: 'openai/gpt-5.4-mini',
         system: `You are a note writer for a link-in-bio platform.
 Write or expand note content based on the user's prompt.
 Keep it concise — notes are displayed on small cards.
