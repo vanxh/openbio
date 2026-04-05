@@ -49,32 +49,36 @@ export const PricingCards = ({
           key={plan.name}
           className="flex w-full flex-col rounded-lg border border-border bg-background px-6 py-3 md:px-8"
         >
-          <p className="font-cal text-2xl">{plan.name}</p>
+          <p className="font-cal text-lg">{plan.name}</p>
 
-          <p className="mt-1 text-muted-foreground">{plan.description}</p>
-
-          <p className="mt-3 font-cal text-6xl">
-            $
-            {plan.price[billing as keyof typeof plan.price]?.amount /
-              (billing === 'annually' ? 12 : 1)}
+          <p className="mt-0.5 text-muted-foreground text-sm">
+            {plan.description}
           </p>
 
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-3 font-cal text-4xl">
+            $
+            {Math.round(
+              plan.price[billing as keyof typeof plan.price]?.amount /
+                (billing === 'annually' ? 12 : 1)
+            )}
+          </p>
+
+          <p className="mt-1 text-muted-foreground text-xs">
             per month{billing === 'annually' && ', billed annually'}
           </p>
 
-          <div className="mt-4 flex w-full flex-col gap-2 text-left">
+          <div className="mt-3 flex w-full flex-col gap-1.5 text-left">
             {plan.features.map((f, idx) => (
-              <span key={idx} className="inline-flex items-center">
+              <span key={idx} className="inline-flex items-center text-sm">
                 {f.notAvailable ? (
                   <X
-                    className="mr-4 inline-block text-muted-foreground"
-                    size={16}
+                    className="mr-2.5 inline-block shrink-0 text-muted-foreground"
+                    size={14}
                   />
                 ) : (
                   <Check
-                    className="mr-4 inline-block text-green-500"
-                    size={16}
+                    className="mr-2.5 inline-block shrink-0 text-green-500"
+                    size={14}
                   />
                 )}
                 {f.text}

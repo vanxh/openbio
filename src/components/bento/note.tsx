@@ -8,12 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
-import type { NoteBentoSchema } from '@/types';
-import Placeholder from '@tiptap/extension-placeholder';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import { Input } from '@/components/ui/input';
 import {
   Popover,
@@ -21,6 +15,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { toast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
+import { api } from '@/trpc/react';
+import type { NoteBentoSchema } from '@/types';
+import Placeholder from '@tiptap/extension-placeholder';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import {
   Bold,
   Eye,
@@ -56,7 +56,9 @@ function NoteContent({ html }: { html: string }) {
   );
 }
 
-function AiNoteButton({ onGenerated }: { onGenerated: (html: string) => void }) {
+function AiNoteButton({
+  onGenerated,
+}: { onGenerated: (html: string) => void }) {
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
 

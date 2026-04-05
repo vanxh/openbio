@@ -63,7 +63,10 @@ export default function BioWriter({
     onGenerated(generatedBio);
     setOpen(false);
     setGeneratedBio('');
-    toast({ title: 'Bio updated!', description: 'Your AI-generated bio has been applied.' });
+    toast({
+      title: 'Bio updated!',
+      description: 'Your AI-generated bio has been applied.',
+    });
   };
 
   return (
@@ -93,7 +96,7 @@ export default function BioWriter({
                   key={t.value}
                   type="button"
                   onClick={() => setTone(t.value)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-colors ${
                     tone === t.value
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground hover:bg-accent'

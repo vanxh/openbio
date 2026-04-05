@@ -114,9 +114,7 @@ export default function ProfileBuilder({
           <Button
             onClick={handleBuild}
             disabled={
-              isPending ||
-              !description.trim() ||
-              (credits?.remaining ?? 0) < 3
+              isPending || !description.trim() || (credits?.remaining ?? 0) < 3
             }
             className="w-full rounded-xl"
           >
@@ -147,7 +145,7 @@ export default function ProfileBuilder({
                       key={i}
                       className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-3"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background text-xs font-medium">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-background font-medium text-xs">
                         {cardTypeLabels[card.type] ?? card.type}
                       </div>
                       <div className="min-w-0 flex-1">
