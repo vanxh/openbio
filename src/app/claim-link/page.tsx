@@ -9,7 +9,7 @@ export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 shadow-lg">
         <div className="mb-8 flex flex-col items-center">
           <Link href="/">

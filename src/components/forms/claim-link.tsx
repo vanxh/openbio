@@ -66,6 +66,14 @@ export default function ClaimLinkForm() {
           Claim my page
         </GradientButton>
       )}
+      <p className="text-center">
+        <a
+          href="/"
+          className="text-muted-foreground text-xs transition-colors hover:text-foreground"
+        >
+          ← Back to home
+        </a>
+      </p>
     </form>
   );
 }
