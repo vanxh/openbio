@@ -384,7 +384,7 @@ export default function WeatherCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Weather</DialogTitle>
+            <DialogTitle className="font-cal text-xl">Edit Weather</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <Button

@@ -82,7 +82,7 @@ export default function ProfileBuilder({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-cal">
+          <DialogTitle className="flex items-center gap-2 font-cal text-xl">
             <Sparkles className="h-4 w-4 text-violet-500" />
             AI Profile Builder
           </DialogTitle>

@@ -218,7 +218,7 @@ export default function CalendarCard({
       <Dialog open={bookOpen} onOpenChange={setBookOpen}>
         <DialogContent className="flex h-[85vh] max-h-175 flex-col overflow-hidden sm:max-w-2xl">
           <DialogHeader className="shrink-0">
-            <DialogTitle className="flex items-center justify-between font-cal">
+            <DialogTitle className="flex items-center justify-between font-cal text-xl">
               {bento.title || 'Book a time'}
               <a
                 href={bento.url}
@@ -245,7 +245,9 @@ export default function CalendarCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Booking Card</DialogTitle>
+            <DialogTitle className="font-cal text-xl">
+              Edit Booking Card
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

@@ -95,12 +95,12 @@ export default function ThemeSettingsModal({
         showClose
       >
         <DialogHeader>
-          <DialogTitle className="font-cal text-lg">Customize</DialogTitle>
+          <DialogTitle className="font-cal text-xl">Customize</DialogTitle>
         </DialogHeader>
 
         <div
           className="-mx-6 overflow-y-auto px-6 pb-1"
-          style={{ maxHeight: 'calc(85vh - 120px)' }}
+          style={{ maxHeight: 'calc(85vh - 160px)' }}
         >
           <div className="space-y-6">
             {/* Theme Presets */}
@@ -135,7 +135,6 @@ export default function ThemeSettingsModal({
                         setTheme(preset.name);
                       }}
                     >
-                      {/* Color preview dots */}
                       <div className="-space-x-1 flex">
                         <span
                           className="h-5 w-5 rounded-full border border-white/20 shadow-sm"
@@ -267,14 +266,21 @@ export default function ThemeSettingsModal({
           </div>
         </div>
 
-        {/* Sticky save button */}
-        <div className="border-border border-t pt-4">
+        {/* Footer actions */}
+        <div className="flex items-center justify-end gap-3 border-border border-t pt-4">
+          <Button
+            variant="outline"
+            className="rounded-xl px-6"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={save}
             disabled={isPending}
-            className="w-full rounded-xl"
+            className="rounded-xl px-6"
           >
-            {isPending ? 'Saving...' : 'Save Changes'}
+            {isPending ? 'Saving...' : 'Save changes'}
           </Button>
         </div>
       </DialogContent>

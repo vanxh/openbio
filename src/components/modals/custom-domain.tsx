@@ -20,6 +20,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Copy,
+  Crown,
   Loader2,
   Lock,
   RefreshCw,
@@ -140,7 +141,6 @@ export default function CustomDomainModal({
   const hasDomain = !!profileLink?.customDomain;
   const domainChanged = cleaned !== (profileLink?.customDomain ?? '');
 
-  // Check domain DNS status
   const {
     data: domainCheck,
     isLoading: isChecking,
@@ -208,12 +208,20 @@ export default function CustomDomainModal({
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-lg" showClose>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-cal">Custom Domain</DialogTitle>
+          <div className="flex items-center gap-2">
+            <DialogTitle className="font-cal text-xl">
+              Custom Domain
+            </DialogTitle>
+            <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-0.5 font-medium text-muted-foreground text-xs">
+              <Crown className="h-3 w-3" />
+              PRO
+            </span>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {!isPremium && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-4 py-3">
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -241,12 +249,10 @@ export default function CustomDomainModal({
             </p>
           </div>
 
-          {/* DNS instructions — show when domain is entered */}
           {isPremium && cleaned && (
             <div className="space-y-3">
               <Label className="font-medium text-sm">DNS Configuration</Label>
 
-              {/* Show status if domain is already saved */}
               {hasDomain && !domainChanged && domainCheck && (
                 <DomainStatus
                   configured={domainCheck.configured}
@@ -254,7 +260,6 @@ export default function CustomDomainModal({
                 />
               )}
 
-              {/* DNS record to add */}
               {cleaned.split('.').length > 2 ? (
                 <DnsRecord
                   type="CNAME"
@@ -265,7 +270,6 @@ export default function CustomDomainModal({
                 <DnsRecord type="A" name="@" value="76.76.21.21" />
               )}
 
-              {/* Recheck button */}
               {hasDomain && !domainChanged && (
                 <Button
                   variant="outline"
@@ -285,17 +289,7 @@ export default function CustomDomainModal({
             </div>
           )}
 
-          <div className="flex gap-2">
-            <Button
-              onClick={save}
-              className={cn(
-                'flex-1 rounded-xl',
-                !domainChanged && 'opacity-50'
-              )}
-              disabled={isPending || !isPremium || !domainChanged}
-            >
-              {isPending ? 'Saving...' : 'Save'}
-            </Button>
+          <div className="flex items-center justify-end gap-3">
             {isPremium && hasDomain && (
               <Button
                 variant="outline"
@@ -307,6 +301,20 @@ export default function CustomDomainModal({
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
+            <Button
+              variant="outline"
+              className="rounded-xl px-6"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={save}
+              className={cn('rounded-xl px-6', !domainChanged && 'opacity-50')}
+              disabled={isPending || !isPremium || !domainChanged}
+            >
+              {isPending ? 'Saving...' : 'Save changes'}
+            </Button>
           </div>
 
           {isPremium && (

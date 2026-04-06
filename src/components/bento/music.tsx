@@ -274,7 +274,9 @@ export default function MusicCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Music Card</DialogTitle>
+            <DialogTitle className="font-cal text-xl">
+              Edit Music Card
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

@@ -248,7 +248,7 @@ export default function EmailCollectCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">
+            <DialogTitle className="font-cal text-xl">
               Edit Email Collection
             </DialogTitle>
           </DialogHeader>

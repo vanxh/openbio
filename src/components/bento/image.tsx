@@ -68,7 +68,7 @@ function ImageEditModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-cal">Edit Image</DialogTitle>
+          <DialogTitle className="font-cal text-xl">Edit Image</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">

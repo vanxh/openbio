@@ -357,7 +357,7 @@ export default function NoteCard({
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Note</DialogTitle>
+            <DialogTitle className="font-cal text-xl">Edit Note</DialogTitle>
           </DialogHeader>
           {editOpen && (
             <NoteEditor

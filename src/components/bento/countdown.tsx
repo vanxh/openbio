@@ -368,7 +368,9 @@ export default function CountdownCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Countdown</DialogTitle>
+            <DialogTitle className="font-cal text-xl">
+              Edit Countdown
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

@@ -368,7 +368,7 @@ export default function MapCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Map</DialogTitle>
+            <DialogTitle className="font-cal text-xl">Edit Map</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {latitude &&

@@ -349,7 +349,9 @@ export default function TwitterCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Tweet Card</DialogTitle>
+            <DialogTitle className="font-cal text-xl">
+              Edit Tweet Card
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

@@ -612,7 +612,7 @@ export default function LinkCard({
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-cal">Edit Link</DialogTitle>
+            <DialogTitle className="font-cal text-xl">Edit Link</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
