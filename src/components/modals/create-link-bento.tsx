@@ -147,10 +147,10 @@ export default function CreateLinkBentoModal({
     });
   };
 
-  const placeholder =
-    selectedPreset !== null
-      ? SOCIAL_PRESETS[selectedPreset].placeholder
-      : 'https://example.com';
+  const activePreset =
+    selectedPreset !== null ? SOCIAL_PRESETS[selectedPreset] : undefined;
+
+  const placeholder = activePreset?.placeholder ?? 'https://example.com';
 
   return (
     <Dialog
@@ -207,9 +207,9 @@ export default function CreateLinkBentoModal({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                {selectedPreset !== null ? (
-                  <span style={{ color: SOCIAL_PRESETS[selectedPreset].color }}>
-                    {SOCIAL_PRESETS[selectedPreset].icon}
+                {activePreset ? (
+                  <span style={{ color: activePreset.color }}>
+                    {activePreset.icon}
                   </span>
                 ) : (
                   <Globe className="h-4 w-4 text-muted-foreground" />
