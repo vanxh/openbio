@@ -3,6 +3,7 @@ import { GradientButton } from '@/components/ui/gradient-button';
 import { PillBadge } from '@/components/ui/pill-badge';
 import { BarChart3, Code2, Link2, Moon, Share2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { BsTwitterX } from 'react-icons/bs';
 import { FaGithub } from 'react-icons/fa';
 
 const features = [
@@ -43,10 +44,17 @@ export default function Page() {
     <div className="flex flex-col items-center">
       {/* Hero */}
       <section className="flex w-full max-w-5xl flex-col items-center px-4 pt-32 pb-20 text-center">
-        <PillBadge className="animate-fade-up">
-          <Sparkles className="h-3.5 w-3.5" />
-          Open source & free forever
-        </PillBadge>
+        <Link
+          href="https://x.com/Vanxhh/status/2041086066632044841"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <PillBadge className="animate-fade-up gap-2 transition-colors hover:bg-accent">
+            <BsTwitterX className="h-3 w-3" />
+            v2 is here — read the launch tweet
+            <span className="text-muted-foreground">→</span>
+          </PillBadge>
+        </Link>
 
         <h1
           className="mt-6 animate-fade-up font-cal text-5xl leading-tight md:text-7xl"
