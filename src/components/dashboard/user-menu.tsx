@@ -8,11 +8,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { signOut, useSession } from '@/lib/auth-client';
-import { LogOut, Settings } from 'lucide-react';
+import { api } from '@/trpc/react';
+import { LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function UserMenu() {
   const { data: session } = useSession();
+  const { data: adminAccess } = api.admin.access.useQuery(undefined, {
+    enabled: Boolean(session?.user),
+    retry: false,
+  });
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -36,6 +41,15 @@ export function UserMenu() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 rounded-xl">
+        {adminAccess?.allowed ? (
+          <DropdownMenuItem
+            onClick={() => router.push('/admin')}
+            className="cursor-pointer gap-x-2 rounded-lg"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Admin panel
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           onClick={() => router.push('/app#settings')}
           className="cursor-pointer gap-x-2 rounded-lg"

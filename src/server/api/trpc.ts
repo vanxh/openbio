@@ -1,3 +1,4 @@
+import { isAdminUser } from '@/lib/admin-access';
 import { auth } from '@/lib/auth';
 import { db } from '@/server/db/db';
 import { TRPCError, initTRPC } from '@trpc/server';
@@ -47,6 +48,16 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 });
 
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!isAdminUser(ctx.user.id)) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Administrator access required.',
+    });
+  }
+  return next();
+});
 
 function getIp(req: NextRequest): string {
   return (

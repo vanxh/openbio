@@ -15,7 +15,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "vercel-build": "bun run db:push && bun run build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:admin": "bun test tests/admin.test.ts",
+    "test:admin:postgres": "bun test tests/admin-postgres.test.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.148",

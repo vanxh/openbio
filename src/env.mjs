@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export const env = createEnv({
   server: {
+    ADMIN_USER_IDS: z.string().optional(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(['development', 'test', 'production']),
     BETTER_AUTH_SECRET: z.string().min(32),
@@ -31,6 +32,7 @@ export const env = createEnv({
     NEXT_PUBLIC_URL: z.string(),
   },
   runtimeEnv: {
+    ADMIN_USER_IDS: process.env.ADMIN_USER_IDS,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,

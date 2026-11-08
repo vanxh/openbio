@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/app/', '/api/'],
+        disallow: ['/app/', '/api/', '/admin'],
       },
     ],
     sitemap: 'https://www.openbio.app/sitemap.xml',

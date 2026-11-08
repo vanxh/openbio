@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'openbio.app';
 const IP_REGEX = /^\d+\.\d+\.\d+\.\d+/;
 
-const PASSTHROUGH_PREFIXES = ['/api', '/trpc', '/_next', '/app'];
+const PASSTHROUGH_PREFIXES = ['/api', '/trpc', '/_next', '/app', '/admin'];
 
 function isPassthrough(pathname: string) {
   return PASSTHROUGH_PREFIXES.some((p) => pathname.startsWith(p));

@@ -112,6 +112,10 @@ bun dev
 
 The app will be running at [http://localhost:3000](http://localhost:3000).
 
+## Admin Panel
+
+Open `/admin` to manage users, profiles, analytics, and subscription records. Grant access with the server-side `ADMIN_USER_IDS` allowlist. See the [admin guide](docs/admin.md) for setup, the development preview, and validation commands.
+
 ## Self-Hosting
 
 OpenBio is designed to be deployed on [Vercel](https://vercel.com/):
