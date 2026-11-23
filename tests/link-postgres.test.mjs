@@ -515,6 +515,20 @@ test.skipIf(!adminUrl)(
       (await caller.checkDomain({ domain: 'bio.example.com' })).verified
     ).toBe(true);
 
+    // A domain stored with capitals (saved before normalisation) still blocks
+    // the lowercase form on another profile, and its owner can still check it.
+    await pool`update link set custom_domain = 'Bio.Example.com' where id = ${id}`;
+    await expect(
+      callerFor('rival').update({
+        id: rivalId,
+        customDomain: 'bio.example.com',
+      })
+    ).rejects.toThrow(ALREADY_CONNECTED_RE);
+    expect(
+      (await caller.checkDomain({ domain: 'bio.example.com' })).verified
+    ).toBe(true);
+    await pool`update link set custom_domain = 'bio.example.com' where id = ${id}`;
+
     // Subscription lapses: existing values may be re-saved, and removed.
     await seedUser('pro-user', { plan: 'free' });
     await caller.update({

@@ -102,8 +102,10 @@ async function resolveCustomDomain(hostname: string): Promise<string | null> {
   }
 
   const sql = neon(dbUrl);
+  // Case-insensitive, matching how the API checks whether a domain is taken:
+  // a row saved with capitals must resolve to the same single profile.
   const rows = await sql(
-    'SELECT link FROM link WHERE custom_domain = $1 LIMIT 1',
+    'SELECT link FROM link WHERE lower(custom_domain) = $1 ORDER BY created_at LIMIT 1',
     [host]
   );
   const slug = (rows[0] as { link: string } | undefined)?.link ?? null;

@@ -15,6 +15,8 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { toast } from '@/components/ui/use-toast';
+import { buildDailySeries, toDayKey } from '@/lib/analytics-series';
+import { downloadCsv } from '@/lib/csv';
 import { getErrorMessage } from '@/lib/errors';
 import { api } from '@/trpc/react';
 import {
@@ -28,7 +30,11 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+
+/** The window every panel on this page covers. */
+const DAYS = 30;
 
 const viewsConfig = {
   views: {
@@ -56,10 +62,51 @@ function formatDate(dateStr: string) {
   });
 }
 
+/** Downloads daily views and clicks as a CSV. A Business plan feature. */
+function ExportAnalyticsButton({ linkId }: { linkId: string }) {
+  const utils = api.useUtils();
+  const [exporting, setExporting] = useState(false);
+
+  const exportAnalytics = async () => {
+    setExporting(true);
+    try {
+      const rows = await utils.profileLink.exportAnalytics.fetch({
+        linkId,
+        days: DAYS,
+      });
+      downloadCsv(`openbio-analytics-${DAYS}-days.csv`, [
+        ['Date', 'Views', 'Clicks'],
+        ...rows.map((r) => [r.date, r.views, r.clicks]),
+      ]);
+    } catch (err) {
+      // Free and Pro accounts land here: export is a Business feature.
+      toast({
+        title: "Couldn't export analytics",
+        description: getErrorMessage(err),
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={exportAnalytics}
+      disabled={exporting}
+      title="Download daily views and clicks as a spreadsheet (Business plan)"
+    >
+      <Download className="mr-1.5 h-3.5 w-3.5" />
+      {exporting ? 'Exporting…' : 'Export analytics'}
+    </Button>
+  );
+}
+
 export default function Analytics({ linkId }: { linkId: string }) {
   const { data, isLoading, isError, error, refetch, isFetching } =
     api.profileLink.analytics.useQuery(
-      { linkId, days: 30 },
+      { linkId, days: DAYS },
       // A page you do not own, or one that no longer exists, will not start
       // working on a retry; fail straight away instead of spinning.
       { retry: false }
@@ -122,18 +169,28 @@ export default function Analytics({ linkId }: { linkId: string }) {
     );
   }
 
-  const viewsData = data.viewsOverTime.map((v) => ({
-    date: formatDate(v.date),
-    views: v.count,
+  // Every day in the window, including the quiet ones the queries leave out.
+  const series = buildDailySeries(
+    data.viewsOverTime,
+    data.clicksOverTime,
+    DAYS
+  );
+  const viewsData = series.map((d) => ({
+    date: formatDate(d.date),
+    views: d.views,
   }));
-
-  const clicksData = data.clicksOverTime.map((c) => ({
-    date: formatDate(c.date),
-    clicks: c.count,
+  const clicksData = series.map((d) => ({
+    date: formatDate(d.date),
+    clicks: d.clicks,
   }));
 
   return (
     <div className="grid gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-muted-foreground text-sm">Last {DAYS} days</p>
+        <ExportAnalyticsButton linkId={linkId} />
+      </div>
+
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         <Card>
@@ -502,21 +559,13 @@ export default function Analytics({ linkId }: { linkId: string }) {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const csv = ['Email,Date']
-                    .concat(
-                      subscribers.map(
-                        (s) =>
-                          `${s.email},${new Date(s.createdAt).toLocaleDateString()}`
-                      )
-                    )
-                    .join('\n');
-                  const blob = new Blob([csv], { type: 'text/csv' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'subscribers.csv';
-                  a.click();
-                  URL.revokeObjectURL(url);
+                  downloadCsv('subscribers.csv', [
+                    ['Email', 'Subscribed'],
+                    ...subscribers.map((sub) => [
+                      sub.email,
+                      toDayKey(sub.createdAt),
+                    ]),
+                  ]);
                 }}
               >
                 <Download className="mr-1.5 h-3.5 w-3.5" />

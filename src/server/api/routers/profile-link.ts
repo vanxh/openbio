@@ -1,3 +1,4 @@
+import { buildDailySeries } from '@/lib/analytics-series';
 import { generateInitialBento } from '@/lib/initial-bento';
 import { getMetadata } from '@/lib/metadata';
 import { fetchMusicMetadata } from '@/lib/music';
@@ -48,7 +49,7 @@ import {
 } from '@/server/db';
 import { db } from '@/server/db/db';
 import { link } from '@/server/db/schema';
-import { isUserPremium } from '@/server/db/utils/user';
+import { isBusinessPlan, isUserPremium } from '@/server/db/utils/user';
 import { TRPCError } from '@trpc/server';
 import { and, desc, eq, ne, sql } from 'drizzle-orm';
 import { escape as escapeHtml } from 'html-escaper';
@@ -312,6 +313,39 @@ export const profileLinkRouter = createTRPCRouter({
       };
     }),
 
+  /** Daily views and clicks for a CSV export (Business plan). */
+  exportAnalytics: protectedProcedure
+    .input(
+      z.object({
+        linkId: z.string().uuid(),
+        days: z.number().int().min(1).max(90).default(30),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      await canModifyProfileLink({
+        userId: ctx.user.id,
+        linkId: input.linkId,
+      });
+
+      const user = await ctx.db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, ctx.user.id),
+        columns: { plan: true, subscriptionEndsAt: true },
+      });
+      if (!(user && isBusinessPlan(user))) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Analytics export is available on the Business plan.',
+        });
+      }
+
+      const [views, clicks] = await Promise.all([
+        getViewsOverTime(input.linkId, input.days),
+        getClicksOverTime(input.linkId, input.days),
+      ]);
+
+      return buildDailySeries(views, clicks, input.days);
+    }),
+
   checkDomain: protectedProcedure
     .input(z.object({ domain: CustomDomainSchema }))
     .query(async ({ input, ctx }) => {
@@ -321,7 +355,10 @@ export const profileLinkRouter = createTRPCRouter({
       // below spends the server's Vercel token.
       const owned = await ctx.db.query.link.findFirst({
         where: (l, { and, eq }) =>
-          and(eq(l.customDomain, domain), eq(l.userId, ctx.user.id)),
+          and(
+            sql`lower(${l.customDomain}) = ${domain}`,
+            eq(l.userId, ctx.user.id)
+          ),
         columns: { id: true },
       });
       if (!owned) {
@@ -402,10 +439,14 @@ export const profileLinkRouter = createTRPCRouter({
         const oldDomain = existing.customDomain;
 
         if (input.customDomain) {
+          // Hostnames are case-insensitive, but the column's unique
+          // constraint is not, and rows saved before domains were normalised
+          // may hold capitals. Compare lowercased so "Bio.Example.com" on one
+          // profile blocks "bio.example.com" on another.
           const taken = await ctx.db.query.link.findFirst({
-            where: (l, { and, eq }) =>
+            where: (l, { and }) =>
               and(
-                eq(l.customDomain, input.customDomain as string),
+                sql`lower(${l.customDomain}) = ${input.customDomain}`,
                 ne(l.id, input.id)
               ),
             columns: { id: true },
