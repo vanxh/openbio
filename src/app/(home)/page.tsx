@@ -25,7 +25,7 @@ const features = [
   {
     icon: Sparkles,
     title: 'Customizable',
-    description: 'Notes, images, videos, and link cards',
+    description: 'Notes, images, music, and link cards',
   },
   {
     icon: Moon,

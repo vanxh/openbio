@@ -9,8 +9,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { toast } from '@/components/ui/use-toast';
 import { authClient } from '@/lib/auth-client';
+import { getErrorMessage } from '@/lib/errors';
 import { PLANS } from '@/lib/plans';
+import { withRedirect } from '@/lib/redirect';
 import type { RouterOutputs } from '@/trpc/react';
 import { Check, HelpCircle, Loader, X } from 'lucide-react';
 import Link from 'next/link';
@@ -18,6 +21,24 @@ import { useState, useTransition } from 'react';
 import Confetti from 'react-dom-confetti';
 
 type Billing = 'monthly' | 'annually';
+
+const TIER_ORDER = ['free', 'pro', 'business'];
+
+/** Price per month. Annual plans are shown as their true monthly cost. */
+function formatMonthlyPrice(amount: number, billing: Billing): string {
+  const monthly = billing === 'annually' ? amount / 12 : amount;
+  // $90 a year is $7.50 a month; rounding it to $8 overstates the price.
+  return Number.isInteger(monthly) ? String(monthly) : monthly.toFixed(2);
+}
+
+function getPlanAction(currentPlan: string, plan: string): string {
+  if (currentPlan === plan) {
+    return 'Current plan';
+  }
+  return TIER_ORDER.indexOf(plan) > TIER_ORDER.indexOf(currentPlan)
+    ? 'Upgrade'
+    : 'Downgrade';
+}
 
 export const PricingCards = ({
   billing,
@@ -28,13 +49,26 @@ export const PricingCards = ({
 }) => {
   const [isPending, startTransition] = useTransition();
 
+  // Someone already paying changes or cancels their plan in Polar's portal.
+  // Sending them through checkout again would start a second subscription
+  // alongside the first and bill them for both.
+  const hasSubscription = !!user && user.plan !== 'free';
+
   const handleCheckout = (plan: string) => {
     startTransition(async () => {
-      if (plan === 'free') {
-        await authClient.customer.portal();
-      } else {
-        const slug = `${plan}-${billing === 'monthly' ? 'monthly' : 'yearly'}`;
-        await authClient.checkoutEmbed({ slug });
+      try {
+        if (hasSubscription || plan === 'free') {
+          await authClient.customer.portal();
+        } else {
+          const slug = `${plan}-${billing === 'monthly' ? 'monthly' : 'yearly'}`;
+          await authClient.checkoutEmbed({ slug });
+        }
+      } catch (err) {
+        toast({
+          title: "Couldn't open billing",
+          description: getErrorMessage(err),
+          variant: 'destructive',
+        });
       }
     });
   };
@@ -56,11 +90,7 @@ export const PricingCards = ({
           </p>
 
           <p className="mt-3 font-cal text-4xl">
-            $
-            {Math.round(
-              plan.price[billing as keyof typeof plan.price]?.amount /
-                (billing === 'annually' ? 12 : 1)
-            )}
+            ${formatMonthlyPrice(plan.price[billing].amount, billing)}
           </p>
 
           <p className="mt-1 text-muted-foreground text-xs">
@@ -103,7 +133,7 @@ export const PricingCards = ({
 
           <div className="my-auto" />
 
-          {user && (
+          {user ? (
             <Button
               className="mt-4"
               disabled={user.plan === plan.slug || isPending}
@@ -114,15 +144,24 @@ export const PricingCards = ({
               {isPending && (
                 <Loader className="mr-2 inline-block animate-spin" size={16} />
               )}
-              {(() => {
-                if (user.plan === plan.slug) {
-                  return 'Current plan';
+              {getPlanAction(user.plan, plan.slug)}
+            </Button>
+          ) : (
+            // Signed out (the landing page): every plan starts with an account.
+            <Button
+              asChild
+              className="mt-4"
+              variant={plan.slug === 'free' ? 'outline' : 'default'}
+            >
+              <Link
+                href={
+                  plan.slug === 'free'
+                    ? '/claim-link'
+                    : withRedirect('/app/sign-up', '/app?tab=settings')
                 }
-                const tierOrder = ['free', 'pro', 'business'];
-                const currentIdx = tierOrder.indexOf(user.plan);
-                const planIdx = tierOrder.indexOf(plan.slug);
-                return planIdx > currentIdx ? 'Upgrade' : 'Downgrade';
-              })()}
+              >
+                {plan.slug === 'free' ? 'Get started' : `Get ${plan.name}`}
+              </Link>
             </Button>
           )}
 
@@ -183,14 +222,15 @@ export default function Pricing() {
             Need more? Contact us for a custom plan for your company.
           </p>
 
-          <Link
-            href="https://cal.com/vanxh/30min"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5"
-          >
-            <Button>Schedule call</Button>
-          </Link>
+          <Button asChild className="mx-auto mt-5 w-max">
+            <Link
+              href="https://cal.com/vanxh/30min"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Schedule call
+            </Link>
+          </Button>
         </div>
       </Tabs>
     </div>

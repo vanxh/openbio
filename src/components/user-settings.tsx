@@ -1,4 +1,5 @@
 import EmailDigestToggle from '@/components/email-digest-toggle';
+import ManageBillingButton from '@/components/manage-billing-button';
 import { PricingCards } from '@/components/pricing';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,24 @@ export default async function UserSettings({
             <Badge className="mr-1 lowercase">{user.plan}</Badge>
             plan.
           </span>
+
+          {user.plan !== 'free' && (
+            <div className="flex flex-col gap-2 pt-2">
+              {user.subscriptionEndsAt && (
+                <p className="text-muted-foreground text-xs">
+                  Paid through{' '}
+                  {user.subscriptionEndsAt.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                  . Change plan, switch between monthly and annual, update your
+                  card or cancel from the billing portal.
+                </p>
+              )}
+              <ManageBillingButton />
+            </div>
+          )}
 
           <Tabs
             defaultValue="monthly"
