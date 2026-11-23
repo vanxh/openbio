@@ -139,6 +139,7 @@ export default function CardOverlay({
               type="button"
               className="-translate-y-1/2 absolute top-0 right-3 z-30 flex h-7 w-7 items-center justify-center rounded-lg border border-border/50 bg-background/90 shadow-md backdrop-blur-sm transition-colors hover:bg-accent active:scale-95"
               onClick={() => setSizePickerOpen(true)}
+              aria-label="Resize card"
             >
               <Maximize2 className="h-3.5 w-3.5 text-muted-foreground" />
             </button>

@@ -1,8 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import { buildDailySeries, toDayKey } from '../src/lib/analytics-series';
 import { isBentoConfigured } from '../src/lib/bento-configured';
 import { getBillingState, getPlanFromProductId } from '../src/lib/billing';
+import {
+  getOccurrence,
+  getTimeLeft,
+  parseTargetDay,
+} from '../src/lib/countdown';
 import { getErrorMessage } from '../src/lib/errors';
 import { htmlToText, serializeJsonLd } from '../src/lib/html';
+import { isOptimizable } from '../src/lib/image-host';
 import {
   generateInitialBento,
   getGridPosition,
@@ -16,6 +23,12 @@ import {
 } from '../src/lib/link-platform';
 import { getNextCreditReset } from '../src/lib/plans';
 import { getSafeRedirect, withRedirect } from '../src/lib/redirect';
+import {
+  LEGACY_TOKEN_CUTOFF,
+  createUnsubscribeToken,
+  isLegacyTokenAccepted,
+  verifyUnsubscribeToken,
+} from '../src/lib/unsubscribe';
 import { WEB_PROTOCOLS, isHostOf, toSafeUrl } from '../src/lib/url';
 import { CustomDomainSchema } from '../src/server/api/schemas/profile-link';
 import { BentoSchema, ValidLinkSchema } from '../src/types';
@@ -533,5 +546,187 @@ describe('isBentoConfigured', () => {
     for (const card of ready) {
       expect(isBentoConfigured(card)).toBe(true);
     }
+  });
+});
+
+describe('countdown', () => {
+  // Local-time constructors throughout: a countdown is to a calendar day in
+  // the viewer's own timezone, whatever that is.
+  const day = (y: number, m: number, d: number, h = 0) =>
+    new Date(y, m - 1, d, h);
+
+  test('reads the calendar day out of the stored value', () => {
+    expect(parseTargetDay('2026-12-25T00:00:00.000Z')).toEqual({
+      year: 2026,
+      month: 12,
+      day: 25,
+    });
+    expect(parseTargetDay('2026-12-25')).toEqual({
+      year: 2026,
+      month: 12,
+      day: 25,
+    });
+    expect(parseTargetDay('')).toBeNull();
+    expect(parseTargetDay('not a date')).toBeNull();
+    expect(parseTargetDay('2026-13-01')).toBeNull();
+  });
+
+  test('counts to local midnight of the target day', () => {
+    const left = getTimeLeft(
+      '2026-12-25T00:00:00.000Z',
+      'none',
+      day(2026, 12, 24, 18)
+    );
+    expect(left).toMatchObject({
+      days: 0,
+      hours: 6,
+      minutes: 0,
+      isPast: false,
+      isToday: false,
+    });
+    expect(left?.occurrence).toEqual(day(2026, 12, 25));
+  });
+
+  test('says "today" on the day and "past" after it', () => {
+    expect(
+      getTimeLeft('2026-12-25', 'none', day(2026, 12, 25, 15))
+    ).toMatchObject({ isToday: true, isPast: false });
+    expect(
+      getTimeLeft('2026-12-25', 'none', day(2026, 12, 26, 1))
+    ).toMatchObject({ isToday: false, isPast: true });
+  });
+
+  test('yearly repeats land on the next anniversary', () => {
+    const birthday = { year: 2020, month: 3, day: 15 };
+    expect(getOccurrence(birthday, 'yearly', day(2026, 3, 1))).toEqual(
+      day(2026, 3, 15)
+    );
+    expect(getOccurrence(birthday, 'yearly', day(2026, 3, 15, 9))).toEqual(
+      day(2026, 3, 15)
+    );
+    expect(getOccurrence(birthday, 'yearly', day(2026, 3, 16))).toEqual(
+      day(2027, 3, 15)
+    );
+    // A leap-day birthday is observed on the 28th in other years.
+    expect(
+      getOccurrence(
+        { year: 2024, month: 2, day: 29 },
+        'yearly',
+        day(2026, 1, 1)
+      )
+    ).toEqual(day(2026, 2, 28));
+  });
+
+  test('monthly repeats stay on their day instead of drifting', () => {
+    const payday = { year: 2026, month: 1, day: 31 };
+    expect(getOccurrence(payday, 'monthly', day(2026, 2, 10))).toEqual(
+      day(2026, 2, 28)
+    );
+    expect(getOccurrence(payday, 'monthly', day(2026, 3, 1))).toEqual(
+      day(2026, 3, 31)
+    );
+    expect(getOccurrence(payday, 'monthly', day(2026, 12, 31, 12))).toEqual(
+      day(2026, 12, 31)
+    );
+  });
+
+  test('weekly repeats land on the same weekday', () => {
+    // 5 January 2026 is a Monday.
+    const monday = { year: 2026, month: 1, day: 5 };
+    const next = getOccurrence(monday, 'weekly', day(2026, 11, 25));
+    expect(next.getDay()).toBe(1);
+    expect(next).toEqual(day(2026, 11, 30));
+    expect(getOccurrence(monday, 'weekly', day(2026, 11, 30, 8))).toEqual(
+      day(2026, 11, 30)
+    );
+  });
+
+  test('a repeat that has not started yet counts to its first day', () => {
+    expect(
+      getOccurrence({ year: 2030, month: 6, day: 1 }, 'weekly', day(2026, 1, 1))
+    ).toEqual(day(2030, 6, 1));
+  });
+
+  test('a card with no usable date has no countdown', () => {
+    expect(getTimeLeft('', 'none')).toBeNull();
+  });
+});
+
+describe('analytics series', () => {
+  const now = new Date('2026-03-10T15:00:00Z');
+
+  test('fills quiet days with zeroes and lines views up with clicks', () => {
+    const series = buildDailySeries(
+      [
+        { date: '2026-03-08', count: 4 },
+        { date: new Date('2026-03-10T00:00:00Z'), count: 2 },
+      ],
+      [{ date: '2026-03-10T00:00:00.000Z', count: 1 }],
+      3,
+      now
+    );
+    expect(series).toEqual([
+      { date: '2026-03-07', views: 0, clicks: 0 },
+      { date: '2026-03-08', views: 4, clicks: 0 },
+      { date: '2026-03-09', views: 0, clicks: 0 },
+      { date: '2026-03-10', views: 2, clicks: 1 },
+    ]);
+  });
+
+  test('toDayKey is the UTC calendar day', () => {
+    expect(toDayKey('2026-03-10T23:59:59Z')).toBe('2026-03-10');
+    expect(toDayKey(new Date('2026-03-10T00:00:00Z'))).toBe('2026-03-10');
+  });
+});
+
+describe('image optimizer allowlist', () => {
+  test('covers only images we host', () => {
+    expect(isOptimizable('/openbio.png')).toBe(true);
+    expect(
+      isOptimizable('https://abc123.public.blob.vercel-storage.com/a.webp')
+    ).toBe(true);
+    expect(isOptimizable('https://example.com/a.png')).toBe(false);
+    expect(isOptimizable('//example.com/a.png')).toBe(false);
+    expect(
+      isOptimizable('https://public.blob.vercel-storage.com.evil.net/a.png')
+    ).toBe(false);
+    expect(
+      isOptimizable('http://abc.public.blob.vercel-storage.com/a.webp')
+    ).toBe(false);
+    expect(isOptimizable('blob:https://openbio.app/uuid')).toBe(false);
+  });
+});
+
+describe('unsubscribe tokens', () => {
+  const secret = 'a-test-secret-that-is-long-enough-123';
+
+  test('verify only for the user they were issued to', () => {
+    const token = createUnsubscribeToken('user-1', secret);
+    expect(verifyUnsubscribeToken('user-1', token, secret)).toBe(true);
+    expect(verifyUnsubscribeToken('user-2', token, secret)).toBe(false);
+    expect(verifyUnsubscribeToken('user-1', `${token}x`, secret)).toBe(false);
+    expect(verifyUnsubscribeToken('user-1', '', secret)).toBe(false);
+    expect(verifyUnsubscribeToken('user-1', token, 'another-secret')).toBe(
+      false
+    );
+  });
+
+  test('the address is not a valid token', () => {
+    expect(verifyUnsubscribeToken('user-1', 'user-1@example.com', secret)).toBe(
+      false
+    );
+  });
+
+  test('never verify without a secret', () => {
+    const token = createUnsubscribeToken('user-1', secret);
+    expect(verifyUnsubscribeToken('user-1', token, '')).toBe(false);
+    expect(() => createUnsubscribeToken('user-1', '')).toThrow();
+  });
+
+  test('old address-style links stop being accepted at the cutoff', () => {
+    expect(
+      isLegacyTokenAccepted(new Date(LEGACY_TOKEN_CUTOFF.getTime() - 1))
+    ).toBe(true);
+    expect(isLegacyTokenAccepted(LEGACY_TOKEN_CUTOFF)).toBe(false);
   });
 });

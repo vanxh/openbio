@@ -45,6 +45,11 @@ const extensions = [
 
 type ProfileLinkData = NonNullable<RouterOutputs['profileLink']['getByLink']>;
 
+const PREVIEW_TOGGLE_LABEL: Record<string, string> = {
+  true: 'Back to editing',
+  false: 'Preview as a visitor',
+};
+
 type HeaderFields = { name?: string | null; bio?: string | null };
 
 /**
@@ -174,6 +179,8 @@ export default function ProfileLinkHeader({
             <Button
               size="icon"
               variant={preview ? 'default' : 'outline'}
+              aria-label={PREVIEW_TOGGLE_LABEL[String(preview)]}
+              title={PREVIEW_TOGGLE_LABEL[String(preview)]}
               onClick={() => setPreview(!preview)}
               data-tour="preview-toggle"
             >
@@ -195,6 +202,7 @@ export default function ProfileLinkHeader({
                     variant={viewport === 'desktop' ? 'default' : 'ghost'}
                     className="rounded-r-none"
                     onClick={() => setViewport('desktop')}
+                    aria-label="Desktop view"
                   >
                     <Monitor className="h-[1.2rem] w-[1.2rem]" />
                   </Button>
@@ -203,6 +211,7 @@ export default function ProfileLinkHeader({
                     variant={viewport === 'mobile' ? 'default' : 'ghost'}
                     className="rounded-l-none"
                     onClick={() => setViewport('mobile')}
+                    aria-label="Mobile view"
                   >
                     <Smartphone className="h-[1.2rem] w-[1.2rem]" />
                   </Button>
@@ -226,7 +235,13 @@ export default function ProfileLinkHeader({
                 </Button>
 
                 <LinkQRModal profileLink={profileLink}>
-                  <Button size="icon" variant="outline" disabled={saving}>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    disabled={saving}
+                    aria-label="QR code"
+                    title="QR code"
+                  >
                     <QrCode className="h-[1.2rem] w-[1.2rem]" />
                   </Button>
                 </LinkQRModal>
@@ -266,7 +281,13 @@ export default function ProfileLinkHeader({
               Share
             </Button>
             <LinkQRModal profileLink={profileLink}>
-              <Button size="icon" variant="outline" className="h-9 w-9">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-9 w-9"
+                aria-label="QR code"
+                title="QR code"
+              >
                 <QrCode className="h-4 w-4" />
               </Button>
             </LinkQRModal>

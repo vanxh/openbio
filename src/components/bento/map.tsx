@@ -11,13 +11,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Image from '@/components/ui/remote-image';
 import { toast } from '@/components/ui/use-toast';
 import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { MapBentoSchema } from '@/types';
 import { Locate, MapPin, Pencil } from 'lucide-react';
-import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type * as z from 'zod';
@@ -338,7 +338,8 @@ export default function MapCard({
         {editable && (
           <button
             type="button"
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Image from '@/components/ui/remote-image';
 import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
 import type { GithubBentoSchema } from '@/types';
 import { Pencil } from 'lucide-react';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import type * as z from 'zod';
@@ -33,7 +33,25 @@ type GitHubStats = {
   stars: number;
 };
 
-function useGitHubStats(username: string) {
+type GitHubUser = {
+  avatar_url?: string;
+  name?: string | null;
+  bio?: string | null;
+  public_repos?: number;
+  followers?: number;
+};
+
+/** Parse a GitHub API response, or null when the request did not succeed. */
+async function okJson<T>(response: Response): Promise<T | null> {
+  return response.ok ? ((await response.json()) as T) : null;
+}
+
+/**
+ * Profile stats from GitHub's public API. `withStars` adds the request that
+ * totals stars across repositories; only the largest card shows that number,
+ * and the unauthenticated API allows just 60 requests an hour per visitor.
+ */
+function useGitHubStats(username: string, withStars: boolean) {
   const [stats, setStats] = useState<GitHubStats | null>(null);
 
   useEffect(() => {
@@ -41,41 +59,43 @@ function useGitHubStats(username: string) {
       return;
     }
     let cancelled = false;
+    const user = encodeURIComponent(username);
 
     Promise.all([
-      fetch(`https://api.github.com/users/${username}`).then((r) => r.json()),
-      fetch(
-        `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`
-      ).then((r) => r.json()),
+      fetch(`https://api.github.com/users/${user}`).then(okJson<GitHubUser>),
+      withStars
+        ? fetch(
+            `https://api.github.com/users/${user}/repos?per_page=100&sort=updated`
+          ).then(okJson<{ stargazers_count?: number }[]>)
+        : null,
     ])
-      .then(([user, repos]) => {
-        if (cancelled) {
+      .then(([profile, repos]) => {
+        // A missing account or an exhausted rate limit comes back as an error
+        // body. Showing "0 followers" for that would be a lie; keep the plain
+        // name-only card instead.
+        if (cancelled || !profile) {
           return;
         }
         const totalStars = Array.isArray(repos)
-          ? repos.reduce(
-              (sum: number, r: { stargazers_count?: number }) =>
-                sum + (r.stargazers_count ?? 0),
-              0
-            )
+          ? repos.reduce((sum, r) => sum + (r.stargazers_count ?? 0), 0)
           : 0;
         setStats({
-          avatar: user.avatar_url ?? '',
-          name: user.name ?? username,
-          bio: user.bio ?? '',
-          publicRepos: user.public_repos ?? 0,
-          followers: user.followers ?? 0,
+          avatar: profile.avatar_url ?? '',
+          name: profile.name ?? username,
+          bio: profile.bio ?? '',
+          publicRepos: profile.public_repos ?? 0,
+          followers: profile.followers ?? 0,
           stars: totalStars,
         });
       })
       .catch(() => {
-        // GitHub API may fail for invalid usernames
+        // Network failure: fall back to the name-only card.
       });
 
     return () => {
       cancelled = true;
     };
-  }, [username]);
+  }, [username, withStars]);
 
   return stats;
 }
@@ -259,7 +279,8 @@ export default function GitHubCard({
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const [username, setUsername] = useState(bento.username || '');
-  const stats = useGitHubStats(bento.username);
+  const cardSize = useCardSize(bento);
+  const stats = useGitHubStats(bento.username, cardSize === '4x4');
 
   const { saveBento, isPending } = useSaveBento();
 
@@ -275,10 +296,11 @@ export default function GitHubCard({
     setEditOpen(false);
   };
 
-  const cardSize = useCardSize(bento);
   const hasUsername = !!bento.username;
 
-  const CardContent = () => {
+  // Called as a function, not rendered as a component: a component declared
+  // during render is a new type each time and would remount on every update.
+  const renderContent = () => {
     if (!hasUsername) {
       return (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
@@ -326,12 +348,13 @@ export default function GitHubCard({
           <CardOverlay bento={bento} allowedSizes={GITHUB_CARD_SIZES} />
         )}
 
-        <CardContent />
+        {renderContent()}
 
         {editable && (
           <button
             type="button"
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

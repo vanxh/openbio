@@ -136,6 +136,7 @@ function Tooltip({
         type="button"
         onClick={onSkip}
         className="absolute top-3 right-3 text-muted-foreground transition-colors hover:text-foreground"
+        aria-label="Close tour"
       >
         <X className="h-3.5 w-3.5" />
       </button>

@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service - OpenBio',
+  description: 'The terms that apply when you use OpenBio.',
+  alternates: { canonical: '/legal/terms' },
+};
 
 export default function Page() {
   return (

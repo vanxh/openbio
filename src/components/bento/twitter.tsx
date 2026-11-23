@@ -23,7 +23,7 @@ function extractTweetId(url: string): string | null {
   const match = url.match(TWEET_URL_RE);
   return match?.[1] ?? null;
 }
-import Image from 'next/image';
+import Image from '@/components/ui/remote-image';
 import { useState } from 'react';
 import { FaXTwitter } from 'react-icons/fa6';
 import type * as z from 'zod';
@@ -238,10 +238,11 @@ export default function TwitterCard({
   const [editOpen, setEditOpen] = useState(false);
   const [tweetUrl, setTweetUrl] = useState('');
 
-  const { data: tweet } = api.profileLink.getTweet.useQuery(
-    { tweetId: bento.tweetId },
-    { enabled: !!bento.tweetId, staleTime: 60 * 60 * 1000 }
-  );
+  const { data: tweet, isLoading: isTweetLoading } =
+    api.profileLink.getTweet.useQuery(
+      { tweetId: bento.tweetId },
+      { enabled: !!bento.tweetId, staleTime: 60 * 60 * 1000 }
+    );
 
   const queryClient = api.useContext();
   const { saveBento, isPending } = useSaveBento();
@@ -266,14 +267,19 @@ export default function TwitterCard({
   const cardSize = useCardSize(bento);
   const hasTweet = !!bento.tweetId;
 
-  const CardContent = () => {
+  // Called as a function, not rendered as a component: a component declared
+  // during render is a new type each time and would remount on every update.
+  const renderContent = () => {
     if (!hasTweet || !tweet) {
       return (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
           <FaXTwitter className="h-8 w-8 text-muted-foreground" />
           <p className="text-muted-foreground text-xs">
-            {editable && 'Add a tweet'}
-            {!editable && hasTweet && 'Loading...'}
+            {/* A deleted or private tweet never loads; say so rather than
+                leaving "Loading..." up forever. */}
+            {!hasTweet && editable && 'Add a tweet'}
+            {hasTweet && isTweetLoading && 'Loading...'}
+            {hasTweet && !isTweetLoading && 'Tweet unavailable'}
           </p>
         </div>
       );
@@ -315,12 +321,13 @@ export default function TwitterCard({
           <CardOverlay bento={bento} allowedSizes={TWITTER_CARD_SIZES} />
         )}
 
-        <CardContent />
+        {renderContent()}
 
         {editable && (
           <button
             type="button"
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

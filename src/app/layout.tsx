@@ -38,7 +38,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   minimumScale: 1,
-  maximumScale: 1,
+  // No maximumScale: capping it stops people who need larger text from
+  // pinch-zooming.
 };
 
 export default function RootLayout({

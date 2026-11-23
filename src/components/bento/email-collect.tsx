@@ -92,6 +92,7 @@ function SubscribeForm({
           >
             <Input
               type="email"
+              aria-label="Email address"
               placeholder="you@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -103,6 +104,7 @@ function SubscribeForm({
               size="sm"
               className="h-8 shrink-0 rounded-lg px-2"
               disabled={isPending || !linkId}
+              aria-label="Subscribe"
             >
               <Send className="h-3.5 w-3.5" />
             </Button>
@@ -132,6 +134,7 @@ function SubscribeForm({
       >
         <Input
           type="email"
+          aria-label="Email address"
           placeholder="you@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -214,7 +217,8 @@ export default function EmailCollectCard({
         {editable && (
           <button
             type="button"
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

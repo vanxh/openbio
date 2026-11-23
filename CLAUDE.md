@@ -14,7 +14,7 @@ Open-source link-in-bio page builder. Users create customizable profile pages at
 - **Database**: PostgreSQL (Neon) via Drizzle ORM
 - **Cache**: Upstash Redis
 - **Auth**: Better Auth (email/password + GitHub, Google, Discord, Twitter OAuth)
-- **Payments**: Stripe (subscriptions + 7-day free trial)
+- **Payments**: Polar (subscriptions via `@polar-sh/better-auth`) + 7-day free trial
 - **Email**: Resend (transactional + digest emails)
 - **File Storage**: Vercel Blob
 - **Analytics**: Custom (views, clicks, device/geo tracking via `ua-parser-js`)
@@ -59,7 +59,6 @@ src/
 │   │   ├── auth/[...all]/     # Better Auth handler
 │   │   ├── trpc/[trpc]/       # tRPC handler
 │   │   ├── upload/            # Vercel Blob uploads
-│   │   ├── webhook/stripe/    # Stripe webhooks
 │   │   ├── og/                # OG image generation (Edge runtime)
 │   │   ├── cron/digest/       # Weekly analytics digest email
 │   │   └── unsubscribe/       # Email unsubscribe handler
@@ -88,7 +87,8 @@ src/
 │   │   └── routers/
 │   │       ├── profile-link.ts # Profile CRUD, bento, analytics, custom domains
 │   │       ├── user.ts        # User account, trial, email preferences
-│   │       └── stripe.ts      # Billing portal, checkout, subscriptions
+│   │       ├── ai.ts          # AI credits, bio/note/profile generation
+│   │       └── admin.ts       # Admin dashboard queries and mutations
 │   ├── db/
 │   │   ├── db.ts              # Drizzle client (Neon)
 │   │   ├── schema/
@@ -104,7 +104,9 @@ src/
 │   ├── auth.ts                # Better Auth server config
 │   ├── auth-client.ts         # Better Auth React client
 │   ├── redis.ts               # Upstash Redis client
-│   ├── stripe/                # Stripe config & plan definitions
+│   ├── polar.ts               # Polar SDK client
+│   ├── plans.ts               # Plan definitions, link limits, AI credits
+│   ├── billing.ts             # Polar subscription state -> user billing columns
 │   ├── metadata.ts            # URL metadata fetching
 │   ├── themes.ts              # 10+ profile theme definitions
 │   └── utils.ts               # Shared utilities (cn, etc.)
@@ -131,7 +133,7 @@ src/
 - `protectedProcedure` for authenticated routes (adds `ctx.user`)
 - `createRateLimitedProcedure` for rate-limited endpoints
 - Client uses `useTRPC()` hook from `@/trpc/react`
-- Three routers: `profileLink`, `user`, `stripe`
+- Four routers: `profileLink`, `user`, `ai`, `admin`
 
 ### Database
 - Drizzle ORM with Neon PostgreSQL (serverless driver)
@@ -176,10 +178,17 @@ src/
 
 ### Plans & Billing
 - Free: 1 profile link
-- Pro ($9/mo or $90/yr): Unlimited links
+- Pro ($9/mo or $90/yr): 5 links, 50 AI credits/month
+- Business ($29/mo or $290/yr): unlimited links, 500 AI credits/month, analytics CSV export
 - 7-day free trial
-- Stripe webhooks at `/api/webhook/stripe`
-- Billing portal and checkout via tRPC `stripe` router
+- Checkout, customer portal and webhooks come from the Better Auth Polar plugin
+  (`src/lib/auth.ts`); the client calls `authClient.checkoutEmbed()` and
+  `authClient.customer.portal()`
+- Every subscription webhook goes through `syncSubscription()` →
+  `getBillingState()` (`src/lib/billing.ts`). Act on the subscription's *state*,
+  not the event name: renewals arrive only as `subscription.updated`, and
+  `subscription.canceled` fires while the customer still has paid time left
+- Existing subscribers change plan in the portal, never through a second checkout
 
 ### Custom Domains
 - Vercel domain management (`addDomainToVercel`, `removeDomainFromVercel`, `verifyDomain`)
@@ -187,8 +196,9 @@ src/
 
 ### Environment Variables
 - Validated in `src/env.mjs` using `@t3-oss/env-nextjs`
-- Required server: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RESEND_API_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `BLOB_READ_WRITE_TOKEN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_MONTHLY_PRICE_ID`, `STRIPE_PRO_YEARLY_PRICE_ID`
-- Required client: `NEXT_PUBLIC_URL`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- Required server: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RESEND_API_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `BLOB_READ_WRITE_TOKEN`, `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_PRO_MONTHLY_PRODUCT_ID`, `POLAR_PRO_YEARLY_PRODUCT_ID`, `POLAR_BUSINESS_MONTHLY_PRODUCT_ID`, `POLAR_BUSINESS_YEARLY_PRODUCT_ID`, `AI_GATEWAY_API_KEY`
+- Required client: `NEXT_PUBLIC_URL`
+- `CRON_SECRET` must be set for the weekly digest to run (the endpoint refuses otherwise)
 - Optional: OAuth credentials (GitHub, Google), Vercel API tokens (for custom domains)
 
 ## Conventions
@@ -199,6 +209,9 @@ src/
 - CSS config in `src/styles/globals.css` (no `tailwind.config.ts`)
 - Biome for linting/formatting (no ESLint/Prettier); config extends `ultracite`
 - Path alias: `@/*` maps to `src/*`
+- Images whose `src` is not a static import use `RemoteImage`
+  (`src/components/ui/remote-image.tsx`), not `next/image`: the optimizer only
+  accepts our own Blob host, and `next/image` throws for any other
 - Drizzle schema changes require `bun run db:generate` then `bun run db:push`
 - Types shared via `src/types.ts` (e.g. `BentoCard`, `BentoType`)
 - Form validation with `zod` + `react-hook-form` + `@hookform/resolvers`

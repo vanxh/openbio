@@ -30,6 +30,7 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
+          aria-label="Account menu"
           className="rounded-full outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Avatar className="h-9 w-9 cursor-pointer transition-transform hover:scale-105">

@@ -13,11 +13,11 @@ export default async function AnalyticsPage({ params }: Props) {
   return (
     <div className="flex w-full flex-col gap-y-6">
       <div className="flex items-center gap-x-3">
-        <Link href="/app">
-          <Button variant="outline" size="icon">
+        <Button asChild variant="outline" size="icon">
+          <Link href="/app" aria-label="Back to dashboard">
             <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <h1 className="font-cal text-3xl">Analytics</h1>
       </div>
 

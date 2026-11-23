@@ -13,6 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { useSaveBento } from '@/hooks/use-save-bento';
+import {
+  type CountdownRepeat,
+  type TimeLeft,
+  getTimeLeft,
+  parseTargetDay,
+} from '@/lib/countdown';
 import { cn } from '@/lib/utils';
 import type { CountdownBentoSchema } from '@/types';
 import { Pencil } from 'lucide-react';
@@ -23,68 +29,40 @@ type BentoData = z.infer<typeof CountdownBentoSchema>;
 
 export const COUNTDOWN_CARD_SIZES = ['2x2', '4x2', '4x4'] as const;
 
-type TimeLeft = {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  isPast: boolean;
-};
-
-function getNextOccurrence(targetDate: string, repeat: string): Date {
-  const target = new Date(targetDate);
-  const now = new Date();
-
-  if (repeat === 'yearly') {
-    while (target <= now) {
-      target.setFullYear(target.getFullYear() + 1);
-    }
-  } else if (repeat === 'monthly') {
-    while (target <= now) {
-      target.setMonth(target.getMonth() + 1);
-    }
-  } else if (repeat === 'weekly') {
-    while (target <= now) {
-      target.setDate(target.getDate() + 7);
-    }
-  }
-
-  return target;
-}
-
-function getTimeLeft(targetDate: string, repeat = 'none'): TimeLeft {
-  const effectiveTarget =
-    repeat !== 'none'
-      ? getNextOccurrence(targetDate, repeat)
-      : new Date(targetDate);
-  const diff = effectiveTarget.getTime() - Date.now();
-
-  if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
-  }
-  return {
-    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / (1000 * 60)) % 60),
-    seconds: Math.floor((diff / 1000) % 60),
-    isPast: false,
-  };
-}
-
-function useCountdown(targetDate: string, repeat = 'none') {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
-    getTimeLeft(targetDate, repeat)
-  );
+/**
+ * Ticks once a second. Starts as null and only reads the clock after mount:
+ * the server's "now" (and its timezone) differ from the visitor's, so
+ * rendering a time on the server would mismatch on hydration.
+ */
+function useCountdown(targetDate: string, repeat: CountdownRepeat = 'none') {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeLeft(targetDate, repeat));
-    }, 1000);
+    const tick = () => setTimeLeft(getTimeLeft(targetDate, repeat));
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [targetDate, repeat]);
 
   return timeLeft;
 }
+
+/** Shown instead of the clock once the day has arrived or gone. */
+function Finished({
+  timeLeft,
+  className,
+}: {
+  timeLeft: TimeLeft;
+  className?: string;
+}) {
+  return (
+    <p className={cn('font-cal text-primary', className)}>
+      {timeLeft.isToday ? "It's today!" : "Time's up!"}
+    </p>
+  );
+}
+
+const isFinished = (timeLeft: TimeLeft) => timeLeft.isPast || timeLeft.isToday;
 
 function CountdownDisplay({ timeLeft }: { timeLeft: TimeLeft }) {
   if (timeLeft.days > 7) {
@@ -149,8 +127,8 @@ function CompactCountdown({
       {bento.title && (
         <p className="font-cal text-xs leading-tight">{bento.title}</p>
       )}
-      {timeLeft.isPast ? (
-        <p className="font-cal text-primary text-sm">Time&apos;s up!</p>
+      {isFinished(timeLeft) ? (
+        <Finished timeLeft={timeLeft} className="text-sm" />
       ) : (
         <CountdownDisplay timeLeft={timeLeft} />
       )}
@@ -171,8 +149,8 @@ function WideCountdown({
         {bento.emoji && <span className="text-xl">{bento.emoji}</span>}
         {bento.title && <p className="font-cal text-sm">{bento.title}</p>}
       </div>
-      {timeLeft.isPast ? (
-        <p className="font-cal text-lg text-primary">Time's up!</p>
+      {isFinished(timeLeft) ? (
+        <Finished timeLeft={timeLeft} className="text-lg" />
       ) : (
         <div className="flex items-center gap-4">
           <TimeUnit value={timeLeft.days} label="days" />
@@ -199,8 +177,8 @@ function LargeCountdown({
     <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-6 text-center">
       {bento.emoji && <span className="text-4xl">{bento.emoji}</span>}
       {bento.title && <p className="font-cal text-lg">{bento.title}</p>}
-      {timeLeft.isPast ? (
-        <p className="font-cal text-2xl text-primary">Time's up!</p>
+      {isFinished(timeLeft) ? (
+        <Finished timeLeft={timeLeft} className="text-2xl" />
       ) : (
         <div className="grid grid-cols-4 gap-4">
           {[
@@ -224,7 +202,9 @@ function LargeCountdown({
         </div>
       )}
       <p className="text-muted-foreground text-xs">
-        {new Date(bento.targetDate).toLocaleDateString(undefined, {
+        {/* The day being counted to, so a repeating countdown shows its next
+            occurrence rather than the year it was first set for. */}
+        {timeLeft.occurrence.toLocaleDateString(undefined, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -261,9 +241,10 @@ export default function CountdownCard({
       return;
     }
 
-    // Validate date
-    const parsed = new Date(targetDate);
-    if (Number.isNaN(parsed.getTime())) {
+    // A countdown targets a calendar day. Store that day at midnight UTC,
+    // which is what the date part is read back from.
+    const day = parseTargetDay(targetDate);
+    if (!day) {
       toast({
         title: 'Invalid date',
         description: 'Please enter a valid date.',
@@ -271,7 +252,7 @@ export default function CountdownCard({
       return;
     }
 
-    const isoDate = parsed.toISOString();
+    const isoDate = `${targetDate.slice(0, 10)}T00:00:00.000Z`;
 
     const saved = await saveBento({
       ...bento,
@@ -289,7 +270,10 @@ export default function CountdownCard({
 
   const cardSize = useCardSize(bento);
 
-  const CardContent = () => {
+  // A plain function, not a component declared in here: a component defined
+  // during render is a new type every time, so React would tear down and
+  // rebuild the whole card on each one-second tick.
+  const renderContent = () => {
     if (!bento.targetDate) {
       return (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30">
@@ -297,6 +281,18 @@ export default function CountdownCard({
           <p className="text-muted-foreground text-xs">
             {editable ? 'Set date' : ''}
           </p>
+        </div>
+      );
+    }
+
+    // Before the first tick (and on the server) there is no time to show yet.
+    if (!timeLeft) {
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center">
+          {bento.emoji && <span className="text-2xl">{bento.emoji}</span>}
+          {bento.title && (
+            <p className="font-cal text-xs leading-tight">{bento.title}</p>
+          )}
         </div>
       );
     }
@@ -324,12 +320,13 @@ export default function CountdownCard({
           <CardOverlay bento={bento} allowedSizes={COUNTDOWN_CARD_SIZES} />
         )}
 
-        <CardContent />
+        {renderContent()}
 
         {editable && (
           <button
             type="button"
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute top-3 right-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

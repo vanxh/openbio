@@ -103,6 +103,9 @@ export default function ManageSize({
             size === o.key && 'bg-accent text-accent-foreground shadow-sm'
           )}
           onClick={() => handleSizeClick(o.key)}
+          aria-label={`Resize to ${o.key}`}
+          aria-pressed={size === o.key}
+          title={o.key}
         >
           <o.icon />
         </button>

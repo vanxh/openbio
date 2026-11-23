@@ -70,6 +70,7 @@ export default function DuplicateButton({
               },
             });
           }}
+          aria-label="Duplicate card"
         >
           <Copy className="h-3.5 w-3.5" />
         </button>

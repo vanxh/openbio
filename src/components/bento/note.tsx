@@ -95,6 +95,7 @@ function AiNoteButton({
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0 text-violet-500"
+          aria-label="Write with AI"
         >
           <Sparkles className="h-3 w-3" />
         </Button>
@@ -177,6 +178,7 @@ function NoteEditor({
               size="sm"
               className={btnClass}
               onClick={() => editor.chain().focus().toggleBold().run()}
+              aria-label="Bold"
             >
               <Bold className="h-3 w-3" />
             </Button>
@@ -186,6 +188,7 @@ function NoteEditor({
               size="sm"
               className={btnClass}
               onClick={() => editor.chain().focus().toggleItalic().run()}
+              aria-label="Italic"
             >
               <Italic className="h-3 w-3" />
             </Button>
@@ -199,6 +202,7 @@ function NoteEditor({
               onClick={() =>
                 editor.chain().focus().toggleHeading({ level: 2 }).run()
               }
+              aria-label="Heading"
             >
               <Heading2 className="h-3 w-3" />
             </Button>
@@ -208,6 +212,7 @@ function NoteEditor({
               size="sm"
               className={btnClass}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
+              aria-label="Bullet list"
             >
               <List className="h-3 w-3" />
             </Button>
@@ -337,7 +342,8 @@ export default function NoteCard({
         {editable && (
           <button
             type="button"
-            className="absolute right-3 bottom-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground group-hover:opacity-100"
+            aria-label="Edit card"
+            className="absolute right-3 bottom-3 z-50 cursor-pointer rounded-lg border border-border/50 bg-background/90 p-1.5 text-muted-foreground opacity-0 shadow-md backdrop-blur-sm transition-all hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {

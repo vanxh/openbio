@@ -151,7 +151,12 @@ export default function ActionBar() {
     <>
       <div className="-translate-x-1/2 container fixed bottom-6 left-1/2 z-50 mx-auto md:bottom-10">
         <div className="mx-auto flex w-max items-center gap-x-2 rounded-xl border border-border/50 bg-background/90 px-2 py-2 shadow-lg backdrop-blur-sm">
-          <NextLink href="/app" className={btnClass} title="Back to dashboard">
+          <NextLink
+            href="/app"
+            className={btnClass}
+            title="Back to dashboard"
+            aria-label="Back to dashboard"
+          >
             <ArrowLeft size={14} />
           </NextLink>
 
@@ -163,6 +168,7 @@ export default function ActionBar() {
             title="Undo (Ctrl+Z)"
             disabled={!canUndo}
             onClick={undo}
+            aria-label="Undo"
           >
             <Undo2 size={14} />
           </button>
@@ -172,6 +178,7 @@ export default function ActionBar() {
             title="Redo (Ctrl+Shift+Z)"
             disabled={!canRedo}
             onClick={redo}
+            aria-label="Redo"
           >
             <Redo2 size={14} />
           </button>
@@ -185,6 +192,7 @@ export default function ActionBar() {
                 className={btnClass}
                 title="Add card"
                 data-tour="add-card"
+                aria-label="Add card"
               >
                 <Plus size={14} />
               </button>
@@ -366,13 +374,19 @@ export default function ActionBar() {
               type="button"
               className={btnClass}
               data-tour="theme-settings"
+              aria-label="Theme settings"
             >
               <Palette size={14} />
             </button>
           </ThemeSettingsModal>
 
           <CustomDomainModal isPremium={!!profileLink?.isPremium}>
-            <button type="button" className={btnClass}>
+            <button
+              type="button"
+              className={btnClass}
+              title="Custom domain"
+              aria-label="Custom domain"
+            >
               <Globe size={14} />
             </button>
           </CustomDomainModal>
@@ -385,6 +399,10 @@ export default function ActionBar() {
                 ? 'Listed on Explore (click to hide)'
                 : 'Hidden from Explore (click to show)'
             }
+            aria-label={
+              profileLink?.isPublic ? 'Hide from Explore' : 'Show on Explore'
+            }
+            aria-pressed={!!profileLink?.isPublic}
             onClick={() => {
               if (!profileLink) {
                 return;
@@ -425,6 +443,7 @@ export default function ActionBar() {
               type="button"
               className={`${btnClass} text-violet-500`}
               title="AI Profile Builder"
+              aria-label="AI profile builder"
             >
               <Sparkles size={14} />
             </button>

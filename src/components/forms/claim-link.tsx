@@ -46,6 +46,10 @@ export default function ClaimLinkForm() {
         <input
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           autoFocus
+          aria-label="Your page name"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="yourname"
           value={link}
           onChange={(e) => setLink(e.target.value)}
