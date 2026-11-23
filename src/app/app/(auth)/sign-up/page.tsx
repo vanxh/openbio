@@ -4,34 +4,121 @@ import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signIn, signUp } from '@/lib/auth-client';
+import { authClient, signIn, signUp } from '@/lib/auth-client';
+import { getSafeRedirect, withRedirect } from '@/lib/redirect';
 import OpenBioLogo from '@/public/openbio.png';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MailCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { type SyntheticEvent, useState } from 'react';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Where to land once signed in, e.g. the profile name claimed on the homepage.
+  const redirectTo = getSafeRedirect(searchParams.get('redirectUrl'));
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>(
+    'idle'
+  );
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const result = await signUp.email({ name, email, password });
+    const result = await signUp.email({
+      name,
+      email,
+      password,
+      callbackURL: redirectTo,
+    });
     if (result.error) {
       setError(result.error.message ?? 'Something went wrong');
       setLoading(false);
       return;
     }
-    router.push('/app');
+    // Email accounts must be verified before a session exists, so there is
+    // nowhere to go yet: tell them to check their inbox instead.
+    if (!result.data?.token) {
+      setSentTo(email);
+      setLoading(false);
+      return;
+    }
+    router.push(redirectTo);
   };
+
+  const resend = async () => {
+    if (!sentTo) {
+      return;
+    }
+    setResendState('sending');
+    const result = await authClient.sendVerificationEmail({
+      email: sentTo,
+      callbackURL: redirectTo,
+    });
+    if (result.error) {
+      setError(result.error.message ?? 'Something went wrong');
+      setResendState('idle');
+      return;
+    }
+    setError('');
+    setResendState('sent');
+  };
+
+  if (sentTo) {
+    return (
+      <div className="w-full max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 text-center shadow-lg">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-500/10">
+          <MailCheck className="h-6 w-6 text-violet-600" />
+        </div>
+        <h1 className="mt-4 font-cal text-2xl">Check your inbox</h1>
+        <p className="mt-2 text-muted-foreground text-sm">
+          We sent a verification link to{' '}
+          <span className="font-medium text-foreground">{sentTo}</span>. Open it
+          to finish creating your account.
+        </p>
+        {error && (
+          <p className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-destructive text-sm">
+            {error}
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-6 h-11 w-full rounded-xl"
+          onClick={resend}
+          disabled={resendState !== 'idle'}
+        >
+          {resendState === 'sending' && (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          )}
+          {resendState === 'sent' && 'Email sent again'}
+          {resendState === 'idle' && 'Resend email'}
+        </Button>
+        <p className="mt-6 text-muted-foreground text-sm">
+          Wrong address?{' '}
+          <button
+            type="button"
+            className="font-medium text-foreground underline underline-offset-4 hover:text-violet-600"
+            onClick={() => {
+              setSentTo(null);
+              setResendState('idle');
+              setError('');
+            }}
+          >
+            Go back
+          </button>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md animate-fade-up rounded-2xl border border-border/50 bg-card p-8 shadow-lg">
@@ -115,7 +202,7 @@ export default function SignUpPage() {
           variant="outline"
           className="h-11 flex-1 gap-2 rounded-xl"
           onClick={() =>
-            signIn.social({ provider: 'github', callbackURL: '/app' })
+            signIn.social({ provider: 'github', callbackURL: redirectTo })
           }
         >
           <svg
@@ -134,7 +221,7 @@ export default function SignUpPage() {
           variant="outline"
           className="h-11 flex-1 gap-2 rounded-xl"
           onClick={() =>
-            signIn.social({ provider: 'google', callbackURL: '/app' })
+            signIn.social({ provider: 'google', callbackURL: redirectTo })
           }
         >
           <svg
@@ -166,7 +253,7 @@ export default function SignUpPage() {
       <p className="mt-6 text-center text-muted-foreground text-sm">
         Already have an account?{' '}
         <Link
-          href="/app/sign-in"
+          href={withRedirect('/app/sign-in', redirectTo)}
           className="font-medium text-foreground underline underline-offset-4 hover:text-violet-600"
         >
           Sign in

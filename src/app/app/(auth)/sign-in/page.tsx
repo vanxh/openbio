@@ -5,15 +5,19 @@ import { GradientButton } from '@/components/ui/gradient-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from '@/lib/auth-client';
+import { getSafeRedirect, withRedirect } from '@/lib/redirect';
 import OpenBioLogo from '@/public/openbio.png';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { type SyntheticEvent, useState } from 'react';
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = getSafeRedirect(searchParams.get('redirectUrl'));
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,13 +27,21 @@ export default function SignInPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const result = await signIn.email({ email, password });
+    const result = await signIn.email({
+      email,
+      password,
+      callbackURL: redirectTo,
+    });
     if (result.error) {
-      setError(result.error.message ?? 'Something went wrong');
+      setError(
+        result.error.code === 'EMAIL_NOT_VERIFIED'
+          ? 'Please verify your email first. We just sent you a new verification link.'
+          : (result.error.message ?? 'Something went wrong')
+      );
       setLoading(false);
       return;
     }
-    router.push('/app');
+    router.push(redirectTo);
   };
 
   return (
@@ -105,7 +117,7 @@ export default function SignInPage() {
           variant="outline"
           className="h-11 flex-1 gap-2 rounded-xl"
           onClick={() =>
-            signIn.social({ provider: 'github', callbackURL: '/app' })
+            signIn.social({ provider: 'github', callbackURL: redirectTo })
           }
         >
           <svg
@@ -124,7 +136,7 @@ export default function SignInPage() {
           variant="outline"
           className="h-11 flex-1 gap-2 rounded-xl"
           onClick={() =>
-            signIn.social({ provider: 'google', callbackURL: '/app' })
+            signIn.social({ provider: 'google', callbackURL: redirectTo })
           }
         >
           <svg
@@ -156,7 +168,7 @@ export default function SignInPage() {
       <p className="mt-6 text-center text-muted-foreground text-sm">
         Don&apos;t have an account?{' '}
         <Link
-          href="/app/sign-up"
+          href={withRedirect('/app/sign-up', redirectTo)}
           className="font-medium text-foreground underline underline-offset-4 hover:text-violet-600"
         >
           Sign up
