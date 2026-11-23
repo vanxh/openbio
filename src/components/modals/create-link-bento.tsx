@@ -1,5 +1,6 @@
 'use client';
 
+import { useBentoHistory } from '@/app/[link]/_components/bento-history';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,6 +10,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
+import { toSafeUrl } from '@/lib/url';
 import { api } from '@/trpc/react';
 import { LinkBentoSchema } from '@/types';
 import { Globe } from 'lucide-react';
@@ -108,41 +111,60 @@ export default function CreateLinkBentoModal({
   const [input, setInput] = useState('');
 
   const queryClient = api.useContext();
+  const { pushSnapshot } = useBentoHistory();
 
-  const { mutateAsync: createBento, isPending } =
+  const { mutate: createBento, isPending } =
     api.profileLink.createBento.useMutation({
-      onMutate: (bento) => {
+      onMutate: async (input) => {
+        await queryClient.profileLink.getByLink.cancel({ link });
+        const previous = queryClient.profileLink.getByLink.getData({ link });
         queryClient.profileLink.getByLink.setData({ link }, (old) => {
           if (!old) {
             return old;
           }
           return {
             ...old,
-            bento: [...old.bento, LinkBentoSchema.parse(bento.bento)],
+            bento: [...old.bento, LinkBentoSchema.parse(input.bento)],
           };
         });
+        return { previous };
       },
       onSuccess: () => {
         setOpen(false);
         setInput('');
         setSelectedPreset(null);
       },
-      onSettled: () => {
-        queryClient.profileLink.getByLink.invalidate({ link });
+      onError: (_err, _input, context) => {
+        if (context?.previous) {
+          queryClient.profileLink.getByLink.setData({ link }, context.previous);
+        }
+        toast({
+          title: "Couldn't add this link",
+          description: 'Please check the link and try again.',
+          variant: 'destructive',
+        });
       },
     });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input) {
+    // People paste bare domains as often as full URLs; accept both.
+    const href = toSafeUrl(input);
+    if (!href) {
+      toast({
+        title: 'Invalid link',
+        description: 'Enter a full link, like https://example.com.',
+        variant: 'destructive',
+      });
       return;
     }
+    pushSnapshot();
     createBento({
       link,
       bento: {
         id: crypto.randomUUID(),
         type: 'link',
-        href: input,
+        href,
       },
     });
   };
@@ -216,7 +238,12 @@ export default function CreateLinkBentoModal({
                 )}
               </div>
               <Input
-                type="url"
+                type="text"
+                inputMode="url"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-label="Link URL"
                 placeholder={placeholder}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

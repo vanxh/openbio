@@ -1,6 +1,8 @@
+import { generateInitialBento } from '@/lib/initial-bento';
 import { getMetadata } from '@/lib/metadata';
 import { fetchMusicMetadata } from '@/lib/music';
 import { fetchLimit, generalLimit, subscribeLimit } from '@/lib/ratelimit';
+import { getThemePreset } from '@/lib/themes';
 import { fetchTweet } from '@/lib/twitter';
 import {
   addDomainToVercel,
@@ -15,9 +17,6 @@ import {
   publicProcedure,
 } from '@/server/api/trpc';
 
-const rateLimitedProcedure = createRateLimitedProcedure(generalLimit);
-const rateLimitedSubscribe = createRateLimitedProcedure(subscribeLimit);
-const rateLimitedFetch = createRateLimitedProcedure(fetchLimit);
 import {
   addEmailSubscriber,
   addProfileLinkBento,
@@ -42,27 +41,42 @@ import {
   isProfileLinkAvailable,
   recordLinkClick,
   recordLinkView,
+  setProfileLinkBento,
   updateProfileLink,
   updateProfileLinkBento,
+  updateProfileLinkBentoPositions,
 } from '@/server/db';
 import { db } from '@/server/db/db';
 import { link } from '@/server/db/schema';
 import { isUserPremium } from '@/server/db/utils/user';
-import type { LinkBento } from '@/types';
-import { and, desc, eq, lt } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
+import { and, desc, eq, ne, sql } from 'drizzle-orm';
+import { escape as escapeHtml } from 'html-escaper';
 import { after } from 'next/server';
 import * as z from 'zod';
 import {
   CreateLinkBentoSchema,
   CreateLinkSchema,
+  CustomDomainSchema,
   DeleteLinkBentoSchema,
   DeleteLinkSchema,
   GetByLinkSchema,
   GetLinkViewsSchema,
   LinkAvailableSchema,
+  SetLinkBentoSchema,
+  UpdateLinkBentoPositionsSchema,
   UpdateLinkBentoSchema,
   UpdateLinkSchema,
 } from '../schemas';
+
+const rateLimitedProcedure = createRateLimitedProcedure(generalLimit);
+const rateLimitedSubscribe = createRateLimitedProcedure(subscribeLimit);
+const rateLimitedFetch = createRateLimitedProcedure(fetchLimit);
+
+const TWEET_ID_RE = /^\d+$/;
+
+/** Plain text typed at sign-up, stored as the HTML the bio editor expects. */
+const textToBioHtml = (text: string) => `<p>${escapeHtml(text)}</p>`;
 
 export const profileLinkRouter = createTRPCRouter({
   linkAvailable: publicProcedure
@@ -100,13 +114,13 @@ export const profileLinkRouter = createTRPCRouter({
         throw new Error('This profile link is not available');
       }
 
-      const bento = generateInitialBento(input);
+      const { link: slug, name, bio, ...socials } = input;
 
       const profileLink = await createProfileLink({
-        link: input.link,
-        name: input.name || input.link,
-        bio: input.bio || "I'm using OpenBio.app!",
-        bento,
+        link: slug,
+        name: name || slug,
+        bio: textToBioHtml(bio || "I'm using OpenBio.app!"),
+        bento: generateInitialBento(socials),
         userId: user.id,
       });
 
@@ -157,18 +171,24 @@ export const profileLinkRouter = createTRPCRouter({
 
       const country = ctx.req.headers.get('x-vercel-ip-country') ?? undefined;
 
-      after(() =>
-        recordLinkView(profileLink.id, {
-          ip: ip ?? 'Unknown',
-          userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
-          referrer: ctx.req.headers.get('referer') ?? undefined,
-          country,
-        })
-      );
+      const isOwner = authedUserId === profileLink.userId;
+
+      // Owners load their own page constantly while editing; counting those
+      // would drown out real traffic in their analytics.
+      if (!isOwner) {
+        after(() =>
+          recordLinkView(profileLink.id, {
+            ip: ip ?? 'Unknown',
+            userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
+            referrer: ctx.req.headers.get('referer') ?? undefined,
+            country,
+          })
+        );
+      }
 
       return {
         ...profileLink,
-        isOwner: authedUserId === profileLink.userId,
+        isOwner,
         isPremium: !!owner && isUserPremium(owner),
       };
     }),
@@ -182,12 +202,21 @@ export const profileLinkRouter = createTRPCRouter({
   trackClick: rateLimitedProcedure
     .input(
       z.object({
-        linkId: z.string(),
-        bentoId: z.string(),
-        href: z.string(),
+        linkId: z.string().uuid(),
+        bentoId: z.string().max(100),
+        href: z.string().max(2048),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Record only clicks on a link card that exists on this profile, using
+      // the card's own URL. This endpoint is public, so anything else would
+      // let anyone write arbitrary rows into someone's "Top cards".
+      const profile = await getProfileLinkById(input.linkId, { bento: true });
+      const card = profile?.bento.find((b) => b.id === input.bentoId);
+      if (card?.type !== 'link') {
+        return;
+      }
+
       let ip = ctx.req.headers.get('x-real-ip');
       const forwardedFor = ctx.req.headers.get('x-forwarded-for');
       if (!ip && forwardedFor) {
@@ -195,8 +224,8 @@ export const profileLinkRouter = createTRPCRouter({
       }
 
       await recordLinkClick(input.linkId, {
-        bentoId: input.bentoId,
-        href: input.href,
+        bentoId: card.id,
+        href: card.href,
         ip: ip ?? 'Unknown',
         userAgent: ctx.req.headers.get('user-agent') ?? 'Unknown',
         referrer: ctx.req.headers.get('referer') ?? undefined,
@@ -206,12 +235,23 @@ export const profileLinkRouter = createTRPCRouter({
   subscribe: rateLimitedSubscribe
     .input(
       z.object({
-        linkId: z.string(),
-        email: z.string().email(),
+        linkId: z.string().uuid(),
+        email: z.string().trim().toLowerCase().email().max(254),
       })
     )
-    .mutation(({ input }) => {
-      return addEmailSubscriber(input.linkId, input.email);
+    .mutation(async ({ input }) => {
+      // Only profiles that actually show a sign-up form collect addresses.
+      const profile = await getProfileLinkById(input.linkId, { bento: true });
+      if (!profile?.bento.some((b) => b.type === 'email-collect')) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'This profile is not collecting emails.',
+        });
+      }
+
+      await addEmailSubscriber(input.linkId, input.email);
+      // Nothing about the subscriber row is returned to the public caller.
+      return { subscribed: true };
     }),
 
   subscribers: protectedProcedure
@@ -273,9 +313,20 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   checkDomain: protectedProcedure
-    .input(z.object({ domain: z.string() }))
-    .query(async ({ input }) => {
+    .input(z.object({ domain: CustomDomainSchema }))
+    .query(async ({ input, ctx }) => {
       const { domain } = input;
+
+      // Only the profile that holds a domain may query its status: the lookup
+      // below spends the server's Vercel token.
+      const owned = await ctx.db.query.link.findFirst({
+        where: (l, { and, eq }) =>
+          and(eq(l.customDomain, domain), eq(l.userId, ctx.user.id)),
+        columns: { id: true },
+      });
+      if (!owned) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Domain not found' });
+      }
 
       const [config, verification] = await Promise.all([
         getDomainConfig(domain),
@@ -327,33 +378,57 @@ export const profileLinkRouter = createTRPCRouter({
         linkId: input.id,
       });
 
-      // Handle custom footer changes (pro only)
-      if (input.customFooter !== undefined) {
-        const isPro = isUserPremium(user);
-
-        if (!isPro) {
-          throw new Error('Custom footer requires a Pro subscription');
-        }
+      const isPro = isUserPremium(user);
+      const existing = await getProfileLinkById(input.id);
+      if (!existing) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Profile not found',
+        });
       }
 
-      // Handle custom domain changes (pro only)
-      if (input.customDomain !== undefined) {
-        const isPro = isUserPremium(user);
+      const proOnlyChange = getProOnlyChange(input, existing);
+      if (proOnlyChange && !isPro) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: `${proOnlyChange} a Pro subscription`,
+        });
+      }
 
-        if (!isPro) {
-          throw new Error('Custom domains require a Pro subscription');
-        }
+      if (
+        input.customDomain !== undefined &&
+        input.customDomain !== existing.customDomain
+      ) {
+        const oldDomain = existing.customDomain;
 
-        const existing = await getProfileLinkById(input.id);
-        const oldDomain = existing?.customDomain;
+        if (input.customDomain) {
+          const taken = await ctx.db.query.link.findFirst({
+            where: (l, { and, eq }) =>
+              and(
+                eq(l.customDomain, input.customDomain as string),
+                ne(l.id, input.id)
+              ),
+            columns: { id: true },
+          });
+          if (taken) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'This domain is already connected to another profile',
+            });
+          }
 
-        if (oldDomain && oldDomain !== input.customDomain) {
-          await removeDomainFromVercel(oldDomain);
-        }
-
-        if (input.customDomain && input.customDomain !== oldDomain) {
           await addDomainToVercel(input.customDomain);
         }
+
+        const updated = await updateProfileLink(input);
+
+        // Release the old domain only once the new value is saved, so a
+        // failed save cannot leave the profile pointing at a detached domain.
+        if (oldDomain) {
+          await removeDomainFromVercel(oldDomain).catch(() => undefined);
+        }
+
+        return updated;
       }
 
       return updateProfileLink(input);
@@ -376,7 +451,13 @@ export const profileLinkRouter = createTRPCRouter({
         link: input.link,
       });
 
-      return deleteProfileLink(input.link);
+      const removed = await deleteProfileLink(input.link);
+
+      if (removed?.customDomain) {
+        await removeDomainFromVercel(removed.customDomain).catch(
+          () => undefined
+        );
+      }
     }),
 
   createBento: protectedProcedure
@@ -439,6 +520,24 @@ export const profileLinkRouter = createTRPCRouter({
       return updateProfileLinkBento(input.link, input.bento);
     }),
 
+  /** Move many cards at once (after a drag) without touching their content. */
+  updateBentoPositions: protectedProcedure
+    .input(UpdateLinkBentoPositionsSchema)
+    .mutation(async ({ input, ctx }) => {
+      await canModifyProfileLink({ userId: ctx.user.id, link: input.link });
+
+      return updateProfileLinkBentoPositions(input.link, input.positions);
+    }),
+
+  /** Replace every card, to persist an undo/redo snapshot. */
+  setBento: protectedProcedure
+    .input(SetLinkBentoSchema)
+    .mutation(async ({ input, ctx }) => {
+      await canModifyProfileLink({ userId: ctx.user.id, link: input.link });
+
+      return setProfileLinkBento(input.link, input.bento);
+    }),
+
   listPublic: publicProcedure
     .input(
       z.object({
@@ -459,10 +558,15 @@ export const profileLinkRouter = createTRPCRouter({
         .from(link)
         .where(
           input.cursor
-            ? and(eq(link.isPublic, true), lt(link.id, input.cursor))
+            ? and(
+                eq(link.isPublic, true),
+                // Keyset on the sort order itself. Ids are random UUIDs, so
+                // comparing ids alone would skip and repeat profiles.
+                sql`(${link.createdAt}, ${link.id}) < (select c.created_at, c.id from ${link} as c where c.id = ${input.cursor})`
+              )
             : eq(link.isPublic, true)
         )
-        .orderBy(desc(link.createdAt))
+        .orderBy(desc(link.createdAt), desc(link.id))
         .limit(input.limit + 1);
 
       const hasMore = items.length > input.limit;
@@ -475,7 +579,7 @@ export const profileLinkRouter = createTRPCRouter({
   getMetadataOfURL: rateLimitedFetch
     .input(
       z.object({
-        url: z.string(),
+        url: z.string().max(2048),
       })
     )
     .query(async ({ input }) => {
@@ -483,70 +587,55 @@ export const profileLinkRouter = createTRPCRouter({
     }),
 
   getTweet: rateLimitedFetch
-    .input(z.object({ tweetId: z.string() }))
+    .input(z.object({ tweetId: z.string().max(25) }))
     .query(async ({ input }) => {
+      if (!TWEET_ID_RE.test(input.tweetId)) {
+        return null;
+      }
       return await fetchTweet(input.tweetId);
     }),
 
   getMusicMetadata: rateLimitedFetch
-    .input(z.object({ url: z.string() }))
+    .input(z.object({ url: z.string().max(2048) }))
     .query(async ({ input }) => {
       return await fetchMusicMetadata(input.url);
     }),
 });
 
-function generateInitialBento(input: z.infer<typeof CreateLinkSchema>) {
-  const bento: LinkBento[] = [];
-  let position = { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } };
-
-  for (const [key, value] of Object.entries(input)) {
-    if (key === 'link' || !value) {
-      continue;
-    }
-
-    const url = getSocialUrl(key, value);
-    bento.push({
-      id: crypto.randomUUID(),
-      type: 'link',
-      href: url,
-      clicks: 0,
-      size: { sm: '2x2', md: '2x2' },
-      position,
-    });
-
-    position = getNextPosition(position);
+/**
+ * Names the Pro-only setting an update would turn on, if any. Only a change
+ * *to* a Pro value counts: clearing one, or re-saving a value kept from an
+ * earlier subscription, is allowed, so a lapsed account can still edit the
+ * rest of its profile.
+ */
+function getProOnlyChange(
+  input: z.infer<typeof UpdateLinkSchema>,
+  existing: {
+    customFooter: string | null;
+    customDomain: string | null;
+    accentColor: string | null;
+    darkMode: boolean;
+    theme: string;
   }
-  return bento;
-}
-
-function getSocialUrl(key: string, value: string) {
-  if (key === 'linkedin') {
-    return `https://www.linkedin.com/in/${value}`;
+): string | null {
+  if (input.customFooter && input.customFooter !== existing.customFooter) {
+    return 'Custom footers require';
   }
-  if (key === 'youtube') {
-    return `https://www.youtube.com/@${value.replace('@', '')}`;
+  if (input.customDomain && input.customDomain !== existing.customDomain) {
+    return 'Custom domains require';
   }
-  if (key === 'twitch') {
-    return `https://www.twitch.tv/${value}`;
+  if (input.accentColor && input.accentColor !== existing.accentColor) {
+    return 'Accent colours require';
   }
-  if (key === 'telegram') {
-    return `https://t.me/${value}`;
+  if (input.darkMode && !existing.darkMode) {
+    return 'Dark mode requires';
   }
-  return `https://${key}.com/${value}`;
-}
-
-function getNextPosition(pos: {
-  sm: { x: number; y: number };
-  md: { x: number; y: number };
-}) {
-  return {
-    sm: {
-      x: pos.sm.x % 2 === 0 ? pos.sm.x + 1 : 0,
-      y: pos.sm.x % 2 === 0 ? pos.sm.y + 1 : pos.sm.y,
-    },
-    md: {
-      x: pos.md.x % 4 === 0 ? pos.md.x + 1 : 0,
-      y: pos.md.x % 4 === 0 ? pos.md.y + 1 : pos.md.y,
-    },
-  };
+  if (
+    input.theme !== undefined &&
+    input.theme !== existing.theme &&
+    getThemePreset(input.theme).pro
+  ) {
+    return 'This theme requires';
+  }
+  return null;
 }

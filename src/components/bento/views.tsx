@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { ViewsBentoSchema } from '@/types';
@@ -83,7 +84,7 @@ export default function ViewsCard({
     { enabled: !!linkId, staleTime: 5 * 60 * 1000 }
   );
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
 
   return (
     <div
@@ -98,7 +99,7 @@ export default function ViewsCard({
         <CardOverlay bento={bento} allowedSizes={VIEWS_CARD_SIZES} />
       )}
 
-      {mdSize === '4x1' ? (
+      {cardSize === '4x1' ? (
         <BannerViews views={views ?? 0} />
       ) : (
         <CompactViews views={views ?? 0} />

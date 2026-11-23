@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -284,8 +285,8 @@ export default function NoteCard({
   const { mutateAsync: updateBento, isPending } =
     api.profileLink.updateBento.useMutation();
 
-  const mdSize = bento.size.md ?? '2x2';
-  const isBanner = mdSize === '4x1';
+  const cardSize = useCardSize(bento);
+  const isBanner = cardSize === '4x1';
   const hasContent = bento.text && bento.text !== '<p></p>';
 
   const handleSave = (html: string) => {

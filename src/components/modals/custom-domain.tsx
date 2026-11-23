@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { getErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import {
@@ -75,6 +76,7 @@ function DnsRecord({
           type="button"
           onClick={() => copyValue(name)}
           className="text-muted-foreground transition-colors hover:text-foreground"
+          aria-label="Copy record name"
         >
           <Copy className="h-3 w-3" />
         </button>
@@ -85,6 +87,7 @@ function DnsRecord({
           type="button"
           onClick={() => copyValue(value)}
           className="text-muted-foreground transition-colors hover:text-foreground"
+          aria-label="Copy record value"
         >
           <Copy className="h-3 w-3" />
         </button>
@@ -168,8 +171,9 @@ export default function CustomDomainModal({
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message,
+          title: "Couldn't update your domain",
+          description: getErrorMessage(err),
+          variant: 'destructive',
         });
       },
     });
@@ -290,13 +294,16 @@ export default function CustomDomainModal({
           )}
 
           <div className="flex items-center justify-end gap-3">
-            {isPremium && hasDomain && (
+            {/* Removal stays available after a downgrade. */}
+            {hasDomain && (
               <Button
                 variant="outline"
                 size="icon"
                 className="shrink-0 rounded-xl"
                 onClick={remove}
                 disabled={isPending}
+                title="Remove domain"
+                aria-label="Remove domain"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

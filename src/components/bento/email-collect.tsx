@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,6 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
+import { getErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { EmailCollectBentoSchema } from '@/types';
@@ -48,7 +51,7 @@ function SubscribeForm({
       onError: (err) => {
         toast({
           title: 'Error',
-          description: err.message,
+          description: getErrorMessage(err),
         });
       },
     });
@@ -163,43 +166,22 @@ export default function EmailCollectCard({
   const { data: profileLink } = api.profileLink.getByLink.useQuery({
     link: params.link,
   });
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending: isSaving } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending: isSaving } = useSaveBento();
 
   const handleSave = async () => {
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id
-            ? {
-                ...b,
-                heading: heading || undefined,
-                description: description || undefined,
-                buttonText: buttonText || undefined,
-              }
-            : b
-        ),
-      };
+    const saved = await saveBento({
+      ...bento,
+      heading: heading || undefined,
+      description: description || undefined,
+      buttonText: buttonText || undefined,
     });
-
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        heading: heading || undefined,
-        description: description || undefined,
-        buttonText: buttonText || undefined,
-      },
-    });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
 
   return (
     <>
@@ -225,7 +207,7 @@ export default function EmailCollectCard({
           <SubscribeForm
             bento={bento}
             linkId={profileLink?.id}
-            compact={mdSize === '2x2'}
+            compact={cardSize === '2x2'}
           />
         </div>
 

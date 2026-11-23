@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,11 +11,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSaveBento } from '@/hooks/use-save-bento';
+import { isHostOf } from '@/lib/url';
 import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
 import type { CalendarBentoSchema } from '@/types';
 import { Calendar, ExternalLink, Pencil } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import type * as z from 'zod';
 
@@ -22,14 +23,24 @@ type BentoData = z.infer<typeof CalendarBentoSchema>;
 
 export const CALENDAR_CARD_SIZES = ['2x2', '4x2', '4x4'] as const;
 
-function getEmbedUrl(url: string): string | null {
+type Provider = 'cal' | 'calendly';
+
+/**
+ * Which booking provider a URL belongs to. Matched on the real hostname: the
+ * page is framed on openbio.app, so a lookalike such as `cal.com.evil.net` or
+ * `medical.com` must never count.
+ */
+function getProvider(url: string): Provider | null {
   try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes('cal.com')) {
-      return `${url}?embed=true&theme=light`;
+    const { protocol, hostname } = new URL(url);
+    if (protocol !== 'https:') {
+      return null;
     }
-    if (parsed.hostname.includes('calendly.com')) {
-      return `${url}?embed_type=inline`;
+    if (isHostOf(hostname, 'cal.com')) {
+      return 'cal';
+    }
+    if (isHostOf(hostname, 'calendly.com')) {
+      return 'calendly';
     }
     return null;
   } catch {
@@ -37,19 +48,33 @@ function getEmbedUrl(url: string): string | null {
   }
 }
 
-function getProviderName(url: string): string {
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes('cal.com')) {
-      return 'Cal.com';
-    }
-    if (parsed.hostname.includes('calendly.com')) {
-      return 'Calendly';
-    }
-    return 'Calendar';
-  } catch {
-    return 'Calendar';
+function getEmbedUrl(url: string): string | null {
+  const provider = getProvider(url);
+  if (!provider) {
+    return null;
   }
+
+  // Set the embed flags through the URL API so an address that already has a
+  // query string stays valid.
+  const embed = new URL(url);
+  if (provider === 'cal') {
+    embed.searchParams.set('embed', 'true');
+    embed.searchParams.set('theme', 'light');
+  } else {
+    embed.searchParams.set('embed_type', 'inline');
+  }
+  return embed.href;
+}
+
+function getProviderName(url: string): string {
+  const provider = getProvider(url);
+  if (provider === 'cal') {
+    return 'Cal.com';
+  }
+  if (provider === 'calendly') {
+    return 'Calendly';
+  }
+  return 'Calendar';
 }
 
 function CalendarDisplay({
@@ -118,50 +143,28 @@ export default function CalendarCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
   const [url, setUrl] = useState(bento.url ?? '');
   const [title, setTitle] = useState(bento.title ?? '');
   const [description, setDescription] = useState(bento.description ?? '');
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleSave = async () => {
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id
-            ? {
-                ...b,
-                url: url || '',
-                title: title || undefined,
-                description: description || undefined,
-              }
-            : b
-        ),
-      };
+    const saved = await saveBento({
+      ...bento,
+      url: url || '',
+      title: title || undefined,
+      description: description || undefined,
     });
-
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        url: url || '',
-        title: title || undefined,
-        description: description || undefined,
-      },
-    });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
   const embedUrl = getEmbedUrl(bento.url);
 
   return (
@@ -194,7 +197,7 @@ export default function CalendarCard({
                 window.open(bento.url, '_blank', 'noopener');
               }
             }}
-            compact={mdSize === '2x2'}
+            compact={cardSize === '2x2'}
           />
         </div>
 

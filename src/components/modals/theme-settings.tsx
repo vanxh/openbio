@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/use-toast';
+import { getErrorMessage } from '@/lib/errors';
 import { THEME_PRESETS } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
@@ -65,14 +66,20 @@ export default function ThemeSettingsModal({
     profileLink?.customFooter ?? ''
   );
 
-  const { mutateAsync: updateLink, isPending } =
-    api.profileLink.update.useMutation({
-      onSuccess: () => {
-        queryClient.profileLink.getByLink.invalidate({ link });
-        router.refresh();
-        setOpen(false);
-      },
-    });
+  const { mutate: updateLink, isPending } = api.profileLink.update.useMutation({
+    onSuccess: () => {
+      queryClient.profileLink.getByLink.invalidate({ link });
+      router.refresh();
+      setOpen(false);
+    },
+    onError: (err) => {
+      toast({
+        title: "Couldn't save your theme",
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      });
+    },
+  });
 
   const save = () => {
     if (!profileLink) {
@@ -82,8 +89,8 @@ export default function ThemeSettingsModal({
       id: profileLink.id,
       theme,
       darkMode,
-      accentColor: accentColor || null,
-      customFooter: customFooter || null,
+      accentColor: accentColor.trim() || null,
+      customFooter: customFooter.trim() || null,
     });
   };
 

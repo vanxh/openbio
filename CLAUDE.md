@@ -34,6 +34,14 @@ bun run db:generate  # Generate Drizzle migrations
 bun run db:push      # Push schema to database
 bun run db:migrate   # Run migrations
 bun run db:studio    # Open Drizzle Studio
+bun run test         # Unit tests (pure logic, proxy routing, admin router)
+```
+
+Integration tests for the profile/bento SQL run against a real PostgreSQL
+server and are skipped without one:
+
+```bash
+LINK_TEST_DATABASE_URL=postgresql://localhost/postgres bun run test:link:postgres
 ```
 
 ## Project Structure
@@ -145,6 +153,16 @@ src/
 - Sizes: `2x2` (default), `4x1`, `2x4`, `4x2`, `4x4`
 - Position: x, y coordinates per breakpoint
 - Stored as JSON array in `link.bento` column
+- **Writes are single atomic `UPDATE`s** in `src/server/db/utils/link.ts`
+  (`addProfileLinkBento`, `updateProfileLinkBento`, `updateProfileLinkBentoPositions`,
+  `deleteProfileLinkBento`, `setProfileLinkBento`). Never read the array, change it
+  in JS and write it back: overlapping saves lose each other's changes.
+- Cards save through `useSaveBento()` (`src/hooks/use-save-bento.ts`), which keeps
+  the `getByLink` query cache current and rolls back with a toast on failure.
+- Cards pick their layout variant with `useCardSize(bento)`, not `bento.size.md`,
+  so phones get the `sm` variant.
+- User-entered URLs go through `toSafeUrl()` (`src/lib/url.ts`); match hostnames
+  with `isHostOf()`, never `includes()`.
 
 ### Themes
 - Defined in `src/lib/themes.ts` (10+ built-in themes)

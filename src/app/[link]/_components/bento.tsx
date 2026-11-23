@@ -1,6 +1,7 @@
 'use client';
 
 import BentoCard from '@/components/bento/card';
+import { isBentoConfigured } from '@/lib/bento-configured';
 import { type RouterOutputs, api } from '@/trpc/react';
 import { useParams } from 'next/navigation';
 import BentoLayout from './bento-layout';
@@ -23,19 +24,23 @@ export default function Bento({
     return null;
   }
 
+  const editable = profileLink.isOwner && !preview;
+
+  // Visitors (and the owner's preview) only see cards that are set up; while
+  // editing, every card shows so it can be filled in.
+  const cards = editable
+    ? profileLink.bento
+    : profileLink.bento.filter(isBentoConfigured);
+
   return (
     <BentoLayout>
-      {profileLink.bento.map((b, i) => (
+      {cards.map((b, i) => (
         <div key={b.id}>
           <div
             className="h-full w-full animate-fade-up"
             style={{ animationDelay: `${i * 75}ms` }}
           >
-            <BentoCard
-              bento={b}
-              editable={profileLink.isOwner && !preview}
-              linkId={profileLink.id}
-            />
+            <BentoCard bento={b} editable={editable} linkId={profileLink.id} />
           </div>
         </div>
       ))}

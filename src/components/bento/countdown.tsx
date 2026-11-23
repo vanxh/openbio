@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,11 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
 import type { CountdownBentoSchema } from '@/types';
 import { Pencil } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type * as z from 'zod';
 
@@ -242,7 +242,6 @@ export default function CountdownCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [title, setTitle] = useState(bento.title ?? '');
   const [targetDate, setTargetDate] = useState(bento.targetDate || '');
@@ -251,9 +250,7 @@ export default function CountdownCard({
 
   const timeLeft = useCountdown(bento.targetDate, bento.repeat);
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleSave = async () => {
     if (!targetDate) {
@@ -276,41 +273,21 @@ export default function CountdownCard({
 
     const isoDate = parsed.toISOString();
 
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id
-            ? {
-                ...b,
-                title: title || undefined,
-                targetDate: isoDate,
-                emoji: emoji || undefined,
-                repeat,
-              }
-            : b
-        ),
-      };
+    const saved = await saveBento({
+      ...bento,
+      title: title || undefined,
+      targetDate: isoDate,
+      emoji: emoji || undefined,
+      repeat,
     });
-
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        title: title || undefined,
-        targetDate: isoDate,
-        emoji: emoji || undefined,
-        repeat,
-      },
-    });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
     toast({ title: 'Saved', description: 'Countdown updated.' });
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
 
   const CardContent = () => {
     if (!bento.targetDate) {
@@ -324,10 +301,10 @@ export default function CountdownCard({
       );
     }
 
-    if (mdSize === '4x4') {
+    if (cardSize === '4x4') {
       return <LargeCountdown bento={bento} timeLeft={timeLeft} />;
     }
-    if (mdSize === '4x2') {
+    if (cardSize === '4x2') {
       return <WideCountdown bento={bento} timeLeft={timeLeft} />;
     }
     return <CompactCountdown bento={bento} timeLeft={timeLeft} />;

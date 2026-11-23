@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { TwitterBentoSchema } from '@/types';
@@ -22,7 +24,6 @@ function extractTweetId(url: string): string | null {
   return match?.[1] ?? null;
 }
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { FaXTwitter } from 'react-icons/fa6';
 import type * as z from 'zod';
@@ -234,7 +235,6 @@ export default function TwitterCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [tweetUrl, setTweetUrl] = useState('');
 
@@ -244,8 +244,7 @@ export default function TwitterCard({
   );
 
   const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleSave = async () => {
     const id = extractTweetId(tweetUrl);
@@ -253,30 +252,18 @@ export default function TwitterCard({
       return;
     }
 
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id ? { ...b, tweetId: id } : b
-        ),
-      };
-    });
-
     // Prefetch the new tweet so it appears immediately
     queryClient.profileLink.getTweet.prefetch({ tweetId: id });
 
-    await updateBento({
-      link: params.link,
-      bento: { ...bento, tweetId: id },
-    });
+    const saved = await saveBento({ ...bento, tweetId: id });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
     setTweetUrl('');
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
   const hasTweet = !!bento.tweetId;
 
   const CardContent = () => {
@@ -292,10 +279,10 @@ export default function TwitterCard({
       );
     }
 
-    if (mdSize === '4x4') {
+    if (cardSize === '4x4') {
       return <LargeTweet tweet={tweet} />;
     }
-    if (mdSize === '4x2') {
+    if (cardSize === '4x2') {
       return <WideTweet tweet={tweet} />;
     }
     return <CompactTweet tweet={tweet} />;

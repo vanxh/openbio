@@ -1,5 +1,6 @@
+import { getNextCreditReset } from '@/lib/plans';
 import { getAiCreditLimit } from '@/server/db/utils/user';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { user } from '../schema';
 
@@ -26,14 +27,9 @@ export async function getAiCredits(userId: string) {
 
   // Reset credits if past the reset date or never set
   if (!found.aiCreditsResetAt || found.aiCreditsResetAt <= now) {
-    const nextReset = new Date();
-    nextReset.setMonth(nextReset.getMonth() + 1);
-    nextReset.setDate(1);
-    nextReset.setHours(0, 0, 0, 0);
-
     await db
       .update(user)
-      .set({ aiCredits: 0, aiCreditsResetAt: nextReset })
+      .set({ aiCredits: 0, aiCreditsResetAt: getNextCreditReset(now) })
       .where(eq(user.id, userId));
 
     return { remaining: limit, limit };
@@ -45,26 +41,35 @@ export async function getAiCredits(userId: string) {
 
 /**
  * Consume AI credits. Returns true if successful, false if insufficient.
+ *
+ * The check and the increment are one statement, so two requests racing for
+ * the last credit cannot both succeed.
  */
 export async function consumeAiCredits(
   userId: string,
   amount: number
 ): Promise<boolean> {
-  const { remaining } = await getAiCredits(userId);
+  // Also applies the monthly reset, so the usage compared below is current.
+  const { limit } = await getAiCredits(userId);
 
-  if (remaining < amount) {
-    return false;
-  }
+  const updated = await db
+    .update(user)
+    .set({ aiCredits: sql`${user.aiCredits} + ${amount}` })
+    .where(
+      and(eq(user.id, userId), sql`${user.aiCredits} + ${amount} <= ${limit}`)
+    )
+    .returning({ id: user.id });
 
-  const current = await db.query.user.findFirst({
-    where: (u, { eq }) => eq(u.id, userId),
-    columns: { aiCredits: true },
-  });
+  return updated.length > 0;
+}
 
+/** Give credits back when the generation they paid for failed. */
+export async function refundAiCredits(
+  userId: string,
+  amount: number
+): Promise<void> {
   await db
     .update(user)
-    .set({ aiCredits: (current?.aiCredits ?? 0) + amount })
+    .set({ aiCredits: sql`greatest(${user.aiCredits} - ${amount}, 0)` })
     .where(eq(user.id, userId));
-
-  return true;
 }

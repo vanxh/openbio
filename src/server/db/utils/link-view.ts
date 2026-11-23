@@ -7,7 +7,8 @@ import { linkView } from '../schema';
 export const getProfileLinkViews = async (linkId: string) => {
   const cached = await redis.get<number | null>(`profile-link-views:${linkId}`);
 
-  if (cached) {
+  // Compare with null: a cached count of 0 is a hit, not a miss.
+  if (cached !== null && cached !== undefined) {
     return cached;
   }
 

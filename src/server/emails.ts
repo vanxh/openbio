@@ -1,5 +1,3 @@
-'use server';
-
 import { env } from '@/env.mjs';
 import type { ReactElement } from 'react';
 import { Resend } from 'resend';

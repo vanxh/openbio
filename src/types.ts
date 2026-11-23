@@ -1,4 +1,40 @@
+import { LINK_PROTOCOLS, WEB_PROTOCOLS, toSafeUrl } from '@/lib/url';
 import * as z from 'zod';
+
+const MAX_URL_LENGTH = 2048;
+
+/**
+ * A URL a visitor will be sent to. Normalised on the way in (a bare
+ * `example.com` becomes https) and limited to schemes that are safe to put
+ * in an `href`, so `javascript:` and `data:` URLs can never be stored.
+ */
+const LinkUrlSchema = z
+  .string()
+  .max(MAX_URL_LENGTH)
+  .transform((value, ctx) => {
+    const url = toSafeUrl(value, LINK_PROTOCOLS);
+    if (!url) {
+      ctx.addIssue({ code: 'custom', message: 'Enter a valid link.' });
+      return z.NEVER;
+    }
+    return url;
+  });
+
+/** An http(s) URL, or an empty string for a card that is not set up yet. */
+const OptionalWebUrlSchema = z
+  .string()
+  .max(MAX_URL_LENGTH)
+  .transform((value, ctx) => {
+    if (!value.trim()) {
+      return '';
+    }
+    const url = toSafeUrl(value, WEB_PROTOCOLS);
+    if (!url) {
+      ctx.addIssue({ code: 'custom', message: 'Enter a valid link.' });
+      return z.NEVER;
+    }
+    return url;
+  });
 
 export const SizeSchema = z
   .record(z.enum(['sm', 'md']), z.enum(['4x1', '2x2', '2x4', '4x2', '4x4']))
@@ -26,7 +62,7 @@ export const LinkBentoSchema = z.object({
   id: z.string(),
   type: z.literal('link'),
 
-  href: z.string().url(),
+  href: LinkUrlSchema,
   clicks: z.number().int().min(0).default(0),
 
   size: SizeSchema,
@@ -47,9 +83,24 @@ export const AssetBentoSchema = z.object({
   id: z.string(),
   type: z.enum(['image', 'video']),
 
-  url: z.string(),
-  caption: z.string().optional(),
-  href: z.string().optional(),
+  url: OptionalWebUrlSchema,
+  caption: z.string().max(300).optional(),
+  // Empty means "no link": the image card stores undefined, not ''.
+  href: z
+    .string()
+    .max(MAX_URL_LENGTH)
+    .optional()
+    .transform((value, ctx) => {
+      if (!value?.trim()) {
+        return undefined;
+      }
+      const url = toSafeUrl(value, LINK_PROTOCOLS);
+      if (!url) {
+        ctx.addIssue({ code: 'custom', message: 'Enter a valid link.' });
+        return z.NEVER;
+      }
+      return url;
+    }),
 
   size: SizeSchema,
   position: PositionSchema,
@@ -128,7 +179,7 @@ export const MusicBentoSchema = z.object({
   id: z.string(),
   type: z.literal('music'),
 
-  url: z.string(), // Spotify or Apple Music URL
+  url: OptionalWebUrlSchema, // Spotify or Apple Music URL
   title: z.string().optional(),
 
   size: SizeSchema,
@@ -139,7 +190,7 @@ export const CalendarBentoSchema = z.object({
   id: z.string(),
   type: z.literal('calendar'),
 
-  url: z.string(), // Cal.com or Calendly URL
+  url: OptionalWebUrlSchema, // Cal.com or Calendly URL
   title: z.string().optional(),
   description: z.string().optional(),
 
@@ -211,6 +262,26 @@ export const RESERVED_LINKS = [
   'auth',
   'oauth',
   'openbio',
+  // Real routes and hostnames that a profile slug would collide with: the
+  // route wins on the main domain, and `{slug}.openbio.app` is a subdomain.
+  'explore',
+  'claim-link',
+  'www',
+  'mail',
+  'email',
+  'cdn',
+  'static',
+  'assets',
+  'trpc',
+  'sitemap',
+  'robots',
+  'favicon',
+  'billing',
+  'checkout',
+  'upgrade',
+  'unsubscribe',
+  'null',
+  'undefined',
 ];
 
 export const ValidLinkSchema = z

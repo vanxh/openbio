@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,7 +11,16 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
+import {
+  type PlatformKey,
+  describeLink,
+  getPlatformKey,
+  isFollowable,
+} from '@/lib/link-platform';
 import type { getMetadata } from '@/lib/metadata';
+import { toSafeUrl } from '@/lib/url';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { LinkBentoSchema } from '@/types';
@@ -121,134 +131,57 @@ const PLATFORM_MAP: Record<string, PlatformInfo> = {
   },
 };
 
-function getPlatform(url: string): PlatformInfo | null | undefined {
-  const hostname = new URL(url).hostname;
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return PLATFORM_MAP.twitter;
-  }
-  if (hostname.includes('linkedin.com')) {
-    return PLATFORM_MAP.linkedin;
-  }
-  if (hostname.includes('github.com')) {
-    return PLATFORM_MAP.github;
-  }
-  if (hostname.includes('instagram.com')) {
-    return PLATFORM_MAP.instagram;
-  }
-  if (hostname.includes('twitch.tv')) {
-    return PLATFORM_MAP.twitch;
-  }
-  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
-    return PLATFORM_MAP.telegram;
-  }
-  if (hostname.includes('discord.com')) {
-    return PLATFORM_MAP.discord;
-  }
-  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return PLATFORM_MAP.youtube;
-  }
-  return null;
+function getPlatform(url: string): PlatformInfo | null {
+  const key = getPlatformKey(url);
+  return key ? (PLATFORM_MAP[key] ?? null) : null;
 }
 
-function getIcon(url: string, metadata?: Metadata) {
+function getIcon(url: string) {
   const platform = getPlatform(url);
   if (platform) {
     return platform.icon;
   }
-  const hostname = new URL(url).hostname;
+  const { host } = describeLink(url);
   return (
     <Image
-      src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=128`}
-      alt={metadata?.title ?? url}
+      src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`}
+      alt=""
       width={24}
       height={24}
       className="rounded-md"
+      unoptimized
     />
   );
 }
 
+const LARGE_ICONS: Record<PlatformKey, React.ReactNode> = {
+  twitter: <BsTwitterX size={32} className="text-foreground" />,
+  linkedin: <FaLinkedinIn size={32} className="text-[#0A66C2]" />,
+  github: <FaGithub size={32} className="text-foreground" />,
+  instagram: <FaInstagram size={32} className="text-[#F56040]" />,
+  twitch: <FaTwitch size={32} className="text-[#9146FF]" />,
+  telegram: <BiLogoTelegram size={36} className="text-[#0088CC]" />,
+  discord: <BsDiscord size={36} className="text-[#5A65EA]" />,
+  youtube: <FaYoutube size={32} className="text-[#FF0000]" />,
+};
+
 function getLargeIcon(url: string) {
-  const hostname = new URL(url).hostname;
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return <BsTwitterX size={32} className="text-foreground" />;
-  }
-  if (hostname.includes('linkedin.com')) {
-    return <FaLinkedinIn size={32} className="text-[#0A66C2]" />;
-  }
-  if (hostname.includes('github.com')) {
-    return <FaGithub size={32} className="text-foreground" />;
-  }
-  if (hostname.includes('instagram.com')) {
-    return <FaInstagram size={32} className="text-[#F56040]" />;
-  }
-  if (hostname.includes('twitch.tv')) {
-    return <FaTwitch size={32} className="text-[#9146FF]" />;
-  }
-  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
-    return <BiLogoTelegram size={36} className="text-[#0088CC]" />;
-  }
-  if (hostname.includes('discord.com')) {
-    return <BsDiscord size={36} className="text-[#5A65EA]" />;
-  }
-  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return <FaYoutube size={32} className="text-[#FF0000]" />;
-  }
-  return null;
+  const key = getPlatformKey(url);
+  return key ? LARGE_ICONS[key] : null;
 }
 
 function getTitle(url: string, metadata?: Metadata) {
-  const urlObj = new URL(url);
-  const pathSegments = urlObj.pathname.split('/');
-  let userHandle = pathSegments.pop();
-  if (!userHandle) {
-    userHandle = pathSegments.pop();
-  }
-
-  if (getPlatform(url)) {
-    return userHandle?.startsWith('@') ? userHandle : `@${userHandle}`;
-  }
-  return metadata?.title;
+  const { title, host } = describeLink(url);
+  return title ?? metadata?.title ?? host;
 }
 
 function getDescription(url: string, metadata?: Metadata) {
-  const urlObj = new URL(url);
-  const hostname = urlObj.hostname;
-  const pathSegments = urlObj.pathname.split('/');
-  let userHandle = pathSegments.pop();
-  if (!userHandle) {
-    userHandle = pathSegments.pop();
-  }
-
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
-    return `x.com/${userHandle}`;
-  }
-  if (hostname.includes('linkedin.com')) {
-    return `linkedin.com/in/${userHandle}`;
-  }
-  if (hostname.includes('github.com')) {
-    return `github.com/${userHandle}`;
-  }
-  if (hostname.includes('instagram.com')) {
-    return `instagr.am/${userHandle}`;
-  }
-  if (hostname.includes('twitch.tv')) {
-    return `twitch.tv/${userHandle}`;
-  }
-  if (hostname.includes('t.me') || hostname.includes('telegram.com')) {
-    return `t.me/${userHandle}`;
-  }
-  if (hostname.includes('discord.com')) {
-    return 'discord.com';
-  }
-  if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
-    return `youtube.com/${userHandle}`;
-  }
-  return metadata?.description ?? null;
+  return describeLink(url).caption ?? metadata?.description ?? null;
 }
 
 function getAction(url: string) {
   const platform = getPlatform(url);
-  if (!platform) {
+  if (!(platform && isFollowable(url))) {
     return null;
   }
   return (
@@ -266,7 +199,7 @@ function ActionButton({
   variant?: 'default' | 'outline';
 }) {
   const platform = getPlatform(url);
-  if (!platform) {
+  if (!(platform && isFollowable(url))) {
     return null;
   }
   return (
@@ -305,7 +238,8 @@ function CardWrapper({
   const { mutate: trackClick } = api.profileLink.trackClick.useMutation();
 
   const handleClick = () => {
-    if (!editable && profileLink && bento.href) {
+    // Owners previewing their own page are not real clicks.
+    if (!editable && profileLink && !profileLink.isOwner && bento.href) {
       trackClick({
         linkId: profileLink.id,
         bentoId: bento.id,
@@ -352,11 +286,9 @@ function CardWrapper({
 
 function IconBadge({
   href,
-  metadata,
   size = 'md',
 }: {
   href: string;
-  metadata?: Metadata;
   size?: 'sm' | 'md' | 'lg';
 }) {
   return (
@@ -368,9 +300,7 @@ function IconBadge({
         size === 'lg' && 'h-14 w-14 rounded-2xl'
       )}
     >
-      {size === 'lg'
-        ? (getLargeIcon(href) ?? getIcon(href, metadata))
-        : getIcon(href, metadata)}
+      {size === 'lg' ? (getLargeIcon(href) ?? getIcon(href)) : getIcon(href)}
     </div>
   );
 }
@@ -379,14 +309,12 @@ function IconBadge({
 function CompactLayout({
   bento,
   editable,
-  metadata,
   title,
   description,
   onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
-  metadata?: Metadata;
   title?: string | null;
   description?: string | null;
   onEdit?: () => void;
@@ -398,7 +326,7 @@ function CompactLayout({
       className="flex flex-col p-5"
       onEdit={onEdit}
     >
-      <IconBadge href={bento.href ?? ''} metadata={metadata} />
+      <IconBadge href={bento.href ?? ''} />
       <div className="mt-auto space-y-1">
         {title && <p className="font-cal text-sm leading-tight">{title}</p>}
         {description && (
@@ -416,13 +344,11 @@ function CompactLayout({
 function BannerLayout({
   bento,
   editable,
-  metadata,
   title,
   onEdit,
 }: {
   bento: BentoData;
   editable?: boolean;
-  metadata?: Metadata;
   title?: string | null;
   onEdit?: () => void;
 }) {
@@ -433,7 +359,7 @@ function BannerLayout({
       className="flex items-center gap-x-3 px-5"
       onEdit={onEdit}
     >
-      <IconBadge href={bento.href ?? ''} metadata={metadata} size="sm" />
+      <IconBadge href={bento.href ?? ''} size="sm" />
       <span className="truncate font-cal text-sm">{title}</span>
       <div className="ml-auto shrink-0">{getAction(bento.href ?? '')}</div>
     </CardWrapper>
@@ -470,7 +396,7 @@ function WideLayout({
         onEdit={onEdit}
       >
         <div className="flex flex-1 flex-col justify-between p-5">
-          <IconBadge href={href} metadata={metadata} />
+          <IconBadge href={href} />
           <div className="mt-auto space-y-1">
             {title && <p className="font-cal text-sm leading-tight">{title}</p>}
             {description && (
@@ -507,7 +433,7 @@ function WideLayout({
           platform?.bg ?? 'bg-muted/50'
         )}
       >
-        <IconBadge href={href} metadata={metadata} size="lg" />
+        <IconBadge href={href} size="lg" />
       </div>
 
       {/* Content area */}
@@ -535,34 +461,36 @@ export default function LinkCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [href, setHref] = useState(bento.href ?? '');
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
+  const cardSize = useCardSize(bento);
 
+  // Profile links are labelled from the URL alone; only other pages need
+  // their title and preview image fetched.
+  const needsMetadata = !!bento.href && !describeLink(bento.href).handle;
   const { data: metadata } = api.profileLink.getMetadataOfURL.useQuery(
     { url: bento.href ?? '' },
-    { enabled: !!bento.href }
+    { enabled: needsMetadata, staleTime: 60 * 60 * 1000 }
   );
 
   const handleSave = async () => {
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) => (b.id === bento.id ? { ...b, href } : b)),
-      };
-    });
+    const url = toSafeUrl(href);
+    if (!url) {
+      toast({
+        title: 'Invalid link',
+        description: 'Enter a full link, like https://example.com.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    await updateBento({
-      link: params.link,
-      bento: { ...bento, href },
-    });
+    const saved = await saveBento({ ...bento, href: url });
+    if (!saved) {
+      return;
+    }
+    setHref(url);
     setEditOpen(false);
   };
 
@@ -572,38 +500,24 @@ export default function LinkCard({
 
   const title = getTitle(bento.href, metadata ?? undefined);
   const description = getDescription(bento.href, metadata ?? undefined);
-  const smSize = bento.size.sm ?? '2x2';
-  const mdSize = bento.size.md ?? '2x2';
   const onEdit = editable ? () => setEditOpen(true) : undefined;
 
-  const layout =
-    smSize === '4x1' || mdSize === '4x1' ? (
-      <BannerLayout
-        bento={bento}
-        editable={editable}
-        metadata={metadata ?? undefined}
-        title={title}
-        onEdit={onEdit}
-      />
-    ) : mdSize === '4x2' ? (
+  const layoutProps = { bento, editable, title, onEdit };
+
+  let layout: React.ReactNode;
+  if (cardSize === '4x1') {
+    layout = <BannerLayout {...layoutProps} />;
+  } else if (cardSize === '4x2') {
+    layout = (
       <WideLayout
-        bento={bento}
-        editable={editable}
-        metadata={metadata ?? undefined}
-        title={title}
+        {...layoutProps}
         description={description}
-        onEdit={onEdit}
-      />
-    ) : (
-      <CompactLayout
-        bento={bento}
-        editable={editable}
         metadata={metadata ?? undefined}
-        title={title}
-        description={description}
-        onEdit={onEdit}
       />
     );
+  } else {
+    layout = <CompactLayout {...layoutProps} description={description} />;
+  }
 
   return (
     <>

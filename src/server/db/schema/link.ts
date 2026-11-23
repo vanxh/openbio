@@ -3,6 +3,7 @@ export { PositionSchema, SizeSchema, BentoSchema } from '@/types';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
+  index,
   json,
   pgTable,
   text,
@@ -14,35 +15,40 @@ import { linkClick } from './link-click';
 import { linkView } from './link-view';
 import { user } from './user';
 
-export const link = pgTable('link', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const link = pgTable(
+  'link',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
 
-  link: text('link').unique().notNull(),
+    link: text('link').unique().notNull(),
 
-  image: text('image'),
-  name: text('name').notNull(),
-  bio: text('bio'),
+    image: text('image'),
+    name: text('name').notNull(),
+    bio: text('bio'),
 
-  bento: json('bento')
-    .$type<z.infer<typeof BentoSchema>[]>()
-    .default([])
-    .notNull(),
+    bento: json('bento')
+      .$type<z.infer<typeof BentoSchema>[]>()
+      .default([])
+      .notNull(),
 
-  customDomain: text('custom_domain').unique(),
+    customDomain: text('custom_domain').unique(),
 
-  theme: text('theme').default('default').notNull(),
-  accentColor: text('accent_color'),
-  darkMode: boolean('dark_mode').default(false).notNull(),
+    theme: text('theme').default('default').notNull(),
+    accentColor: text('accent_color'),
+    darkMode: boolean('dark_mode').default(false).notNull(),
 
-  customFooter: text('custom_footer'),
+    customFooter: text('custom_footer'),
 
-  isPublic: boolean('is_public').default(true).notNull(),
+    isPublic: boolean('is_public').default(true).notNull(),
 
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 
-  userId: text('user_id').notNull(),
-});
+    userId: text('user_id').notNull(),
+  },
+  // The dashboard, plan limits and the weekly digest all list a user's profiles.
+  (table) => [index('link_user_id_idx').on(table.userId)]
+);
 
 export const linkRelations = relations(link, ({ one, many }) => ({
   user: one(user, {

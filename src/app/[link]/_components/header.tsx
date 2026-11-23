@@ -4,6 +4,7 @@ import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import VerifiedBadge from '@/components/verified-badge';
+import { getErrorMessage } from '@/lib/errors';
 import { type RouterOutputs, api } from '@/trpc/react';
 import Highlight from '@tiptap/extension-highlight';
 import TiptapLink from '@tiptap/extension-link';
@@ -21,7 +22,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import ProfileLinkAvatar from './avatar';
 import BioToolbar from './bio-toolbar';
 import { usePreview } from './preview-context';
@@ -44,6 +45,29 @@ const extensions = [
 
 type ProfileLinkData = NonNullable<RouterOutputs['profileLink']['getByLink']>;
 
+type HeaderFields = { name?: string | null; bio?: string | null };
+
+/**
+ * The fields that differ from what the server holds, or null when nothing
+ * needs saving. An emptied name is skipped: the last real one stays until
+ * something is typed.
+ */
+function getUnsavedChanges(
+  current: HeaderFields,
+  saved: HeaderFields
+): { name?: string; bio?: string } | null {
+  const changes: { name?: string; bio?: string } = {};
+
+  if (current.name?.trim() && current.name !== saved.name) {
+    changes.name = current.name;
+  }
+  if (current.bio != null && current.bio !== saved.bio) {
+    changes.bio = current.bio;
+  }
+
+  return Object.keys(changes).length > 0 ? changes : null;
+}
+
 export default function ProfileLinkHeader({
   profileLink: initialData,
 }: { profileLink: ProfileLinkData }) {
@@ -58,26 +82,49 @@ export default function ProfileLinkHeader({
   const [bio, setBio] = useState(profileLink?.bio);
   const [saving, startSaving] = useTransition();
 
+  // What the server currently holds. Autosave sends only fields that differ
+  // from this, so merely opening the page never writes anything.
+  const saved = useRef({ name: profileLink?.name, bio: profileLink?.bio });
+
+  const utils = api.useUtils();
   const { mutateAsync: updateProfileLink } =
     api.profileLink.update.useMutation();
 
+  const profileLinkId = profileLink?.id;
+  const isOwner = !!profileLink?.isOwner;
+
   useEffect(() => {
-    if (!profileLink?.isOwner) {
+    if (!(isOwner && profileLinkId)) {
+      return;
+    }
+
+    const changes = getUnsavedChanges({ name, bio }, saved.current);
+    if (!changes) {
       return;
     }
 
     const timer = setTimeout(() => {
       startSaving(async () => {
-        await updateProfileLink({
-          id: profileLink.id,
-          name,
-          bio: bio ?? undefined,
-        });
+        try {
+          await updateProfileLink({ id: profileLinkId, ...changes });
+          saved.current = { ...saved.current, ...changes };
+          // Keep the cached profile in step, so nothing reading it (the AI
+          // tools, the bio sync below) ever sees the pre-edit text.
+          utils.profileLink.getByLink.setData({ link }, (old) =>
+            old ? { ...old, ...changes } : old
+          );
+        } catch (err) {
+          toast({
+            title: "Couldn't save your profile",
+            description: getErrorMessage(err),
+            variant: 'destructive',
+          });
+        }
       });
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [name, bio, updateProfileLink, profileLink]);
+  }, [name, bio, updateProfileLink, profileLinkId, isOwner, link, utils]);
 
   const { preview, setPreview, viewport, setViewport } = usePreview();
 
@@ -96,6 +143,20 @@ export default function ProfileLinkHeader({
       setBio(editor.getHTML());
     },
   });
+
+  // The bio can change underneath the editor (the AI profile builder writes
+  // it directly). Adopt the server's copy unless the owner is mid-edit.
+  const serverBio = profileLink?.bio;
+  useEffect(() => {
+    if (!editor || serverBio == null || editor.isFocused) {
+      return;
+    }
+    if (serverBio !== saved.current.bio) {
+      saved.current.bio = serverBio;
+      setBio(serverBio);
+      editor.commands.setContent(serverBio, { emitUpdate: false });
+    }
+  }, [editor, serverBio]);
 
   if (!profileLink) {
     return null;
@@ -217,6 +278,8 @@ export default function ProfileLinkHeader({
         <input
           className="min-w-0 shrink bg-transparent font-cal text-3xl text-foreground outline-none focus:outline-none md:text-4xl lg:text-6xl"
           defaultValue={profileLink.name}
+          maxLength={100}
+          aria-label="Display name"
           onChange={(e) => setName(e.target.value)}
           readOnly={!isEditable}
           size={Math.max((name ?? profileLink.name ?? '').length, 1)}

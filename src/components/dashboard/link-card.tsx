@@ -1,5 +1,6 @@
 'use client';
 
+import { DeleteLinkDialog } from '@/components/dashboard/delete-link-dialog';
 import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
 import { type RouterOutputs, api } from '@/trpc/react';
@@ -42,28 +43,57 @@ export function DashboardLinkCard({ link }: { link: ProfileLink }) {
         </div>
       </div>
       <div className="flex justify-around border-border/50 border-t px-2 py-1">
-        <Link href={`/${link.link}`} target="_blank">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          title="Open page"
+        >
+          <Link
+            href={`/${link.link}`}
+            target="_blank"
+            aria-label={`Open ${link.name}'s page`}
+          >
             <ExternalLink className="h-4 w-4" />
-          </Button>
-        </Link>
-        <Link href={`/app/analytics/${link.id}`}>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          title="Analytics"
+        >
+          <Link
+            href={`/app/analytics/${link.id}`}
+            aria-label={`Analytics for ${link.name}`}
+          >
             <BarChart3 className="h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <LinkQRModal profileLink={link} linkSlug={link.link}>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            title="QR code"
+            aria-label={`QR code for ${link.name}`}
+          >
             <QrCode className="h-4 w-4" />
           </Button>
         </LinkQRModal>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-destructive hover:text-destructive"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <DeleteLinkDialog link={link.link}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            title="Delete page"
+            aria-label={`Delete ${link.name}'s page`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </DeleteLinkDialog>
       </div>
     </div>
   );

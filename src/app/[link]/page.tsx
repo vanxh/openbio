@@ -5,6 +5,7 @@ import {
 } from '@/app/shared-metadata';
 import OnboardingTour from '@/components/onboarding-tour';
 import { Skeleton } from '@/components/ui/skeleton';
+import { htmlToText, serializeJsonLd } from '@/lib/html';
 import { api } from '@/trpc/server';
 import { ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -25,6 +26,8 @@ type Props = {
   }>;
 };
 
+const APP_URL = 'https://openbio.app';
+
 const getProfileLink = cache((link: string) => {
   return api.profileLink.getByLink({ link });
 });
@@ -34,27 +37,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const profileLink = await getProfileLink(link);
 
-  const title = profileLink?.name ?? defaultMetadata.title;
-  const description = (
-    profileLink?.bio ??
-    `This is ${profileLink?.name ?? profileLink?.link}'s profile.`
-  ).replace(/<[^>]*>/g, '');
+  if (!profileLink) {
+    return { ...defaultMetadata, title: 'Profile not found' };
+  }
+
+  const title = profileLink.name ?? defaultMetadata.title;
+  const description =
+    htmlToText(profileLink.bio ?? '').slice(0, 300) ||
+    `This is ${profileLink.name ?? profileLink.link}'s profile.`;
+
+  // Names and bios are free text: unencoded, a `&` or `#` would cut the
+  // image URL short and drop the rest of the title.
+  const ogImage = `/api/og?${new URLSearchParams({ title, description })}`;
 
   return {
     ...defaultMetadata,
     title,
     description,
+    // The same page is reachable by path, subdomain and custom domain;
+    // point search engines at one of them.
+    alternates: { canonical: `/${profileLink.link}` },
     twitter: {
       ...twitterMetadata,
       title,
       description,
-      images: [`/api/og?title=${title}&description=${description}`],
+      images: [ogImage],
     },
     openGraph: {
       ...ogMetadata,
       title,
       description,
-      images: [`/api/og?title=${title}&description=${description}`],
+      images: [ogImage],
     },
   };
 }
@@ -67,7 +80,7 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  const bio = (profileLink.bio ?? '').replace(/<[^>]*>/g, '');
+  const bio = htmlToText(profileLink.bio ?? '');
   const profileUrl = `https://openbio.app/${profileLink.link}`;
 
   const jsonLd = {
@@ -89,8 +102,8 @@ export default async function Page({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD with server-only data from our DB
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD, escaped by serializeJsonLd
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <ThemeWrapper
         theme={profileLink.theme}
@@ -135,7 +148,9 @@ export default async function Page({ params }: Props) {
                       </p>
                     ) : (
                       <Link
-                        href="/claim-link"
+                        // Absolute: on a subdomain or custom domain a
+                        // relative path is rewritten into this profile and 404s.
+                        href={`${APP_URL}/claim-link`}
                         className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-4 py-2 text-muted-foreground text-sm backdrop-blur-sm transition-all hover:border-primary hover:text-foreground"
                       >
                         Create your own free page on

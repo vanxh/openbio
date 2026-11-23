@@ -112,7 +112,7 @@ export default function UpgradedEmail() {
               <tbody>
                 <tr>
                   <td style={{ padding: '4px 0', color: '#52525b' }}>
-                    ✓ Unlimited profile links
+                    ✓ More profile links (5 on Pro, unlimited on Business)
                   </td>
                 </tr>
                 <tr>

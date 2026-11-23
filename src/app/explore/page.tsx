@@ -1,3 +1,4 @@
+import { htmlToText } from '@/lib/html';
 import { api } from '@/trpc/server';
 import { LayoutGrid } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -8,10 +9,6 @@ export const metadata: Metadata = {
   title: 'Explore Profiles | OpenBio',
   description: 'Discover creative profiles built with OpenBio',
 };
-
-function stripHtml(html: string) {
-  return html.replace(/<[^>]*>/g, '').trim();
-}
 
 export default async function ExplorePage() {
   const { profiles } = await api.profileLink.listPublic({ limit: 40 });
@@ -43,7 +40,7 @@ export default async function ExplorePage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {profiles.map((profile) => {
-            const bio = profile.bio ? stripHtml(profile.bio) : null;
+            const bio = profile.bio ? htmlToText(profile.bio) : null;
             const cardCount = Array.isArray(profile.bento)
               ? profile.bento.length
               : 0;

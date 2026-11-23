@@ -1,6 +1,7 @@
 'use client';
 
 import { toast } from '@/components/ui/use-toast';
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from '@/lib/upload-limits';
 import { cn } from '@/lib/utils';
 import type { RouterOutputs } from '@/trpc/react';
 import { UploadCloud } from 'lucide-react';
@@ -19,6 +20,14 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
     async (acceptedFiles: FileWithPath[]) => {
       const file = acceptedFiles[0];
       if (!file) {
+        return;
+      }
+      if (file.size > MAX_UPLOAD_BYTES) {
+        toast({
+          title: 'Image too large',
+          description: `Choose an image of ${MAX_UPLOAD_LABEL} or less.`,
+          variant: 'destructive',
+        });
         return;
       }
 
@@ -51,7 +60,8 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'image/png': [], 'image/jpeg': [] },
+    accept: { 'image/png': [], 'image/jpeg': [], 'image/webp': [] },
+    multiple: false,
   });
 
   if (!profileLink.isOwner && !profileLink.image) {
@@ -72,7 +82,7 @@ export default function ProfileLinkAvatar({ profileLink }: Props) {
         <Image
           key={img}
           src={img}
-          alt="Profile link image"
+          alt={`${profileLink.name}'s profile picture`}
           width={150}
           height={150}
           priority

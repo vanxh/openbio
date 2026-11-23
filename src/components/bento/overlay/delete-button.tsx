@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { toast } from '@/components/ui/use-toast';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
 import { Trash2 } from 'lucide-react';
@@ -22,7 +23,7 @@ export default function DeleteButton({
 
   const queryClient = api.useContext();
 
-  const { mutateAsync: deleteBento } = api.profileLink.deleteBento.useMutation({
+  const { mutate: deleteBento } = api.profileLink.deleteBento.useMutation({
     onMutate: async () => {
       await queryClient.profileLink.getByLink.cancel({ link });
       const previous = queryClient.profileLink.getByLink.getData({ link });
@@ -41,6 +42,11 @@ export default function DeleteButton({
       if (context?.previous) {
         queryClient.profileLink.getByLink.setData({ link }, context.previous);
       }
+      toast({
+        title: "Couldn't delete this card",
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     },
   });
 

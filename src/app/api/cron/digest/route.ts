@@ -89,8 +89,16 @@ async function getTopReferrerForLinks(linkIds: string[], since: Date) {
 }
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Without a configured secret the comparison below would accept the literal
+  // header "Bearer undefined", letting anyone trigger a mail-out to every user.
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    return NextResponse.json(
+      { error: 'CRON_SECRET is not configured' },
+      { status: 503 }
+    );
+  }
+  if (req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

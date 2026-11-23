@@ -1,21 +1,31 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { link } from './link';
 
-export const linkClick = pgTable('link_click', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const linkClick = pgTable(
+  'link_click',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
 
-  bentoId: text('bento_id').notNull(),
-  href: text('href').notNull(),
+    bentoId: text('bento_id').notNull(),
+    href: text('href').notNull(),
 
-  ip: text('ip').notNull(),
-  userAgent: text('user_agent').notNull(),
-  referrer: text('referrer'),
+    ip: text('ip').notNull(),
+    userAgent: text('user_agent').notNull(),
+    referrer: text('referrer'),
 
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 
-  linkId: uuid('link_id').notNull(),
-});
+    linkId: uuid('link_id').notNull(),
+  },
+  (table) => [
+    // Click analytics are always read per profile over a time window.
+    index('link_click_link_id_created_at_idx').on(
+      table.linkId,
+      table.createdAt
+    ),
+  ]
+);
 
 export const linkClickRelations = relations(linkClick, ({ one }) => ({
   link: one(link, {

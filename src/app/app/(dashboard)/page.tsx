@@ -5,6 +5,7 @@ import UpgradeCelebration from '@/components/dashboard/upgrade-celebration';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserSettings from '@/components/user-settings';
+import { getLinkLimit, isUserPremium } from '@/server/db/utils/user';
 import { api } from '@/trpc/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -19,19 +20,26 @@ export default async function Page() {
 
   const links = await api.profileLink.getAll();
 
+  // Mirrors the server-side check in `profileLink.create`, so the button never
+  // offers a page the account is not allowed to make.
+  const linkLimit = isUserPremium(user) ? getLinkLimit(user.plan) : 1;
+  const canCreate = links.length < linkLimit;
+
   return (
     <div className="flex w-full flex-col gap-y-6">
       <UpgradeCelebration />
       <div className="flex items-center justify-between">
         <h1 className="font-cal text-3xl">Dashboard</h1>
-        {user.plan !== 'free' || links.length === 0 ? (
+        {canCreate ? (
           <Link href="/claim-link">
             <GradientButton>Create new</GradientButton>
           </Link>
         ) : (
-          <GradientButton disabled className="text-xs opacity-50 sm:text-sm">
-            Upgrade to add more
-          </GradientButton>
+          <Link href="/app?tab=settings">
+            <GradientButton className="text-xs sm:text-sm">
+              Upgrade to add more
+            </GradientButton>
+          </Link>
         )}
       </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { MapBentoSchema } from '@/types';
@@ -245,9 +247,7 @@ export default function MapCard({
     link: params.link,
   });
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -291,33 +291,19 @@ export default function MapCard({
       return;
     }
 
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id
-            ? { ...b, latitude: lat, longitude: lng, label: label || undefined }
-            : b
-        ),
-      };
+    const saved = await saveBento({
+      ...bento,
+      latitude: lat,
+      longitude: lng,
+      label: label || undefined,
     });
-
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        latitude: lat,
-        longitude: lng,
-        label: label || undefined,
-      },
-    });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
   const hasLocation = bento.latitude !== 0 || bento.longitude !== 0;
 
   return (
@@ -340,7 +326,7 @@ export default function MapCard({
               latitude={bento.latitude}
               longitude={bento.longitude}
               label={bento.label}
-              compact={mdSize === '2x2'}
+              compact={cardSize === '2x2'}
               profileImage={profileLink?.image}
               profileName={profileLink?.name}
             />

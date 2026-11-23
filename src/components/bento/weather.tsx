@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,11 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
 import type { WeatherBentoSchema } from '@/types';
 import { Locate, Pencil } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type * as z from 'zod';
 
@@ -219,13 +219,13 @@ function WeatherContent({
   hasLocation,
   weather,
   editable,
-  mdSize,
+  cardSize,
   displayLocation,
 }: {
   hasLocation: boolean;
   weather: WeatherData | null;
   editable?: boolean;
-  mdSize: string;
+  cardSize: string;
   displayLocation?: string;
 }) {
   if (!hasLocation || !weather) {
@@ -239,7 +239,7 @@ function WeatherContent({
       </div>
     );
   }
-  if (mdSize === '4x2') {
+  if (cardSize === '4x2') {
     return <WideWeather weather={weather} locationName={displayLocation} />;
   }
   return <CompactWeather weather={weather} locationName={displayLocation} />;
@@ -252,7 +252,6 @@ export default function WeatherCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [latitude, setLatitude] = useState(String(bento.latitude || ''));
   const [longitude, setLongitude] = useState(String(bento.longitude || ''));
@@ -263,9 +262,7 @@ export default function WeatherCard({
   const geocodedName = useReverseGeocode(bento.latitude, bento.longitude);
   const displayLocation = bento.locationName || geocodedName;
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -309,38 +306,19 @@ export default function WeatherCard({
       return;
     }
 
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id
-            ? {
-                ...b,
-                latitude: lat,
-                longitude: lng,
-                locationName: locationName || undefined,
-              }
-            : b
-        ),
-      };
+    const saved = await saveBento({
+      ...bento,
+      latitude: lat,
+      longitude: lng,
+      locationName: locationName || undefined,
     });
-
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        latitude: lat,
-        longitude: lng,
-        locationName: locationName || undefined,
-      },
-    });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
   const hasLocation = bento.latitude !== 0 || bento.longitude !== 0;
 
   return (
@@ -361,7 +339,7 @@ export default function WeatherCard({
           hasLocation={hasLocation}
           weather={weather}
           editable={editable}
-          mdSize={mdSize}
+          cardSize={cardSize}
           displayLocation={displayLocation ?? undefined}
         />
 

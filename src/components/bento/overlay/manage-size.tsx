@@ -45,7 +45,7 @@ export default function ManageSize({
 
   const queryClient = api.useContext();
 
-  const { mutateAsync: updateBento } = api.profileLink.updateBento.useMutation({
+  const { mutate: updateBento } = api.profileLink.updateBento.useMutation({
     onMutate: async (input) => {
       // Cancel in-flight refetches so they don't overwrite our optimistic update
       await queryClient.profileLink.getByLink.cancel({ link });

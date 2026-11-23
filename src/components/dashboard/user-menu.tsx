@@ -51,7 +51,7 @@ export function UserMenu() {
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem
-          onClick={() => router.push('/app#settings')}
+          onClick={() => router.push('/app?tab=settings')}
           className="cursor-pointer gap-x-2 rounded-lg"
         >
           <Settings className="h-4 w-4" />

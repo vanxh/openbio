@@ -6,6 +6,16 @@ export const AI_CREDITS: Record<PlanName, number> = {
   business: 500,
 };
 
+/**
+ * When the current month's AI credits expire: midnight UTC on the first of
+ * next month. Built from year and month directly, because bumping the month
+ * on a date late in a long month overflows (31 Jan + 1 month is 3 March) and
+ * would push the reset a whole month too far.
+ */
+export function getNextCreditReset(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+}
+
 export const LINK_LIMITS: Record<PlanName, number> = {
   free: 1,
   pro: 5,

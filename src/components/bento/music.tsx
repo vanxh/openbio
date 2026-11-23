@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { AppleMusic } from '@/components/icons/apple-music';
 import { Spotify } from '@/components/icons/spotify';
 import { Button } from '@/components/ui/button';
@@ -13,12 +14,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
 import { api } from '@/trpc/react';
 import type { MusicBentoSchema } from '@/types';
 import { ExternalLink, Music, Pencil } from 'lucide-react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import type * as z from 'zod';
 
@@ -201,36 +202,21 @@ export default function MusicCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [url, setUrl] = useState(bento.url ?? '');
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleSave = async () => {
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id ? { ...b, url: url || '' } : b
-        ),
-      };
-    });
-
-    await updateBento({
-      link: params.link,
-      bento: { ...bento, url: url || '' },
-    });
+    const saved = await saveBento({ ...bento, url: url || '' });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
-  const isCompact = mdSize === '2x2';
+  const cardSize = useCardSize(bento);
+  const isCompact = cardSize === '2x2';
 
   // Preview in edit modal
   const previewUrl = url || '';

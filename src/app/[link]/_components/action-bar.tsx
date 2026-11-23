@@ -9,6 +9,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { toast } from '@/components/ui/use-toast';
+import { getErrorMessage } from '@/lib/errors';
+import { toSafeUrl } from '@/lib/url';
 import { api } from '@/trpc/react';
 import {
   ArrowLeft,
@@ -38,6 +41,34 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { useBentoHistory } from './bento-history';
 import { usePreview } from './preview-context';
 
+type SuggestedCard = { type: string; title: string; value: string };
+
+type CardFields = Record<string, unknown>;
+
+// How each suggested card type becomes a bento card. `url` is the suggested
+// value once vetted: the model invents URLs freely, so only safe ones survive.
+const SUGGESTION_BUILDERS: Record<
+  string,
+  (card: SuggestedCard, url: string | null) => CardFields | null
+> = {
+  note: (card) => ({ type: 'note', text: card.value || card.title }),
+  'email-collect': () => ({ type: 'email-collect' }),
+  github: (card) =>
+    card.value ? { type: 'github', username: card.value } : null,
+  link: (_card, url) => (url ? { type: 'link', href: url, clicks: 0 } : null),
+  music: (_card, url) => (url ? { type: 'music', url } : null),
+  calendar: (_card, url) => (url ? { type: 'calendar', url } : null),
+};
+
+/** Turn AI card suggestions into bento cards, dropping any it cannot use. */
+function suggestionToCards(cards: SuggestedCard[]): CardFields[] {
+  return cards.flatMap((card) => {
+    const url = card.value ? toSafeUrl(card.value) : null;
+    const built = SUGGESTION_BUILDERS[card.type]?.(card, url);
+    return built ? [built] : [];
+  });
+}
+
 export default function ActionBar() {
   const { preview } = usePreview();
   const { pushSnapshot, canUndo, canRedo, undo, redo } = useBentoHistory();
@@ -51,9 +82,16 @@ export default function ActionBar() {
     onSuccess: () => {
       queryClient.profileLink.getByLink.invalidate({ link });
     },
+    onError: (err) => {
+      toast({
+        title: "Couldn't update your profile",
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      });
+    },
   });
 
-  const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
+  const { mutate: createBento } = api.profileLink.createBento.useMutation({
     onMutate: async (input) => {
       await queryClient.profileLink.getByLink.cancel({ link });
       const previous = queryClient.profileLink.getByLink.getData({ link });
@@ -80,6 +118,11 @@ export default function ActionBar() {
       if (context?.previous) {
         queryClient.profileLink.getByLink.setData({ link }, context.previous);
       }
+      toast({
+        title: "Couldn't add this card",
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -93,8 +136,13 @@ export default function ActionBar() {
   const menuItemClass =
     'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted';
 
-  const addCard = (bento: Record<string, unknown>) => {
-    pushSnapshot();
+  const addCard = (
+    bento: Record<string, unknown>,
+    { snapshot = true }: { snapshot?: boolean } = {}
+  ) => {
+    if (snapshot) {
+      pushSnapshot();
+    }
     createBento({ link, bento: bento as never });
     setAddOpen(false);
   };
@@ -362,45 +410,14 @@ export default function ActionBar() {
                   bio: `<p>${suggestion.bio}</p>`,
                 });
               }
-              // Add suggested cards
-              for (const card of suggestion.cards) {
-                if (card.type === 'link' && card.value) {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'link',
-                    href: card.value,
-                    clicks: 0,
-                  });
-                } else if (card.type === 'note') {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'note',
-                    text: card.value || card.title,
-                  });
-                } else if (card.type === 'github' && card.value) {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'github',
-                    username: card.value,
-                  });
-                } else if (card.type === 'email-collect') {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'email-collect',
-                  });
-                } else if (card.type === 'music' && card.value) {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'music',
-                    url: card.value,
-                  });
-                } else if (card.type === 'calendar' && card.value) {
-                  addCard({
-                    id: crypto.randomUUID(),
-                    type: 'calendar',
-                    url: card.value,
-                  });
-                }
+              // One snapshot for the whole batch, so a single undo removes
+              // everything the builder added.
+              pushSnapshot();
+              for (const card of suggestionToCards(suggestion.cards ?? [])) {
+                addCard(
+                  { id: crypto.randomUUID(), ...card },
+                  { snapshot: false }
+                );
               }
             }}
           >

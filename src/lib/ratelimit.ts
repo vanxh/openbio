@@ -15,9 +15,13 @@ export const subscribeLimit = new Ratelimit({
   prefix: 'rl:subscribe',
 });
 
-/** External fetch endpoints (metadata, music) — 10 requests per minute */
+/**
+ * External fetch endpoints (metadata, tweets, music) — 40 requests per minute.
+ * One profile view makes a request per card that needs remote data, so the
+ * limit has to clear a card-heavy page in a single load.
+ */
 export const fetchLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, '1m'),
+  limiter: Ratelimit.slidingWindow(40, '1m'),
   prefix: 'rl:fetch',
 });

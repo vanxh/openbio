@@ -16,8 +16,10 @@
     "db:studio": "drizzle-kit studio",
     "vercel-build": "bun run db:push && bun run build",
     "prepare": "husky",
+    "test": "bun test tests/lib.test.ts tests/proxy.test.ts && bun run test:admin",
     "test:admin": "bun test tests/admin.test.ts",
-    "test:admin:postgres": "bun test tests/admin-postgres.test.mjs"
+    "test:admin:postgres": "bun test tests/admin-postgres.test.mjs",
+    "test:link:postgres": "bun test tests/link-postgres.test.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.148",

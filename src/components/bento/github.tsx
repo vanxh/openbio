@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,12 +11,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSaveBento } from '@/hooks/use-save-bento';
 import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
 import type { GithubBentoSchema } from '@/types';
 import { Pencil } from 'lucide-react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import type * as z from 'zod';
@@ -257,40 +257,25 @@ export default function GitHubCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
   const [editOpen, setEditOpen] = useState(false);
   const [username, setUsername] = useState(bento.username || '');
   const stats = useGitHubStats(bento.username);
 
-  const queryClient = api.useContext();
-  const { mutateAsync: updateBento, isPending } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento, isPending } = useSaveBento();
 
   const handleSave = async () => {
     if (!username.trim()) {
       return;
     }
 
-    queryClient.profileLink.getByLink.setData({ link: params.link }, (old) => {
-      if (!old) {
-        return old;
-      }
-      return {
-        ...old,
-        bento: old.bento.map((b) =>
-          b.id === bento.id ? { ...b, username: username.trim() } : b
-        ),
-      };
-    });
-
-    await updateBento({
-      link: params.link,
-      bento: { ...bento, username: username.trim() },
-    });
+    const saved = await saveBento({ ...bento, username: username.trim() });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
-  const mdSize = bento.size.md ?? '2x2';
+  const cardSize = useCardSize(bento);
   const hasUsername = !!bento.username;
 
   const CardContent = () => {
@@ -305,10 +290,10 @@ export default function GitHubCard({
       );
     }
 
-    if (mdSize === '4x4') {
+    if (cardSize === '4x4') {
       return <LargeGitHub username={bento.username} stats={stats} />;
     }
-    if (mdSize === '4x2') {
+    if (cardSize === '4x2') {
       return <WideGitHub username={bento.username} stats={stats} />;
     }
     return <CompactGitHub username={bento.username} stats={stats} />;

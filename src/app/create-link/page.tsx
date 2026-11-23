@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
+import { getErrorMessage } from '@/lib/errors';
 import OpenBioLogo from '@/public/openbio.png';
 import { api } from '@/trpc/react';
 import { AtSign, Loader2, Sparkles } from 'lucide-react';
@@ -145,26 +147,33 @@ export default function Page() {
   const filledSocials = Object.entries(socials).filter(([, v]) => v);
 
   const handlePublish = async () => {
-    if (!link || !name) {
+    if (!link) {
+      // Arrived without a claimed name (a bookmarked or hand-typed URL).
+      toast({
+        title: 'Pick a name first',
+        description: 'Choose the link for your page, then set it up here.',
+      });
+      router.push('/claim-link');
+      return;
+    }
+    if (!name) {
       return;
     }
     setLoading(true);
     try {
       await createLink({
         link,
-        name: name || undefined,
+        name,
         bio: bio || undefined,
-        twitter: socials.twitter || undefined,
-        github: socials.github || undefined,
-        linkedin: socials.linkedin || undefined,
-        instagram: socials.instagram || undefined,
-        telegram: socials.telegram || undefined,
-        discord: socials.discord || undefined,
-        youtube: socials.youtube || undefined,
-        twitch: socials.twitch || undefined,
+        ...Object.fromEntries(filledSocials),
       });
       router.push(`/${link}`);
-    } catch {
+    } catch (err) {
+      toast({
+        title: "Couldn't create your page",
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      });
       setLoading(false);
     }
   };

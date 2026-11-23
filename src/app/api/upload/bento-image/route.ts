@@ -1,9 +1,11 @@
 import { auth } from '@/lib/auth';
+import {
+  optimizeImage,
+  readImageUpload,
+  uploadErrorResponse,
+} from '@/lib/image-upload';
 import { put } from '@vercel/blob';
 import { type NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
-
-const FILE_EXT_RE = /\.\w+$/;
 
 export async function POST(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
@@ -11,31 +13,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const formData = await request.formData();
-  const file = formData.get('file') as File;
-
-  if (!file) {
-    return NextResponse.json({ error: 'Missing file' }, { status: 400 });
+  let optimized: Buffer;
+  try {
+    const input = await readImageUpload(await request.formData());
+    optimized = await optimizeImage(input, {
+      width: 1200,
+      height: 1200,
+      fit: 'inside',
+      quality: 80,
+      animated: true,
+    });
+  } catch (error) {
+    return uploadErrorResponse(error);
   }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  const optimized = await sharp(buffer)
-    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toBuffer();
-
-  const optimizedFile = new File(
-    [new Uint8Array(optimized)],
-    file.name.replace(FILE_EXT_RE, '.webp'),
-    { type: 'image/webp' }
-  );
-
+  // The stored name is ours, not the uploader's: file names can carry path
+  // separators and other characters that do not belong in a blob key.
   const blob = await put(
-    `bento-images/${session.user.id}/${crypto.randomUUID()}-${optimizedFile.name}`,
-    optimizedFile,
-    { access: 'public' }
+    `bento-images/${session.user.id}/${crypto.randomUUID()}.webp`,
+    optimized,
+    { access: 'public', contentType: 'image/webp' }
   );
 
   return NextResponse.json({ url: blob.url });

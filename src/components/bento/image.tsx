@@ -1,6 +1,7 @@
 'use client';
 
 import CardOverlay from '@/components/bento/overlay';
+import { useCardSize } from '@/components/bento/use-card-size';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,13 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { useSaveBento } from '@/hooks/use-save-bento';
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from '@/lib/upload-limits';
+import { toSafeUrl } from '@/lib/url';
 import { cn } from '@/lib/utils';
-import { api } from '@/trpc/react';
 import type { AssetBentoSchema } from '@/types';
 import { ImagePlus, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import type { ChangeEvent, RefObject } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import type { FileWithPath } from 'react-dropzone';
@@ -151,8 +153,8 @@ export default function ImageCard({
   bento: BentoData;
   editable?: boolean;
 }) {
-  const params = useParams<{ link: string }>();
-  const [imgUrl, setImgUrl] = useState(bento.url || '');
+  // Read straight from the card so undo/redo and refetches are reflected.
+  const imgUrl = bento.url || '';
   const [uploading, setUploading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [modalImgUrl, setModalImgUrl] = useState(bento.url || '');
@@ -160,13 +162,20 @@ export default function ImageCard({
   const [href, setHref] = useState(bento.href ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutateAsync: updateBento } =
-    api.profileLink.updateBento.useMutation();
+  const { saveBento } = useSaveBento();
 
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[]) => {
       const file = acceptedFiles[0];
       if (!file) {
+        return;
+      }
+      if (file.size > MAX_UPLOAD_BYTES) {
+        toast({
+          title: 'Image too large',
+          description: `Choose an image of ${MAX_UPLOAD_LABEL} or less.`,
+          variant: 'destructive',
+        });
         return;
       }
 
@@ -200,16 +209,26 @@ export default function ImageCard({
   );
 
   const handleSave = async () => {
-    setImgUrl(modalImgUrl);
-    await updateBento({
-      link: params.link,
-      bento: {
-        ...bento,
-        url: modalImgUrl,
-        caption: caption || undefined,
-        href: href || undefined,
-      },
+    const trimmedHref = href.trim();
+    const safeHref = trimmedHref ? toSafeUrl(trimmedHref) : undefined;
+    if (safeHref === null) {
+      toast({
+        title: 'Invalid link',
+        description: 'Enter a full link, like https://example.com.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const saved = await saveBento({
+      ...bento,
+      url: modalImgUrl,
+      caption: caption.trim() || undefined,
+      href: safeHref,
     });
+    if (!saved) {
+      return;
+    }
     setEditOpen(false);
   };
 
@@ -227,8 +246,8 @@ export default function ImageCard({
     }
   };
 
-  const mdSize = bento.size.md ?? '2x2';
-  const isBanner = mdSize === '4x1';
+  const cardSize = useCardSize(bento);
+  const isBanner = cardSize === '4x1';
   const hasImage = !!imgUrl;
 
   return (

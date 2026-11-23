@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { toast } from '@/components/ui/use-toast';
 import type { BentoSchema } from '@/server/db';
 import { api } from '@/trpc/react';
 import { Copy } from 'lucide-react';
@@ -22,8 +23,10 @@ export default function DuplicateButton({
 
   const queryClient = api.useContext();
 
-  const { mutateAsync: createBento } = api.profileLink.createBento.useMutation({
-    onMutate: async () => {
+  const { mutate: createBento } = api.profileLink.createBento.useMutation({
+    // The optimistic card must be the exact card sent to the server: with a
+    // different id, later edits to the copy would match nothing and be lost.
+    onMutate: async (input) => {
       await queryClient.profileLink.getByLink.cancel({ link });
       const previous = queryClient.profileLink.getByLink.getData({ link });
       queryClient.profileLink.getByLink.setData({ link }, (old) => {
@@ -32,14 +35,7 @@ export default function DuplicateButton({
         }
         return {
           ...old,
-          bento: [
-            ...old.bento,
-            {
-              ...bento,
-              id: crypto.randomUUID(),
-              position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
-            },
-          ],
+          bento: [...old.bento, input.bento as z.infer<typeof BentoSchema>],
         };
       });
       return { previous };
@@ -48,6 +44,11 @@ export default function DuplicateButton({
       if (context?.previous) {
         queryClient.profileLink.getByLink.setData({ link }, context.previous);
       }
+      toast({
+        title: "Couldn't duplicate this card",
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -59,18 +60,14 @@ export default function DuplicateButton({
           className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
           onClick={() => {
             pushSnapshot();
-            const {
-              id: _id,
-              clicks: _clicks,
-              ...rest
-            } = bento as z.infer<typeof BentoSchema> & { clicks?: number };
             createBento({
               link,
               bento: {
-                ...rest,
+                ...bento,
+                ...('clicks' in bento && { clicks: 0 }),
                 id: crypto.randomUUID(),
                 position: { sm: { x: 0, y: 0 }, md: { x: 0, y: 0 } },
-              } as never,
+              },
             });
           }}
         >

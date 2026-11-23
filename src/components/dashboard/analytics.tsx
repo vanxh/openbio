@@ -15,6 +15,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { toast } from '@/components/ui/use-toast';
+import { getErrorMessage } from '@/lib/errors';
 import { api } from '@/trpc/react';
 import {
   Copy,
@@ -26,6 +27,7 @@ import {
   MousePointerClick,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 const viewsConfig = {
@@ -43,15 +45,25 @@ const clicksConfig = {
 } satisfies ChartConfig;
 
 function formatDate(dateStr: string) {
+  // The API sends calendar days ("2026-03-01"). Parsed as-is that is midnight
+  // UTC, which west of UTC lands on the previous day; format it in UTC so the
+  // label is the day the data is for.
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 export default function Analytics({ linkId }: { linkId: string }) {
-  const { data, isLoading } = api.profileLink.analytics.useQuery({
-    linkId,
-    days: 30,
-  });
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    api.profileLink.analytics.useQuery(
+      { linkId, days: 30 },
+      // A page you do not own, or one that no longer exists, will not start
+      // working on a retry; fail straight away instead of spinning.
+      { retry: false }
+    );
 
   const { data: subscribers } = api.profileLink.subscribers.useQuery({
     linkId,
@@ -81,8 +93,33 @@ export default function Analytics({ linkId }: { linkId: string }) {
     );
   }
 
-  if (!data) {
-    return null;
+  if (isError || !data) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+          <p className="font-cal text-lg">Analytics unavailable</p>
+          <p className="max-w-sm text-muted-foreground text-sm">
+            {getErrorMessage(
+              error,
+              "We couldn't load analytics for this page."
+            )}
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => refetch()}
+              disabled={isFetching}
+            >
+              Try again
+            </Button>
+            <Button asChild variant="ghost" className="rounded-xl">
+              <Link href="/app">Back to dashboard</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const viewsData = data.viewsOverTime.map((v) => ({
