@@ -1,4 +1,5 @@
 import AnalyticsDigest from '@/components/emails/analytics-digest';
+import { getUnsubscribeUrl } from '@/lib/unsubscribe';
 import { db } from '@/server/db/db';
 import { emailSubscriber, linkClick, linkView } from '@/server/db/schema';
 import { sendEmail } from '@/server/emails';
@@ -133,11 +134,16 @@ export async function GET(req: NextRequest) {
 
     const topReferrer = await getTopReferrerForLinks(linkIds, oneWeekAgo);
     const primaryLink = links[0];
-    const unsubscribeUrl = `https://openbio.app/api/unsubscribe?userId=${u.id}&token=${encodeURIComponent(u.email)}`;
+    const unsubscribeUrl = getUnsubscribeUrl(u.id);
 
     await sendEmail({
       to: [u.email],
       subject: `Weekly digest: ${stats.totalViews} views, ${stats.totalClicks} clicks`,
+      // Lets Gmail, Apple Mail and others show their own unsubscribe button.
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       react: AnalyticsDigest({
         name: u.name,
         profileLink: primaryLink?.link ?? 'profile',

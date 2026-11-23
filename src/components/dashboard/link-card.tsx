@@ -3,14 +3,21 @@
 import { DeleteLinkDialog } from '@/components/dashboard/delete-link-dialog';
 import LinkQRModal from '@/components/modals/link-qr-modal';
 import { Button } from '@/components/ui/button';
+import Image from '@/components/ui/remote-image';
 import { type RouterOutputs, api } from '@/trpc/react';
 import { BarChart3, ExternalLink, Eye, QrCode, Trash2 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 type ProfileLink = NonNullable<RouterOutputs['profileLink']['getAll']>[number];
 
-export function DashboardLinkCard({ link }: { link: ProfileLink }) {
+export function DashboardLinkCard({
+  link,
+  isPremium,
+}: {
+  link: ProfileLink;
+  /** Whether the account has Pro features; unlocks them in the QR dialog. */
+  isPremium: boolean;
+}) {
   const { data: views } = api.profileLink.getViews.useQuery({ id: link.id });
 
   return (
@@ -72,7 +79,7 @@ export function DashboardLinkCard({ link }: { link: ProfileLink }) {
             <BarChart3 className="h-4 w-4" />
           </Link>
         </Button>
-        <LinkQRModal profileLink={link} linkSlug={link.link}>
+        <LinkQRModal profileLink={{ ...link, isPremium }} linkSlug={link.link}>
           <Button
             variant="ghost"
             size="icon"

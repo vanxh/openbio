@@ -22,7 +22,8 @@ export default async function Page() {
 
   // Mirrors the server-side check in `profileLink.create`, so the button never
   // offers a page the account is not allowed to make.
-  const linkLimit = isUserPremium(user) ? getLinkLimit(user.plan) : 1;
+  const isPremium = isUserPremium(user);
+  const linkLimit = isPremium ? getLinkLimit(user.plan) : 1;
   const canCreate = links.length < linkLimit;
 
   return (
@@ -50,7 +51,11 @@ export default async function Page() {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {links.map((link) => (
-                <DashboardLinkCard key={link.id} link={link} />
+                <DashboardLinkCard
+                  key={link.id}
+                  link={link}
+                  isPremium={isPremium}
+                />
               ))}
             </div>
           )

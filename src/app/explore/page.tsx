@@ -1,8 +1,8 @@
+import Image from '@/components/ui/remote-image';
 import { htmlToText } from '@/lib/html';
 import { api } from '@/trpc/server';
 import { LayoutGrid } from 'lucide-react';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata: Metadata = {

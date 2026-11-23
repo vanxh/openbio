@@ -1,11 +1,11 @@
 'use client';
 
+import Image from '@/components/ui/remote-image';
 import { toast } from '@/components/ui/use-toast';
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from '@/lib/upload-limits';
 import { cn } from '@/lib/utils';
 import type { RouterOutputs } from '@/trpc/react';
 import { UploadCloud } from 'lucide-react';
-import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { type FileWithPath, useDropzone } from 'react-dropzone';
 

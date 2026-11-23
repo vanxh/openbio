@@ -9,6 +9,7 @@ export interface Email {
   subject: string;
   to: string[];
   from?: string;
+  headers?: Record<string, string>;
 }
 
 export const sendEmail = async (email: Email) => {

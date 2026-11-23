@@ -29,6 +29,8 @@ import type React from 'react';
 import { useRef, useState } from 'react';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 
+const HEX_RE = /^#[0-9a-f]{6}$/i;
+
 const PRESET_COLORS = [
   '#000000',
   '#C73E33',
@@ -58,6 +60,47 @@ export default function LinkQRModal({
   const downloadRef = useRef<HTMLAnchorElement>(null);
   const [showLogo, setShowLogo] = useState(true);
   const [fgColor, setFgColor] = useState('#000000');
+
+  const isPremium = !!profileLink.isPremium;
+  const storageKey = `openbio:qr:${link}`;
+
+  // Customisation is remembered per page in this browser. Read it when the
+  // dialog opens, not during render, so server and client markup agree.
+  const restoreSettings = () => {
+    try {
+      const stored = JSON.parse(
+        window.localStorage.getItem(storageKey) ?? 'null'
+      ) as { fgColor?: unknown; showLogo?: unknown } | null;
+      if (typeof stored?.fgColor === 'string' && HEX_RE.test(stored.fgColor)) {
+        setFgColor(stored.fgColor);
+      }
+      // Hiding the logo is a Pro option; ignore a stored value otherwise.
+      if (typeof stored?.showLogo === 'boolean') {
+        setShowLogo(isPremium ? stored.showLogo : true);
+      }
+    } catch {
+      // Unreadable or blocked storage: keep the defaults.
+    }
+  };
+
+  const saveSettings = () => {
+    try {
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({ fgColor, showLogo })
+      );
+      toast({
+        title: 'Saved',
+        description: 'This QR code style is remembered on this device.',
+      });
+    } catch {
+      toast({
+        title: "Couldn't save",
+        description: 'Your browser is blocking storage for this site.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const qrConfig = {
     value: `https://openbio.app/${link}`,
@@ -114,21 +157,32 @@ export default function LinkQRModal({
       'image/png',
       true
     );
-    (canvas as HTMLCanvasElement).toBlob((blob) => {
+    (canvas as HTMLCanvasElement).toBlob(async (blob) => {
       if (!blob) {
         return;
       }
-      const item = new ClipboardItem({ 'image/png': blob });
-      navigator.clipboard.write([item]);
-      toast({
-        title: 'Copied!',
-        description: 'QR code copied to clipboard.',
-      });
+      // Image clipboard writes are refused in some browsers and contexts.
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob }),
+        ]);
+        toast({
+          title: 'Copied!',
+          description: 'QR code copied to clipboard.',
+        });
+      } catch {
+        toast({
+          title: "Couldn't copy",
+          description: 'Your browser blocked it. Download the PNG instead.',
+          variant: 'destructive',
+        });
+      }
     });
   };
 
   const handleLogoToggle = (checked: boolean) => {
-    if (!profileLink.isPremium && checked) {
+    // The logo is on by default; taking it *off* is the Pro option.
+    if (!(isPremium || checked)) {
       setShowUpgradePopover(true);
       return;
     }
@@ -136,7 +190,16 @@ export default function LinkQRModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setShowUpgradePopover(false);
+        if (next) {
+          restoreSettings();
+        }
+      }}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <TooltipProvider>
@@ -173,6 +236,8 @@ export default function LinkQRModal({
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                     onClick={downloadQR}
+                    title="Download PNG"
+                    aria-label="Download QR code as PNG"
                   >
                     <Download className="h-4 w-4" />
                   </Button>
@@ -181,6 +246,8 @@ export default function LinkQRModal({
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                     onClick={copyToClipboard}
+                    title="Copy image"
+                    aria-label="Copy QR code image"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -209,15 +276,19 @@ export default function LinkQRModal({
                 </Tooltip>
               </div>
               <div className="relative">
-                <Switch checked={showLogo} onCheckedChange={handleLogoToggle} />
+                <Switch
+                  checked={showLogo}
+                  onCheckedChange={handleLogoToggle}
+                  aria-label="Show the OpenBio logo in the QR code"
+                />
                 {showLogo && (
                   <Crown className="pointer-events-none absolute top-0.75 right-0.75 h-3.5 w-3.5 text-blue-500/30" />
                 )}
                 {showUpgradePopover && (
                   <div className="absolute top-full right-0 z-50 mt-2 w-64 rounded-xl border border-border bg-popover p-4 text-center shadow-md">
                     <p className="text-sm">
-                      You need to be on the Pro plan and above to customize your
-                      QR Code logo.
+                      Removing the OpenBio logo from your QR code is a Pro
+                      feature.
                     </p>
                     <Button
                       className="mt-3 w-full rounded-xl"
@@ -227,6 +298,13 @@ export default function LinkQRModal({
                       }}
                     >
                       Upgrade to Pro
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="mt-1 w-full rounded-xl"
+                      onClick={() => setShowUpgradePopover(false)}
+                    >
+                      Not now
                     </Button>
                   </div>
                 )}
@@ -242,6 +320,7 @@ export default function LinkQRModal({
                     <button
                       type="button"
                       className="flex shrink-0 items-center overflow-hidden rounded-lg border border-border transition-colors hover:border-foreground/30"
+                      aria-label="Choose a custom QR code colour"
                     >
                       <div
                         className="h-9 w-10 shrink-0"
@@ -276,6 +355,8 @@ export default function LinkQRModal({
                         key={color}
                         type="button"
                         onClick={() => setFgColor(color)}
+                        aria-label={`Use colour ${color}`}
+                        aria-pressed={isSelected}
                         className={cn(
                           'relative flex h-8 w-8 items-center justify-center rounded-full transition-all',
                           isSelected
@@ -309,19 +390,16 @@ export default function LinkQRModal({
                 className="rounded-xl px-6"
                 onClick={() => setOpen(false)}
               >
-                Cancel
+                Close
               </Button>
               <Button
                 className="rounded-xl px-6"
                 onClick={() => {
-                  toast({
-                    title: 'Settings saved!',
-                    description: 'Your QR code customization has been saved.',
-                  });
+                  saveSettings();
                   setOpen(false);
                 }}
               >
-                Save changes
+                Save style
               </Button>
             </div>
           </div>

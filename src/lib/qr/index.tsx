@@ -13,7 +13,7 @@
 // @ts-nocheck
 
 import { escape as htmlEscape } from 'html-escaper';
-import NextImage from 'next/image';
+import NextImage from '@/components/ui/remote-image';
 import type React from 'react';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import qrcodegen from './generator';
